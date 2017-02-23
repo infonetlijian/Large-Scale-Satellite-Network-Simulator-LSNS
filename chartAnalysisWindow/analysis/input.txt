@@ -1,0 +1,15 @@
+﻿title= 标题
+xlabel= this is xlabel
+ylabel= this is ylabel
+title4=wtwt
+title3=wtwt
+title2=wtwt
+title1=wtwt
+
+
+below is the data
+1 900
+2 800
+3 607
+6 303
+5 708

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/DTNConsoleConnection.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/ECLA.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/gnujaxp.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/iText-2.1.1.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/j3dcore.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/j3dutils.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/jcommon-1.0.13.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/jfreechart-1.0.10.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/jfreechart-1.0.10-experimental.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/jfreechart-1.0.10-swt.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/junit.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/servlet.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/swtgraphics2d.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/vecmath.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

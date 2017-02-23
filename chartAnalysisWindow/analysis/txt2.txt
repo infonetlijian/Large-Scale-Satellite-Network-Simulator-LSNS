@@ -1,0 +1,16 @@
+title4=wtwt
+title= ∑¬’ÊÕº
+xlabel= X÷·
+ylabel= Y÷·
+title4=wtwt
+title3=wtwt
+title2=wtwt
+title1=wtwt
+
+
+below is the data
+1 920
+2 280
+3 627
+6 332
+5 278

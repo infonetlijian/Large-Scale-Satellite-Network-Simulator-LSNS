@@ -1,0 +1,16 @@
+type = bar
+title= 标题
+xlabel= 横坐标 单位（）
+ylabel= 纵坐标 单位（）
+type = bar
+margin = 0.78
+
+
+
+
+below is the data
+1 190
+2 820
+3 637
+6 323
+5 738

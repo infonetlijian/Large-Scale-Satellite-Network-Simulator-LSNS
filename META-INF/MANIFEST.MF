@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Rsrc-Class-Path: ./ DTNConsoleConnection.jar ECLA.jar gnujaxp.jar iTex
+ t-2.1.1.jar j3dcore.jar j3dutils.jar jcommon-1.0.13.jar jfreechart-1.
+ 0.10.jar jfreechart-1.0.10-experimental.jar jfreechart-1.0.10-swt.jar
+  junit.jar servlet.jar swtgraphics2d.jar vecmath.jar
+Class-Path: .
+SplashScreen-Image: Develop/earth.png
+Rsrc-Main-Class: core.DTNSim
+Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+

@@ -1,0 +1,15 @@
+﻿title= 标题3333
+xlabel= this 阿斯发 xlabel333
+ylabel= this is ylabel333
+title4=wtwt
+title3=wtwt
+title2=wtwt
+title1=wtwt
+title= fangzhen
+
+below is the data
+1 390
+2 803
+3 637
+6 333
+5 378

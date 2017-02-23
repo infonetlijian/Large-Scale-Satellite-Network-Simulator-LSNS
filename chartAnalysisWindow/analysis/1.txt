@@ -1,0 +1,23 @@
+﻿type = bar
+title= 标题111
+xlabel= 横坐标 单位（）
+ylabel= 纵坐标 单位（）
+type = bar
+
+margin = 0.78
+
+x_max = 10
+x_unit = 3
+y_min = 100
+y_max = 800
+y_unit = 100
+x_min = 4
+x_max =10
+
+
+below is the data
+1 190
+2 820
+3 637
+6 323
+5 738
