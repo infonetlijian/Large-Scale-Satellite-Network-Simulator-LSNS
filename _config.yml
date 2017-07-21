@@ -1,0 +1,41 @@
+# Setup
+title:        李健的博客
+tagline:      欢迎来到通信攻城狮的世界
+baseurl:      "https://infonetlijian.github.io/Blog_demo/"
+paginate:     1
+
+# About/contact
+author:
+  name:       Mr.Cheng
+  url:        https://infonetlijian.github.io/Blog_demo/
+#### Author information
+author:
+  name:       Mr.Cheng
+  url:        https://infonetlijian.github.io/Blog_demo/
+  intro_line1:  "Hello ,I'm Mr.Cheng."    ## your introduction on the bottom of the page
+  intro_line2:  "This is my blog, believe it or not."  ## the 2nd line
+  weibo:      ## e.g. wuchong1014 or 2176287895 for http://weibo.com/2176287895
+  weibo_verifier:  ## e.g. b3593ceb Your weibo-show widget verifier ,if you use weibo-show it is needed.
+  tsina:      ## e.g. 2176287895  Your weibo ID,It will be used in share button.
+  douban:     ## e.g. wuchong1014 or your id for https://www.douban.com/people/wuchong1014
+  zhihu:      ## e.g. jark  for http://www.zhihu.com/people/jark
+  email:  lijian9@mail.ustc.mail.com   ## e.g. imjark@gmail.com
+  twitter:    ## e.g. jarkwu for https://twitter.com/jarkwu
+  github:  https://github.com/infonetlijian   ## e.g. wuchong for https://github.com/wuchong
+  linkedin:   ## e.g. wuchong1014 for https://www.linkedin.com/in/wuchong1014
+  google_plus:    ## e.g. "111190881341800841449" for https://plus.google.com/u/0/111190881341800841449, the "" is needed!
+  stackoverflow:  ## e.g. 3222790 for http://stackoverflow.com/users/3222790/jark
+## if you set them, the corresponding  share button will show on the footer
+
+# Gems
+gems: 
+  - jekyll-paginate
+
+#Others
+markdown: kramdown
+# ---------------- #
+#     Disqus       #
+# ---------------- #
+disqus: true
+disqus_shortname: NathenDrake
+
