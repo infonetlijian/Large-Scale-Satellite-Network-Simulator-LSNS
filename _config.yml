@@ -1,19 +1,18 @@
 # Setup
-title:        李健的博客
-tagline:      欢迎来到通信攻城狮的世界
-baseurl:      "https://infonetlijian.github.io/Blog_demo/"
+title:        Large-scale Satellite Network Simulator
+tagline:      A universal and lightweight simulator for satellite networks
+baseurl:      "https://infonetlijian.github.io/blog/"
 paginate:     1
 
 # About/contact
 author:
-  name:       Mr.Cheng
+  name:       USTC,Infolab
   url:        https://infonetlijian.github.io/Blog_demo/
 #### Author information
 author:
   name:       Mr.Cheng
-  url:        https://infonetlijian.github.io/Blog_demo/
-  intro_line1:  "Hello ,I'm Mr.Cheng."    ## your introduction on the bottom of the page
-  intro_line2:  "This is my blog, believe it or not."  ## the 2nd line
+  url:        https://infonetlijian.github.io/blog/
+ 
   weibo:      ## e.g. wuchong1014 or 2176287895 for http://weibo.com/2176287895
   weibo_verifier:  ## e.g. b3593ceb Your weibo-show widget verifier ,if you use weibo-show it is needed.
   tsina:      ## e.g. 2176287895  Your weibo ID,It will be used in share button.
