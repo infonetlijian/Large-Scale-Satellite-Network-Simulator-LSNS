@@ -12,6 +12,7 @@ import routing.MessageRouter;
 public class CBRConnection extends Connection {
 	private int speed;
 	private double transferDoneTime;
+	private double linkDelay;
 
 	/**
 	 * Creates a new connection between nodes and sets the connection
@@ -28,7 +29,7 @@ public class CBRConnection extends Connection {
 		super(fromNode, fromInterface, toNode, toInterface);
 		this.speed = connectionSpeed;
 		this.transferDoneTime = 0;
-
+		this.linkDelay = fromInterface.getLinkDelay();
 	}
 
 	/**
@@ -55,7 +56,7 @@ public class CBRConnection extends Connection {
 		if (retVal == MessageRouter.RCV_OK) {
 			this.msgOnFly = newMessage;
 			this.transferDoneTime = SimClock.getTime() + 
-			(1.0*m.getSize()) / this.speed;
+			(1.0*m.getSize()) / this.speed + this.linkDelay;
 		}
 
 		return retVal;
@@ -69,7 +70,7 @@ public class CBRConnection extends Connection {
 		getOtherNode(msgFromNode).messageAborted(this.msgOnFly.getId(),
 				msgFromNode,getRemainingByteCount());
 		clearMsgOnFly();
-		this.transferDoneTime = 0;
+		this.transferDoneTime = 0;		
 	}
 
 	/**
@@ -106,7 +107,7 @@ public class CBRConnection extends Connection {
 		if (msgOnFly == null) {
 			return 0;
 		}
-
+		
 		remaining = (int)((this.transferDoneTime - SimClock.getTime()) 
 				* this.speed);
 
@@ -120,5 +121,4 @@ public class CBRConnection extends Connection {
 		return super.toString() + (isTransferring() ?  
 				" until " + String.format("%.2f", this.transferDoneTime) : "");
 	}
-
 }

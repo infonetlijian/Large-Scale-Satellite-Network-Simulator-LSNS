@@ -51,6 +51,7 @@ public class OneSimUI extends DTNSimTextUI{
 		//this.hosts = this.scen.getHosts();
 		this.infoPanel = new InfoPanel(this);
 		main = new Main_Window(this.infoPanel);//eventLog,hosts);
+		
 		//scen.addMessageListener(eventLog);
 		//scen.addConnectionListener(eventLog);
 		
@@ -78,8 +79,11 @@ public class OneSimUI extends DTNSimTextUI{
 			}
 			/**重置初始化配置，清除之前的初始化实体，避免后续初始化无效**/
 			/**进行初始化**/
+			WaitingWindow t = this.Loading();			// 用于加载时间
 			super.initModel();
 			setUI();		
+			t.dispose();
+			
 			runSim();
 			main.setPaused(false);//一次仿真跑完之后让系统处于暂停状态，不会循环开始下一轮仿真
 			main.parameter.setEnabled(true);//重新允许编辑配置界面
@@ -263,4 +267,14 @@ public class OneSimUI extends DTNSimTextUI{
     	this.lastUpdate = simTime;
     	main.setSimTime(simTime); //update time to control panel
     }
+    /**
+     * 加载资源
+     */
+    private WaitingWindow Loading(){
+		WaitingWindow t = new WaitingWindow();
+		new Thread(t).start();
+		//t.run();
+		return t;
+    }
+    
 }

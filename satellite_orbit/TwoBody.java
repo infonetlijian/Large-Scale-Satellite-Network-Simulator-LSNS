@@ -418,7 +418,7 @@ public class TwoBody implements Derivatives
 	 * @return Period in s.
 	 */
 
-	public double period()
+	public double getPeriod()
 	{
 		double n = meanMotion();
 		double period = 2.0 * Constants.pi / n;
@@ -686,7 +686,7 @@ public class TwoBody implements Derivatives
 
 		// Determine step size
 		double n = this.meanMotion();
-		double period = this.period();
+		double period = this.getPeriod();
 		double dt = period / steps;
 		if ((t0 + dt) > tf) // check to see if we're going past tf
 		{
@@ -774,7 +774,7 @@ public class TwoBody implements Derivatives
 
 		// Determine step size
 		double n = this.meanMotion();
-		double period = this.period();
+		double period = this.getPeriod();
 		double dt = period / steps;
 		if ((t0 + dt) > tf) // check to see if we're going past tf
 		{
@@ -861,7 +861,7 @@ public class TwoBody implements Derivatives
 
 		// Determine step size
 		double n = this.meanMotion();
-		double period = this.period();
+		double period = this.getPeriod();
 		double dt = period / steps;
 		if ((t0 + dt) > tf) // check to see if we're going past tf
 		{
@@ -938,7 +938,7 @@ public class TwoBody implements Derivatives
 
 		// Determine step size
 		double n = this.meanMotion();
-		double period = this.period();
+		double period = this.getPeriod();
 		double dt = period / steps;
 		if ((t0 + dt) > tf) // check to see if we're going past tf
 		{

@@ -7,3 +7,6 @@
 /SimpleConnectivityGrid$GridCell.class
 /SimpleConnectivityGrid.class
 /SimpleSatelliteInterface.class
+/SatelliteRadioInterface.class
+/SatelliteRadioLimitedInterface.class
+/ContactGraphInterface.class

@@ -8,11 +8,11 @@ import interfaces.ConnectivityGrid;
 import interfaces.ConnectivityOptimizer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 import routing.util.EnergyModel;
-
 import util.ActivenessHandler;
 
 /**
@@ -45,6 +45,9 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 	/** {@link ModuleCommunicationBus} identifier for the "transmission speed" 
     variable. Value type: integer */
 	public static final String SPEED_ID = "Network.speed";
+	/** identifier for the "link delay"
+	variable. Value type: double */
+	public static final String Link_Delay_Range = "linkDelayRange";
 	
 	private static final int CON_UP = 1;
 	private static final int CON_DOWN = 2;
@@ -70,7 +73,29 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 	private int activenessJitterMax;
 	/** this interface's activeness jitter value */
 	private int activenessJitterValue;
-
+	
+	/**新增参数*/
+	/** Link establishment delay */
+	protected double[] linkDelayRange;
+	protected double linkDelay;
+	protected HashMap<DTNHost,HashMap<DTNHost, double[]>> neighborsList = new HashMap<DTNHost,HashMap<DTNHost, double[]>>();//新增
+	protected HashMap<DTNHost,HashMap<DTNHost, double[]>> predictList = new HashMap<DTNHost,HashMap<DTNHost, double[]>>();
+	public HashMap<DTNHost,HashMap<DTNHost, double[]>> getNeighborsList(){//新增
+		return this.neighborsList;
+	}
+	public HashMap<DTNHost,HashMap<DTNHost, double[]>> getPredictList(){//新增
+		return this.predictList;
+	}
+	/*新增函数*/
+	public ConnectivityOptimizer predictionUpdate(){
+		if (optimizer == null) {
+			return null; /* nothing to do */
+		}
+		optimizer.updateLocation(this);
+		return optimizer;
+		
+	}
+	
 	static {
 		DTNSim.registerForReset(NetworkInterface.class.getCanonicalName());
 		reset();
@@ -89,11 +114,23 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 	public NetworkInterface(Settings s) {
 		this.interfacetype = s.getNameSpace();
 		this.connections = new ArrayList<Connection>();
-
+		this.linkDelayRange = s.getCsvDoubles(Link_Delay_Range);
+		if(this.linkDelayRange.length == 1){
+			/* convert single value to range with 0 length */
+			this.linkDelayRange = new double[] {this.linkDelayRange[0], this.linkDelayRange[0]};
+		} else {
+			s.assertValidRange(this.linkDelayRange, Link_Delay_Range);
+		}
+		this.linkDelay = randomLinkDelay();
+		
+		System.out.println("链路类型为："+this.interfacetype + "  "+"链路时延为：" + this.linkDelay);
+		
 		this.transmitRange = s.getDouble(TRANSMIT_RANGE_S);
 		this.transmitSpeed = s.getInt(TRANSMIT_SPEED_S);
 		ensurePositiveValue(transmitRange, TRANSMIT_RANGE_S);
 		ensurePositiveValue(transmitSpeed, TRANSMIT_SPEED_S);
+		
+		setGroupSettings(s);
 	}
 	
 	/**
@@ -116,6 +153,7 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 		this.transmitSpeed = ni.transmitSpeed;
 		this.scanInterval = ni.scanInterval;
 		this.ah = ni.ah;
+		this.linkDelay = ni.linkDelay;
 		
 		if (ni.activenessJitterMax > 0) {
 			this.activenessJitterValue = rng.nextInt(ni.activenessJitterMax);
@@ -504,5 +542,22 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 		return "net interface " + this.address + " of " + this.host + 
 			". Connections: " +	this.connections;
 	}
-
+	
+	/**
+	 * Returns the transmit speed of this network layer
+	 * @return the transmit speed
+	 */
+	public double getLinkDelay() {
+		return this.linkDelay;
+	}
+	
+	/**
+	 * Generates a (random) link delay
+	 * @return linkDealy
+	 */
+	protected double randomLinkDelay() {
+		double sizeDiff = linkDelayRange[0] == linkDelayRange[1] ? 0 : 
+			rng.nextDouble()*(linkDelayRange[1] - linkDelayRange[0]);
+		return linkDelayRange[0] + sizeDiff;
+	}
 }

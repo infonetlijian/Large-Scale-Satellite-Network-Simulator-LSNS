@@ -21,6 +21,9 @@ import com.sun.j3d.utils.behaviors.vp.*;
 import core.DTNHost;
 
 
+
+
+
 //3d data
 import java.util.ArrayList;
 import java.util.List;
@@ -110,10 +113,13 @@ public class moveEarth extends Applet implements Runnable{//implements Runnable
 		
 		/**add orbit*/
 		this.hosts = new ArrayList<DTNHost>(hosts);
+		
 		for(int order = 0; order < this.hosts.size(); order++) {
 			double[] orbitParameters = this.hosts.get(order).getParameters();
+			
 			drawLine drawline = new drawLine(orbitParameters[0],orbitParameters[1],
 					orbitParameters[2],orbitParameters[3],orbitParameters[4],orbitParameters[5],order);
+			
 		    //NEW CHANGE	
 		    //this.BL = drawLine.get2DPoints();
 		    for(int m=0;m<200;m++) {
@@ -149,7 +155,7 @@ public class moveEarth extends Applet implements Runnable{//implements Runnable
 		
 		/**set background*/
 		Color3f bgColor = new Color3f(0.0f,0.0f,0.0f);
-		Background background =/* createBackground();*/new Background(bgColor);
+		Background background = new Background(bgColor);
 		background.setApplicationBounds(bounds);
 		root.addChild(background);
 		root.compile();
@@ -201,6 +207,7 @@ public class moveEarth extends Applet implements Runnable{//implements Runnable
 	//NEW ADD
 	/**NEW ADD,add satellite*/
 	public void run() {
+		
 		tg.removeChild(xuanzhuan);
 		//xuanzhuan.removeChild(rotator);
 		
@@ -292,18 +299,18 @@ class drawPoint extends Shape3D {
 	@param point get satellte's initial coordinate
 	*/
 	public drawPoint(Point3f point) {
-		Point3f[] vertexes0=new Point3f[1];
-        Color3f[] pointcolors0=new Color3f[1];
-		vertexes0[0]=point;
-        pointcolors0[0]=new Color3f(0.1f,0.2f,0.4f);
-		int vCount=1;
-        PointArray points=new PointArray(vCount,PointArray.COORDINATES|IndexedPointArray.COLOR_3);
+		Point3f[] vertexes0 = new Point3f[1];
+        Color3f[] pointcolors0 = new Color3f[1];
+		vertexes0[0] = point;
+        pointcolors0[0] = new Color3f(0.1f,0.2f,0.4f);
+		int vCount = 1;
+        PointArray points = new PointArray(vCount,PointArray.COORDINATES|IndexedPointArray.COLOR_3);
         points.setCoordinates(0,vertexes0);
         points.setColors(0,pointcolors0);
-        PointAttributes pointsattributes=new PointAttributes();
+        PointAttributes pointsattributes = new PointAttributes();
         pointsattributes.setPointSize(15.0f);
         pointsattributes.setPointAntialiasingEnable(true);
-        Appearance app=new Appearance();
+        Appearance app = new Appearance();
         app.setPointAttributes(pointsattributes);
         this.setGeometry(points);
         this.setAppearance(app);
@@ -334,65 +341,68 @@ class drawLine extends Shape3D implements Printable{
 	/**鍗槦杞ㄩ亾鍧愭爣*/
 	
 	/**
-	* @param a semi-major axis
-	* @param e eccentricity
-	* @param i inclination in degrees
-	* @param raan right ascension of ascending node in degrees
-	* @param w argument of perigee in degrees
-	* @param ta true anomaly in degrees
+	* @param a semi-major axis			(半长轴)
+	* @param e eccentricity				(偏心率)
+	* @param i inclination in degrees	(轨道倾角)
+	* @param raan right ascension of ascending node in degrees (升交点赤经)
+	* @param w argument of the perigee	(近地点幅角)
+	* @param ta true anomaly in degrees	(真近点角)
 	*/
-	public drawLine(double a,double e,double i,
-	             double raan,double w,double ta,int order) {//gaozao change
-					 this.a = a;
-					 this.e = e;
-					 this.i = i;
-					 this.raan = raan;
-					 this.w = w;
-					 this.ta = ta;
-					 this.max = 0;
-					 this.step = 0;
-					 TwoBody sat = new TwoBody(a, e, i, raan, w, ta);
-					 double period = sat.period();
-		             double tf = period;
-					 double t0 = 0.0;
-		             sat.setSteps(steps);
-	                 sat.propagate(t0, tf, this, true);
-					 points=new double[1][3];
-					 points[0][0]=sat.rv.x[0];
-					 points[0][1]=sat.rv.x[1];
-					 points[0][2]=sat.rv.x[2];
-					 
-					 for(int m=0;m<200;m++) vertexes[m]=new Point3f();
-					 for(int m=0;m<200;m++) {
-						 vertexes[m].x = (float)XYZ[m][0]/9000/*16000*3*/;
-						 vertexes[m].y = (float)XYZ[m][1]/9000/*8000/3*/;
-						 vertexes[m].z = (float)XYZ[m][2]/9000/*8000*4*/;
-					 }
-					 //NEW REMOVE
-					 /*for(int m=0;m<200;m++) {
-						 double[][] bl = convert3DTo2D(XYZ[m][0]*1000,
-					                          XYZ[m][1]*1000,XYZ[m][2]*1000);
-			             (BL[order])[m][0] = bl[0][0];
-			             (BL[order])[m][1] = bl[0][1];
-					 }*/
-					 //NEW REMOVE
-					 
-	Random rm = new Random();
-	Color3f[] colors=new Color3f[200];
-    for(int m=0;m<200;m++) colors[m]=new Color3f((float)rm.nextDouble(),(float)rm.nextDouble(),(float)rm.nextDouble()/*0.1f,0.4f,0.6f*/);
-    LineArray lines=new LineArray(200,LineArray.COORDINATES|LineArray.COLOR_3);
-    lines.setCoordinates (0,vertexes);
-    lines.setColors(0,colors);
+	public drawLine(double a, double e, double i, double raan, double w, double ta, int order) { 
+		this.a = a;
+		this.e = e;
+		this.i = i;
+		this.raan = raan;
+		this.w = w;
+		this.ta = ta;
+		this.max = 0;
+		this.step = 0;
+		TwoBody sat = new TwoBody(a, e, i, raan, w, ta);
+		double period = sat.getPeriod();
+		double tf = period;
+		double t0 = 0.0;
+		sat.setSteps(steps);
+		sat.propagate(t0, tf, this, true);
+		points = new double[1][3];
+		points[0][0] = sat.rv.x[0];
+		points[0][1] = sat.rv.x[1];
+		points[0][2] = sat.rv.x[2];
 
-    LineAttributes lineattributes=new LineAttributes();
-    lineattributes.setLineWidth(1.0f);
-	lineattributes.setLineAntialiasingEnable(true);
-    lineattributes.setLinePattern(0);
+		
+		for (int m = 0; m < 200; m++) {
+			vertexes[m] = new Point3f();
+			vertexes[m].x = (float) XYZ[m][0] / 9000;
+			vertexes[m].y = (float) XYZ[m][1] / 9000;
+			vertexes[m].z = (float) XYZ[m][2] / 9000;
+		}
 
-    Appearance app=new Appearance();
-    app.setLineAttributes(lineattributes);
-    this.setGeometry(lines);
-    this.setAppearance(app);
+		// NEW REMOVE
+		/*
+		 * for(int m=0;m<200;m++) { double[][] bl =
+		 * convert3DTo2D(XYZ[m][0]*1000, XYZ[m][1]*1000,XYZ[m][2]*1000);
+		 * (BL[order])[m][0] = bl[0][0]; (BL[order])[m][1] = bl[0][1]; }
+		 */
+		// NEW REMOVE
+
+		Random rm = new Random();
+		Color3f[] colors = new Color3f[200];
+		for (int m = 0; m < 200; m++)
+			colors[m] = new Color3f((float) rm.nextDouble(),
+					(float) rm.nextDouble(), (float) rm.nextDouble());
+		LineArray lines = new LineArray(200, LineArray.COORDINATES
+				| LineArray.COLOR_3);
+		lines.setCoordinates(0, vertexes);
+		lines.setColors(0, colors);
+
+		LineAttributes lineattributes = new LineAttributes();
+		lineattributes.setLineWidth(1.0f);
+		lineattributes.setLineAntialiasingEnable(true);
+		lineattributes.setLinePattern(0);
+
+		Appearance app = new Appearance();
+		app.setLineAttributes(lineattributes);
+		this.setGeometry(lines);
+		this.setAppearance(app);
 	}
 	/**
 	*@param k the order of satellite
@@ -411,7 +421,7 @@ class drawLine extends Shape3D implements Printable{
 	}*/
 	//NEW REMOVE
 	
-	/**shixain Printable*/
+	/**implement printable function*/
 	public void print(double t, double[] y) {
 		if (step < XYZ.length) {
 			XYZ[step][0] = y[0];

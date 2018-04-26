@@ -8,20 +8,6 @@
 */  
   
 package routing;  
-/** 
- * ClassName:ShortestDistanceSpaceRouter <br/> 
- * Function: TODO ADD FUNCTION. <br/> 
- * Reason:   TODO ADD REASON. <br/> 
- * Date:     2016年12月10日 上午11:12:55 <br/> 
- * @author   USTC, LiJian
- * @version   
- * @since    JDK 1.7 
- * @see       
- */
-/* 
- * Copyright 2016 University of Science and Technology of China , Infonet
- * Written by LiJian.
- */
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,13 +46,13 @@ public class ShortestDistanceSpaceRouter extends ActiveRouter{
 	private static final double  HELLOINTERVAL = 30;//hello包发送间隔
 	
 	int[] predictionLabel = new int[2000];
-	double[] transmitDelay = new double[2000];//1000代表总的节点数
-	//double[] liveTime = new double[2000];//链路的生存时间，初始化时自动赋值为0
-	double[] endTime = new double[2000];//链路的生存时间，初始化时自动赋值为0
+	double[] transmitDelay = new double[2000];		//1000代表总的节点数
+	//double[] liveTime = new double[2000];			//链路的生存时间，初始化时自动赋值为0
+	double[] endTime = new double[2000];			//链路的生存时间，初始化时自动赋值为0
 	
-	private boolean msgPathLabel;//此标识指示是否在信息头部中标识路由路径
-	private double	transmitRange;//设置的可通行距离阈值
-	private List<DTNHost> hosts;//全局节点列表
+	private boolean msgPathLabel;					//此标识指示是否在信息头部中标识路由路径
+	private double	transmitRange;					//设置的可通行距离阈值
+	private List<DTNHost> hosts;					//全局节点列表
 	private double msgTtl;
 	
 	HashMap<DTNHost, Double> arrivalTime = new HashMap<DTNHost, Double>();

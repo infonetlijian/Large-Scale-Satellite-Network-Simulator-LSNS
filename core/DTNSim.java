@@ -128,7 +128,7 @@ public class DTNSim {
 	        {
 	        }
 	        new OneSimUI().start();   
-			//new DTNSimGUI().start();
+//			new DTNSimGUI().start();
 		}
 	}
 	

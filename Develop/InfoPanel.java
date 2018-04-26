@@ -1,12 +1,3 @@
-/** 
- * Project Name:SatelliteNetworkSimulationPlatform 
- * File Name:InfoPanel.java 
- * Package Name:Develop 
- * Date:2016年12月15日上午11:50:21 
- * Copyright (c) 2016, LiJian9@mail.ustc.mail.cn. All Rights Reserved. 
- * 
-*/  
-  
 package Develop;  
 /** 
  * ClassName:InfoPanel <br/> 
@@ -100,12 +91,33 @@ public class InfoPanel extends JPanel implements ActionListener{
 
 	private void setMessageInfo(Message m) {
 		int ttl = m.getTtl();
-		String txt = " [" + m.getFrom() + "->" + m.getTo() + "] " +   
+		String txt = " ";
+		
+		if(m.getProperty(m.SelectLabel) == (Object)0){
+			txt += "请求包，请求文件为：" +	"  " + m.getFilename() ;
+		} 
+		else if(m.getProperty(m.SelectLabel) == (Object)1){
+			txt += "应答包，应答文件为：" +	"  " + m.getFilename()+"  "+ "文件分片为： "+ m.getChunkID();
+		}
+		else if(m.getProperty(m.SelectLabel) == (Object)2){
+			txt += "控制包，应答文件为：" +"  " + m.getFilename();
+		}
+		else if(m.getProperty(m.SelectLabel) == (Object)3){
+			txt += "控制包的确认包，处理请求文件为：" +"  " + m.getFilename();
+		}
+		else if(m.getProperty(m.SelectLabel) == (Object)4){
+			txt += "请求包的确认包，处理请求文件为：" +"  " + m.getFilename();
+		}
+		
+		txt += "  [" + m.getFrom() + "->" + m.getTo() + "] " +   
 				"size:" + m.getSize() + ", UI:" + m.getUniqueId() +  
 				", received @ " + String.format("%.2f", m.getReceiveTime());
 		if (ttl != Integer.MAX_VALUE) {
-			txt += " TTL: " + ttl;
+			txt += " TTL: " + ttl +"  "+'\r';
 		}
+		
+		// 消息的创建时间与接收时间
+		txt += "消息的创建时间为："+m.getCreationTime()+"消息的接收时间为："+m.getReceiveTime();
 		
 		String butTxt = "path: " + (m.getHops().size()-1) + " hops";
 		

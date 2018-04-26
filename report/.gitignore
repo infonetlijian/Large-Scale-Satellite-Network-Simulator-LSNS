@@ -30,3 +30,6 @@
 /TotalContactTimeReport.class
 /TotalEncountersReport.class
 /UniqueEncountersReport.class
+/MessageDeletedReport.class
+/MessageAbortedReprot.class
+/MessageAbortedReport.class

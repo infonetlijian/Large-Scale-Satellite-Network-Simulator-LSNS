@@ -193,39 +193,12 @@ public class Coord implements Cloneable, Comparable<Coord> {
 			return 0;
 		}
 	}
-	
-	/**新增函数**/
-	public void my_Test(double time,double time_0,double []t){
-		/*
-				int max=360;
-				int min=0;
-				Random random = new Random();
 
-				int s = random.nextInt(max)%(max-min+1) + min;
-				this.x=500*Math.sin(s)+600;
-				this.y=500*Math.cos(s)+600;
-				//	this.x = 100;
-				//	this.y = 200;
-		*/
-				double[][] coordinate = new double[1][3];
-				//double[] t = new double[]{8000,0.1,15,0.0,0.0,0.0};;
-
-				SatelliteOrbit saot;
-
-
-				saot=new SatelliteOrbit(t);
-				//saot.SatelliteOrbit( t);
-
-				coordinate = saot.getSatelliteCoordinate(time);
-				this.x = (coordinate[0][0]+40000);
-				this.y = (coordinate[0][1]+40000);
-				this.z = (coordinate[0][2]+40000);				
-	}
 	/**
 	 * 将Coord类拓展成三维坐标后，通过此函数进行三维坐标设置
-	 * @param x x轴
-	 * @param y y轴
-	 * @param z z轴
+	 * @param x x axis
+	 * @param y y axis
+	 * @param z z axis
 	 */
 	public void resetLocation(double x,double y,double z){//设置三维坐标
 		this.x=x;
@@ -240,5 +213,16 @@ public class Coord implements Cloneable, Comparable<Coord> {
 		this.x=x[0];
 		this.y=x[1];
 		this.z=x[2];
+	}
+	/**新增函数**/
+	public void my_Test(double time,double time_0,double []t){
+				double[][] coordinate = new double[1][3];
+				
+				SatelliteOrbit saot = new SatelliteOrbit(t);
+				
+				coordinate = saot.getSatelliteCoordinate(time);
+				this.x = (coordinate[0][0]+40000);
+				this.y = (coordinate[0][1]+40000);
+				this.z = (coordinate[0][2]+40000);				
 	}
 }

@@ -7,7 +7,6 @@ package core;
 import input.EventQueue;
 import input.ExternalEvent;
 import input.ScheduledUpdatesQueue;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -150,9 +149,9 @@ public class World {
 	 * Runs all external events that are due between the time when
 	 * this method is called and after one update interval.
 	 */
-	public void update () {
+	public void update() {
 		double runUntil = SimClock.getTime() + this.updateInterval;
-
+		
 		setNextEventQueue();
 
 		/* process all events that are due until next interval update */
@@ -160,7 +159,7 @@ public class World {
 			simClock.setTime(this.nextQueueEventTime);
 			ExternalEvent ee = this.nextEventQueue.nextEvent();
 			ee.processEvent(this);
-			updateHosts(); // update all hosts after every event
+			updateHosts(); 										// update all hosts after every event
 			setNextEventQueue();
 		}
 
@@ -189,7 +188,7 @@ public class World {
 				hosts.get(i).update(simulateConnections);
 			}
 		}
-		else { // update order randomizing is on
+		else { // update order randomizing is on	
 			assert this.updateOrder.size() == this.hosts.size() : 
 				"Nrof hosts has changed unexpectedly";
 			Random rng = new Random(SimClock.getIntTime());

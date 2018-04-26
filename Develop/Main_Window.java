@@ -4,8 +4,6 @@
  */
 package Develop;
 
-
-
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -18,20 +16,16 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import java.awt.*;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import chartAnalysisWindow.src.chartWindow.AddChartFrame;
 import chartAnalysisWindow.src.chartWindow.AnalysisWindow;
 import chartAnalysisWindow.src.chartWindow.Loadtxt;
 import core.DTNHost;
 import core.SimClock;
-
 import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
@@ -340,6 +334,7 @@ public class Main_Window extends JFrame implements ActionListener, ChangeListene
 		//NEW ADD
 		new Thread(Orbit_3D).start();//使卫星节点运动起来
 		//NEW ADD
+		
 	    internal3DFrame.getContentPane().add(Orbit_3D);
 	    desktopPane.add("三维场景",internal3DFrame);
 	    
@@ -469,7 +464,6 @@ public class Main_Window extends JFrame implements ActionListener, ChangeListene
 					 break;
 				 }
 			 }
-
 		 }
 	 }
 	 /**

@@ -14,6 +14,9 @@ import core.MessageListener;
  * For output syntax, see {@link #HEADER}.
  */
 public class CreatedMessagesReport extends Report implements MessageListener {
+	/** 用于判断包的类型 */
+	public String SelectLabel;
+	
 	public static String HEADER = "# time  ID  size  fromHost  toHost  TTL  " + 
 		"isResponse";
 
@@ -37,10 +40,18 @@ public class CreatedMessagesReport extends Report implements MessageListener {
 		}
 		
 		int ttl = m.getTtl();
-		write(format(getSimTime()) + " " + m.getId() + " " + 
-				m.getSize() + " " + m.getFrom() + " " + m.getTo() + " " +
-				(ttl != Integer.MAX_VALUE ? ttl : "n/a") +  
-				(m.isResponse() ? " Y " : " N "));
+//		write(format(getSimTime()) + " " + m.getId() + " " + 
+//				m.getSize() + " " + m.getFrom() + " " + m.getTo() + " " +
+//				(ttl != Integer.MAX_VALUE ? ttl : "n/a") +  
+//				(m.isResponse() ? " Y " : " N "));
+		
+		// 希望看到与缓存相关的信息(修改之后信息)
+
+		write(format(getSimTime()) + " " + m.getProperty(SelectLabel)+ "  "
+				+m.getFilename()+" "+m.getChunkID()+"  "
+				+m.getId()+" "+m.getFrom()+"  "+m.getTo()+"  "+"初始消息名称："+"  "+m.getInitMsgId()
+				+" "+ m.getHops()
+				+" "+"消息创建时间："+"  "+ m.getCreationTime()+"  "+"消息接收时间："+"  "+ m.getReceiveTime());
 	}
 	
 	// nothing to implement for the rest

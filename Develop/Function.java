@@ -1,13 +1,11 @@
 package Develop;
 
 import javax.swing.*;
-
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.List;
 import java.util.ArrayList;
-
 import core.DTNHost;
 import core.Settings;
 

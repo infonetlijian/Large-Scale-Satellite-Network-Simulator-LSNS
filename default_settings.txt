@@ -4,19 +4,107 @@
 
 #User Setting
 #dijsktra;
-userSetting.routerMode = 1
+#userSetting.routerMode = AllConnected
+userSetting.routerMode = Cluster
+
 #simpleConnectivity;
-#userSetting.routerMode = 2
+#userSetting.routerMode = Cluster
 #userSetting.hostsMode = cluster
 userSetting.hostsMode = normal
-userSetting.nrofPlane = 3
-userSetting.orbitPlaneAngle = 45
-userSetting.nrofMEO = 0
-#3600km
-userSetting.MEOradius = 3600
-userSetting.MEOnrofPlane = 0
-userSetting.MEOorbitPlaneAngle = 45
-userSetting.MEOeccentricity = 0
+
+#分簇路由相关参数
+#clusterCheckInterval unit:seconds
+Group.clusterCheckInterval = 60
+#bytes
+Group.comfirmMessageSize = 1
+#分簇路由相关参数
+
+#缓存相关参数
+userSetting.EnableCache = false
+#userSetting.EnableCache = false
+userSetting.RandomDropMessage = false
+Group.nrofFile = 60
+Group.filebuffersize = 1000k
+
+## 链路模块参数
+# one satellite node can bind multiple interfaces
+Group.nrofInterfaces = 1
+Group.interface1 = Interface1
+Group.interface2 = Interface2
+Interface1.type = SimpleSatelliteInterface
+Interface1.linkDelayRange = 0,0
+Interface1.transmitSpeed = 60k
+Interface1.transmitRange = 30000
+Interface1.nrofRadioInterface = 1
+Interface2.type = SatelliteLaserInterface
+Interface2.linkDelayRange = 1,5
+Interface2.transmitSpeed = 200M
+Interface2.transmitRange = 30000
+
+## 消息参数生成
+# How many event generators
+Events.nrof = 1
+# Class of the first event generator
+Events1.class = MessageEventGenerator
+Events2.class = MessageEventGenerator
+#Events1.class = MessageCreateEvent
+# (following settings are specific for the MessageEventGenerator class)
+# Creation interval in seconds (one new message every 25 to 35 seconds)
+#Events1.interval = 1,100
+Events1.interval = 1,10
+Events2.interval = 1,10
+# Message sizes (500kB - 1MB)
+#Events1.size = 100k,1M
+Events1.size = 100k,100k
+Events2.size = 2M,5M
+# range of message source/destination addresses
+#Events1.hosts = [0,9;0,19;0,29;0,39;0,49]修改，注意hosts和tohosts包括下界但不包括上界，即[0, 9)
+Events1.hosts = [0,200]
+Events2.hosts = [0,200]
+# Message ID prefix
+Events1.prefix = RadioM
+Events2.prefix = LaserM
+
+# 设置阈值，大于此阈值通过激光链路走，小于此阈值的从微波链路走
+Interface.MessageThreshold = 1M
+# 是否选择开启中断
+Interface.enableInterrupt = false
+Interface.probabilityOfInterrupt = 0.08
+Interface.reTransmitTime = 3
+# 是否允许动态分簇
+Interface.DynamicClustering = false
+# 是否选用最优化路由
+DynamicMultiLayerSatelliteRouter.Optimized = false
+# 是否开启源路由方式
+Group.msgPathLabel = true
+
+# 太阳同步轨道倾角参考ODIN卫星轨道倾角为97.8度
+# LEO卫星节点参数
+Group.nrofCommunicationNodesInEachPlane = 4
+Group.nrofLEO = 200
+Group.nrofLEOPlanes = 10
+Group.LEO_OrbitPlaneAngle = 97.8
+Group.LEO_Eccentricity = 0
+Group.LEO_Radius = 500
+
+# MEO卫星节点参数
+Group.EnableMEO = true
+Group.MEO_OrbitPlaneAngle = 97.8
+Group.MEO_Radius = 12000
+Group.nrofMEO = 20
+Group.nrofMEOPlane = 5
+Group.MEO_Eccentricity = 0
+
+# GEO卫星节点参数
+Group.EnableGEO = false
+Group.GEO_OrbitPlaneAngle = 0
+Group.GEO_Radius = 35786
+Group.nrofGEO = 6
+Group.nrofGEOPlane = 1
+Group.GEO_Eccentricity = 0
+
+# 总的卫星节点数目
+Group.nrofHosts = 220
 
 # Define 6 different node groups
 Scenario.nrofHostGroups = 1
@@ -24,25 +112,26 @@ Scenario.nrofHostGroups = 1
 ## Scenario settings
 Scenario.name = satellite network simulation
 Scenario.simulateConnections = true
-Scenario.updateInterval = 0.1
+Scenario.updateInterval = 1
 # 43200s == 12h
-Scenario.endTime = 43200
+Scenario.endTime = 1600
 
 
 ## Interface-specific settings:
 # type : which interface class the interface belongs to
 # For different types, the sub-parameters are interface-specific
-# For SimpleBroadcastInterface, the parameters are:
+# For SimpleBroadcastInterface, the parameters are:  
 # transmitSpeed : transmit speed of the interface (bytes per second) 
 # transmitRange : range of the interface (meters)
 
 # "Bluetooth" interface for all nodes
-Interface.type = SimpleSatelliteInterface
-#Interface.type = SatelliteLaserInterface
-# Transmit speed of 2 Mbps = 250kBps
-Interface.transmitSpeed = 100k
-Interface.transmitRange = 40000
+#Interface.type = SimpleSatelliteInterface
 
+# Transmit speed of 2 Mbps = 250kBps
+Interface.transmitSpeed = 250k
+#注意：ONE中距离单位是meters
+#由于JAT中距离单位为km，因此我们将ONE中的距离单位统一视为km，这样只会在自带的图形界面单位上产生误解，但内部程序的逻辑上没有问题
+Interface.transmitRange = 4000
 
 
 ## Group-specific settings:
@@ -65,63 +154,87 @@ Interface.transmitRange = 40000
 # routeType: route's type - for MapRouteMovement
 
 
+
 # Common settings for all groups
 #Group.movementModel = PredictableMovement自己创建的新运动模型，里面函数暂时均没有调用
 Group.movementModel =  SatelliteMovement
 #Group.movementModel =  StationaryMovement
 #Group.nodeLocation=[0,3000; 0,2000]
 
+#是否启用多线程
+userSetting.multiThread = false
+
+#节点间链路更新时，计算模式选择
+#MovementModel.judgeNearInterfaceMode = Fast-Grid
+MovementModel.judgeNearInterfaceMode = Ergodic
 
 #1 random, 2, FIFO
-Group.sendQueue = 1
+Group.sendQueue = 2
+
+#comfirmTtl与更新间隔时间MEOCheckInterval，2者设为10分之一的关系
+#在message函数中TTL计算是以一分钟为单位
+Group.comfirmTtl = 1
+Group.MEOCheckInterval = 60
+
+#unit:minutes
+Group.HelloInterval = 2
+Group.HelloTTL = 1
+Group.HelloMessageSize = 1
+
+#WalkerStar-极轨道
+#Group.Constellation = WalkerStar
+#WalkerDelta-倾斜轨道
+Group.Constellation = WalkerDelta
 
 #router路由自己创建
 #Group.router = FirstContactRouter
 #Group.router = DirectDeliveryRouter
 #Group.router = EpidemicRouter
-Group.router = DirectDeliveryRouter
-Group.layer = 2
+#Group.router = NetGridRouter
+#Group.router = TwoLayerRouterBasedonGridRouter
+#Group.router = DijsktraSearchBasedonTemporalGraph
+#Group.router = SPNR
+#Group.router = SPNRmodify
+#Group.router = SourceRoutingDijsktraSearchBasedonTemporalGraph
+#Group.router = DirectDeliveryRouter
+#Group.router = ShortestPathFirstRouter
+#Group.router = OptimizedClusteringRouter
+Group.router = DynamicMultiLayerSatelliteRouter
+
+
+#分簇路由
+#Group.router = ClusteringRouter
+#对于网格路由的计算模式
+#Group.router = NetGridRouter
+#Group.gridUpdateOption = preOrbitCalculation
+#Group.gridUpdateOption = onlineOrbitCalculation
+
+
 #Group.Pre_or_onlineOrbitCalculation = preOrbitCalculation
 Group.Pre_or_onlineOrbitCalculation = onlineOrbitCalculation
-#Group.router = EASRRouter
-#Group.router = ClusterRouterBasedonGridRouter
+#Group.router = SPNRmodify
+Group.layer = 1
+
+#Group.router = CGR
+#Interface.type = ContactGraphInterface
+#Group.router.CGR.linkDuration = 2
+#Group.router.CGR.type = NoPreContactPlanDesign
+
+#LinkDuration乘以updateInterval为真实链路持续时间
+Group.router.CGRLinkDurationTimesOfUpdateInterval = 10
 #Group.router = DijsktraRouter
-Group.msgPathLabel = true
+
+  
 Group.bufferSize = 1000M
 Group.waitTime = 0, 120
-# All nodes have the bluetooth interface
-Group.nrofInterfaces = 1
-Group.interface1 = Interface
+
 # Walking speeds
 Group.speed = 0.5, 1.5
 # Message TTL of 300 minutes (5 hours)
 Group.msgTtl = 30
 
-#Group.nrofHosts = [10;20;30;40;50]
-Group.nrofHosts = 30
 # group1 (pedestrians) specific settings
 Group1.groupID = Node
-
-
-
-## Message creation parameters 
-# How many event generators
-Events.nrof = 1
-# Class of the first event generator
-Events1.class = MessageEventGenerator
-#Events1.class = MessageCreateEvent
-# (following settings are specific for the MessageEventGenerator class)
-# Creation interval in seconds (one new message every 25 to 35 seconds)
-#Events1.interval = 1,100
-Events1.interval = 1,100
-# Message sizes (500kB - 1MB)
-
-Events1.size = 100k,1M
-# range of message source/destination addresses
-#Events1.hosts = [0,9;0,19;0,29;0,39;0,49]修改，注意hosts和tohosts包括下界但不包括上界，即[0, 9)
-Events1.hosts = [0,30]
-# Message ID prefix
-Events1.prefix = M
 
 
 ## Movement model settings
@@ -130,13 +243,13 @@ MovementModel.rngSeed = 1
 # World's size for Movement Models without implicit size (width, height; meters)
 MovementModel.worldSize = 100000, 100000, 100000
 # How long time to move hosts in the world before real simulation
-MovementModel.warmup = 1000
+MovementModel.warmup = 10
 
 
 ## Reports - all report names have to be valid report classes
 
 # how many reports to load
-Report.nrofReports = 4
+Report.nrofReports = 8
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
@@ -144,8 +257,12 @@ Report.reportDir = reports/
 # Report classes to load
 Report.report1 = MessageStatsReport
 Report.report2 = MessageDelayReport
-Report.report3 = MessageReport
+Report.report3 = DeliveredMessagesReport
 Report.report4 = CreatedMessagesReport
+Report.report5 = ContactTimesReport
+Report.report6 = MessageReport
+Report.report7 = MessageDeletedReport
+Report.report8 = MessageAbortedReport
 
 ## Default settings for some routers settings
 ProphetRouter.secondsInTimeUnit = 30
@@ -156,7 +273,7 @@ SprayAndWaitRouter.binaryMode = true
 ## Optimization settings -- these affect the speed of the simulation
 ## see World class for details.
 #在world.java中的initSettings函数中读取
-Optimization.cellSizeMult = 1
+Optimization.cellSizeMult = 5
 Optimization.randomizeUpdateOrder = true
 
 ## GUI settings
@@ -173,4 +290,4 @@ GUI.UnderlayImage.rotate = -0.015
 # how many events to show in the log panel (default = 30)
 GUI.EventLogPanel.nrofEvents = 30
 # Regular Expression log filter (see Pattern-class from the Java API for RE-matching details)
-#GUI.EventLogPanel.REfilter = .*p[1-9]<->p[1-9]$
+# GUI.EventLogPanel.REfilter = .*p[1-9]<->p[1-9]

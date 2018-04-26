@@ -14,7 +14,6 @@ import routing.util.EnergyModel;
 import routing.util.MessageTransferAcceptPolicy;
 import routing.util.RoutingInfo;
 import util.Tuple;
-
 import core.Connection;
 import core.DTNHost;
 import core.Message;
@@ -22,6 +21,7 @@ import core.MessageListener;
 import core.NetworkInterface;
 import core.Settings;
 import core.SimClock;
+import core.SimError;
 
 /**
  * Superclass of active routers. Contains convenience methods (e.g. 
@@ -49,6 +49,9 @@ public abstract class ActiveRouter extends MessageRouter {
 	
 	private MessageTransferAcceptPolicy policy;
 	private EnergyModel energy;
+	
+	/** retransmission time of message */
+	private static final String RETRANS_TIME = "reTransTime";
 
 	/**
 	 * Constructor. Creates a new message router based on the settings in
@@ -106,22 +109,22 @@ public abstract class ActiveRouter extends MessageRouter {
 	
 	@Override
 	public boolean requestDeliverableMessages(Connection con) {
-		if (isTransferring()) {
-			return false;
-		}
-		
-		DTNHost other = con.getOtherNode(getHost());
-		/* do a copy to avoid concurrent modification exceptions 
-		 * (startTransfer may remove messages) */
-		ArrayList<Message> temp = 
-			new ArrayList<Message>(this.getMessageCollection());
-		for (Message m : temp) {
-			if (other == m.getTo()) {
-				if (startTransfer(m, con) == RCV_OK) {
-					return true;
-				}
-			}
-		}
+//		if (isTransferring()) {
+//			return false;
+//		}
+//		
+//		DTNHost other = con.getOtherNode(getHost());
+//		/* do a copy to avoid concurrent modification exceptions 
+//		 * (startTransfer may remove messages) */
+//		ArrayList<Message> temp = 
+//			new ArrayList<Message>(this.getMessageCollection());
+//		for (Message m : temp) {
+//			if (other == m.getTo()) {				
+//				if (startTransfer(m, con) == RCV_OK) {
+//					return true;
+//				}
+//			}
+//		}
 		return false;
 	}
 	
@@ -151,14 +154,14 @@ public abstract class ActiveRouter extends MessageRouter {
 		 *  becomes obsolete, and the response size should be configured 
 		 *  to zero.
 		 */
-		// check if msg was for this host and a response was requested
-		if (m.getTo() == getHost() && m.getResponseSize() > 0) {
-			// generate a response message
-			Message res = new Message(this.getHost(),m.getFrom(), 
-					RESPONSE_PREFIX+m.getId(), m.getResponseSize());
-			this.createNewMessage(res);
-			this.getMessage(RESPONSE_PREFIX+m.getId()).setRequest(m);
-		}
+//		// check if msg was for this host and a response was requested
+//		if (m.getTo() == getHost() && m.getResponseSize() > 0) {
+//			// generate a response message
+//			Message res = new Message(this.getHost(),m.getFrom(), 
+//					RESPONSE_PREFIX+m.getId(), m.getResponseSize());
+//			this.createNewMessage(res);
+//			this.getMessage(RESPONSE_PREFIX+m.getId()).setRequest(m);
+//		}
 		
 		return m;
 	}
@@ -180,6 +183,7 @@ public abstract class ActiveRouter extends MessageRouter {
 	 * {@link Connection#startTransfer(DTNHost, Message)}
 	 */
 	protected int startTransfer(Message m, Connection con) {
+		
 		int retVal;
 		
 		if (!con.isReadyForTransfer()) {
@@ -388,12 +392,12 @@ public abstract class ActiveRouter extends MessageRouter {
 		
 		for (Tuple<Message, Connection> t : tuples) {
 			Message m = t.getKey();
+			
 			Connection con = t.getValue();
 			if (startTransfer(m, con) == RCV_OK) {
 				return t;
 			}
 		}
-		
 		return null;
 	}
 	
@@ -408,6 +412,7 @@ public abstract class ActiveRouter extends MessageRouter {
 	  */
 	protected Message tryAllMessages(Connection con, List<Message> messages) {
 		for (Message m : messages) {
+			
 			int retVal = startTransfer(m, con); 
 			if (retVal == RCV_OK) {
 				return m;	// accepted a message, don't try others
@@ -416,7 +421,6 @@ public abstract class ActiveRouter extends MessageRouter {
 				return null; // should try later -> don't bother trying others
 			}
 		}
-		
 		return null; // no message was accepted		
 	}
 
@@ -434,7 +438,7 @@ public abstract class ActiveRouter extends MessageRouter {
 	protected Connection tryMessagesToConnections(List<Message> messages,
 			List<Connection> connections) {
 		for (int i=0, n=connections.size(); i<n; i++) {
-			Connection con = connections.get(i);
+			Connection con = connections.get(i);			
 			Message started = tryAllMessages(con, messages); 
 			if (started != null) { 
 				return con;
@@ -479,17 +483,18 @@ public abstract class ActiveRouter extends MessageRouter {
 		if (connections.size() == 0) {
 			return null;
 		}
-		
+
 		@SuppressWarnings(value = "unchecked")
 		Tuple<Message, Connection> t =
 			tryMessagesForConnected(sortByQueueMode(getMessagesForConnected()));
-
+		
 		if (t != null) {
 			return t.getValue(); // started transfer
 		}
 		
 		// didn't start transfer to any node -> ask messages from connected
 		for (Connection con : connections) {
+			System.out.println("ActiveRouter.java test for connections:" + con.getLinkType());
 			if (con.getOtherNode(getHost()).requestDeliverableMessages(con)) {
 				return con;
 			}
@@ -588,9 +593,27 @@ public abstract class ActiveRouter extends MessageRouter {
 		
 		/* in theory we can have multiple sending connections even though
 		  currently all routers allow only one concurrent sending connection */
+
+//		if(this.sendingConnections.size()>=3){
+//			System.out.println("当前节点为："+this.getHost()+" ActiveRouter.java："+this.sendingConnections.size()+" "+this.sendingConnections);
+//		}
+
 		for (int i=0; i<this.sendingConnections.size(); ) {
 			boolean removeCurrent = false;
 			Connection con = sendingConnections.get(i);
+
+			/* probability of interrupt */
+			String Id = con.getMessage().getId();
+			boolean Interrupt = con.RandomInterrupt();  
+			if(Interrupt){
+				/** 仍然具有重传次数，则重传次数减1，否则链路中断并丢弃消息 */
+				int time = (int)this.messages.get(Id).getProperty(RETRANS_TIME);
+				if (time <= 0) {
+					this.deleteMessage(Id, false);
+				} else {		
+					this.messages.get(Id).updateProperty(RETRANS_TIME, time-1);
+				}
+			}
 			
 			/* finalize ready transfers */
 			if (con.isMessageTransferred()) {
@@ -608,7 +631,6 @@ public abstract class ActiveRouter extends MessageRouter {
 				}
 				removeCurrent = true;
 			} 
-			
 			if (removeCurrent) {
 				// if the message being sent was holding excess buffer, free it
 				if (this.getFreeBufferSize() < 0) {

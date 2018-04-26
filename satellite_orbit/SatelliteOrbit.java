@@ -74,7 +74,7 @@ public class SatelliteOrbit implements Printable {
 	
 	public double[][] getInitLocation() {
 		TwoBody tb = new TwoBody(a,e,i,raan,w,ta);
-		double period = tb.period();
+		double period = tb.getPeriod();
 		double tf = period;
 		tb.setSteps(steps);
 		tb.propagate(tf);
@@ -90,7 +90,7 @@ public class SatelliteOrbit implements Printable {
 	public double[][] getSatelliteCoordinate(double t) {
 		TwoBody tb = new TwoBody(a,e,i,raan,w,ta);
 		// find out the period of the orbit
-		double period = tb.period();
+		double period = tb.getPeriod();
 		// set the final time = one orbit period
 		double tf = period;
 		tb.setSteps(steps);
@@ -115,7 +115,7 @@ public class SatelliteOrbit implements Printable {
 	 */
 	public double getPeriod(){
 		TwoBody tb = new TwoBody(a,e,i,raan,w,ta);
-		double period = tb.period();
+		double period = tb.getPeriod();
 		return period;
 	}
 

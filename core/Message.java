@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import Cache.File;
+
 /**
  * A message that is created at a node or passed between nodes.
  */
@@ -57,8 +59,47 @@ public class Message implements Comparable<Message> {
 	private String	appID;
 	
 	//新增属性
-	private DTNHost source;//原地址 
-	private DTNHost destination;//目的地址
+	private DTNHost sourceHost;//原地址 
+	private DTNHost destinationHost;//目的地址
+	
+	public void setDestinationHost(DTNHost des){
+		this.destinationHost = des;
+	}
+	public void setSourceHost(DTNHost des){
+		this.sourceHost = des;
+	}
+	public DTNHost getSourceHost(){
+		return this.sourceHost;
+	}
+	public DTNHost getDestinationHost(){
+		return this.destinationHost;
+	}
+	
+	/**------------------------------   对Message添加的变量       --------------------------------*/
+	
+	/** 添加参量，保留消息的初始ID，在处理响应包，控制包时会用到*/
+	private String  initMsgID;	
+	/** 添加与file相关参量，直接用file类的实例来代替正在传输的文件。*/
+	private  String filename;
+	/**　文件中携带chunk的ID*/
+	private  String chunkID;
+	/** 消息中携带的文件 */
+	private  File data;	
+	/** bitMap用于对chunkID进行映射    */
+	private ArrayList<Integer> bitMap = new ArrayList<Integer>();
+	/** 用于判断包的类型 */
+	public final static String SelectLabel = "PacketType";
+
+	/**------------------------------   对Message添加的变量       --------------------------------*/
+	
+	public void setTo(DTNHost to) {
+		this.to = to;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+	
 	static {
 		reset();
 		DTNSim.registerForReset(Message.class.getCanonicalName());
@@ -71,28 +112,28 @@ public class Message implements Comparable<Message> {
 	 * 	will be the same for all replicates of the message)
 	 * @param size Size of the message (in bytes)
 	 */
-	public Message(DTNHost from, DTNHost to, String id, int size) {
-		this.from = from;
-		this.to = to;//改成上一跳和下一跳的节点地址
-		this.id = id;
-		this.size = size;
-		this.path = new ArrayList<DTNHost>();
-		this.uniqueId = nextUniqueId;
-		
-		this.source = from;//新增属性，初始化语句
-		this.destination = to;
-		
-		this.timeCreated = SimClock.getTime();
-		this.timeReceived = this.timeCreated;
-		this.initTtl = INFINITE_TTL;
-		this.responseSize = 0;
-		this.requestMsg = null;
-		this.properties = null;
-		this.appID = null;
-		
-		Message.nextUniqueId++;
-		addNodeOnPath(from);
-	}
+//	public Message(DTNHost from, DTNHost to, String id, int size) {
+//		this.from = from;
+//		this.to = to;//改成上一跳和下一跳的节点地址
+//		this.id = id;
+//		this.size = size;
+//		this.path = new ArrayList<DTNHost>();
+//		this.uniqueId = nextUniqueId;
+//		
+//		this.source = from;//新增属性，初始化语句
+//		this.destination = to;
+//		
+//		this.timeCreated = SimClock.getTime();
+//		this.timeReceived = this.timeCreated;
+//		this.initTtl = INFINITE_TTL;
+//		this.responseSize = 0;
+//		this.requestMsg = null;
+//		this.properties = null;
+//		this.appID = null;
+//		
+//		Message.nextUniqueId++;
+//		addNodeOnPath(from);
+//	}
 	
 	/**
 	 * Returns the node this message is originally from
@@ -272,21 +313,21 @@ public class Message implements Comparable<Message> {
 	 * (unless done in constructor).
 	 * @param m The message where the data is copied
 	 */
-	protected void copyFrom(Message m) {
-		this.path = new ArrayList<DTNHost>(m.path);
-		this.timeCreated = m.timeCreated;
-		this.responseSize = m.responseSize;
-		this.requestMsg  = m.requestMsg;
-		this.initTtl = m.initTtl;
-		this.appID = m.appID;
-		
-		if (m.properties != null) {
-			Set<String> keys = m.properties.keySet();
-			for (String key : keys) {
-				updateProperty(key, m.getProperty(key));
-			}
-		}
-	}
+//	protected void copyFrom(Message m) {
+//		this.path = new ArrayList<DTNHost>(m.path);
+//		this.timeCreated = m.timeCreated;
+//		this.responseSize = m.responseSize;
+//		this.requestMsg  = m.requestMsg;
+//		this.initTtl = m.initTtl;
+//		this.appID = m.appID;
+//		
+//		if (m.properties != null) {
+//			Set<String> keys = m.properties.keySet();
+//			for (String key : keys) {
+//				updateProperty(key, m.getProperty(key));
+//			}
+//		}
+//	}
 	
 	/**
 	 * Adds a generic property for this message. The key can be any string but 
@@ -337,7 +378,12 @@ public class Message implements Comparable<Message> {
 
 		this.properties.put(key, value);
 	}
-	public void removeProperty(String key){//新增方法！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+	
+	/**
+	 * Removes a value for an existing property. 
+	 * @param key The key which should be removed from properties
+	 */
+	public void removeProperty(String key){
 		if (this.properties == null) {
 			/* lazy creation to prevent performance overhead for classes
 			   that don't use the property feature  */
@@ -350,11 +396,11 @@ public class Message implements Comparable<Message> {
 	 * Returns a replicate of this message (identical except for the unique id)
 	 * @return A replicate of the message
 	 */
-	public Message replicate() {
-		Message m = new Message(from, to, id, size);
-		m.copyFrom(this);
-		return m;
-	}
+//	public Message replicate() {
+//		Message m = new Message(from, to, id, size);
+//		m.copyFrom(this);
+//		return m;
+//	}
 	
 	/**
 	 * Compares two messages by their ID (alphabetically).
@@ -386,5 +432,160 @@ public class Message implements Comparable<Message> {
 	public void setAppID(String appID) {
 		this.appID = appID;
 	}
+	
+	/**------------------------------   对Message添加的函数方法       --------------------------------*/
+	
+	/** 对bitMap中所有元素置零操作 */
+	public void setZeroForBitMap(){
+		this.bitMap.clear();
+		for(int i=0;i<10;i++)
+			bitMap.add(0);
+	}
+	/** 获取消息初始ID  */
+	public String getInitMsgId(){
+		return this.initMsgID;
+	}
+	/** 设置消息初始ID  */
+	public void setInitMsgId(String s){
+		this.initMsgID = s;
+	}
+	/** 得到消息携带的bitMap  */
+	public ArrayList<Integer> getBitMap(){
+		return this.bitMap;
+	}
+	/** 得到响应函数中正在传输的文件      */
+	public File getFile(){
+		return this.data;
+	}
+    /** 对文件名操作      */
+	public String getFilename() {
+		return filename;
+	}
+    /** 对文件名设置操作      */
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+	
+	/** 对分片后的内容进行操作  */
+	public String getChunkID(){
+		return chunkID;
+	}
+	public void setChunkID(String chunkID){
+		this.chunkID=chunkID;		
+	}
+	/** 对bitmap进行设置   */
+	public void setBitMap(ArrayList<Integer> bm){
+		this.bitMap = bm;
+		
+	}
+	/** 对消息携带的文件进行设置   */
+	public void setFile(File f){
+		this.data = f;
+	}
+
+	/**　对消息的创建时间与接收时间进行设置*/
+	public void setTime(double timeC, double timeR){
+		this.timeCreated = timeC;
+		this.timeReceived = timeR;
+	}
+	
+	// 这是对原有的函数做了修改，并不完全重写
+	
+	/**
+	 * Creates a new Message.
+	 * @param from Who the message is (originally) from
+	 * @param to Who the message is (originally) to
+	 * @param id Message identifier (must be unique for message but
+	 * 	will be the same for all replicates of the message)
+	 * @param size Size of the message (in bytes)
+	 */
+	public Message(DTNHost from, DTNHost to, String id, int size) {			//	消息初始化过程
+		this.from = from;
+		this.to = to;
+		this.id = id;
+		this.size = size;
+		this.path = new ArrayList<DTNHost>();								
+		this.uniqueId = nextUniqueId;  										//	消息id标识
+		this.initMsgID = id;
+		
+		this.timeCreated = SimClock.getTime();
+		this.timeReceived = this.timeCreated;
+		this.initTtl = INFINITE_TTL;
+		this.responseSize = 0;
+		this.requestMsg = null;
+		this.properties = null;
+		this.appID = null;			
+		this.setZeroForBitMap();											//	对bitMap初始化
+		Message.nextUniqueId++;
+		addNodeOnPath(from);
+	}
+	/**  重写构造函数，当为响应消息有数据存在时，进行调用*/
+	public Message(DTNHost from, DTNHost to, String id, int size, File Data) {	//消息初始化过程
+		this.from = from;
+		this.to = to;
+		this.id = id;
+		this.size = size;
+		this.path = new ArrayList<DTNHost>();								
+		this.uniqueId = nextUniqueId;  											//消息id标识
+		this.data= new File();
+		this.data= this.data.copyFrom(Data);
+		this.data.copyData(Data);		
+		this.initMsgID = id;
+		
+		this.timeCreated = SimClock.getTime();
+		this.timeReceived = this.timeCreated;
+		this.initTtl = INFINITE_TTL;
+		this.responseSize = 0;
+		this.requestMsg = null;
+		this.properties = null;
+		this.appID = null;
+		Message.nextUniqueId++;
+		addNodeOnPath(from);
+	}
+	/**
+	 * Returns a replicate of this message (identical except for the unique id)
+	 * @return A replicate of the message
+	 */
+	public Message replicate() {
+		
+		if(this.getProperty(SelectLabel) != (Object)1){									// 当消息不为应答消息
+			Message m = new Message(from, to, id, size);
+			m.copyFrom(this);
+			m.filename=this.filename;
+			m.bitMap=this.bitMap;
+			m.initMsgID = this.initMsgID;			
+			return m;
+		} else{																			// 当为响应消息时
+			Message m = new Message(from, to, id, size, data);			
+			m.copyFrom(this);
+			m.filename= this.filename;
+			m.bitMap=this.bitMap;
+			m.initMsgID = this.initMsgID;
+			return m;
+		}
+	}
+	/**
+	 * Deep copies message data from other message. If new fields are
+	 * introduced to this class, most likely they should be copied here too
+	 * (unless done in constructor).
+	 * @param m The message where the data is copied
+	 */
+	public void copyFrom(Message m) {
+		this.path = new ArrayList<DTNHost>(m.path);
+		this.timeCreated = m.timeCreated;
+		this.responseSize = m.responseSize;
+		this.requestMsg  = m.requestMsg;
+		this.appID = m.appID;
+		this.initTtl = m.initTtl;						
+		this.chunkID = m.chunkID;						//对chunkI进行复制
+
+		if (m.properties != null) {
+			Set<String> keys = m.properties.keySet();
+			for (String key : keys) {
+				updateProperty(key, m.getProperty(key));
+			}
+		}
+	}	
+	/**------------------------------   对Message添加的函数方法       --------------------------------*/
 	
 }

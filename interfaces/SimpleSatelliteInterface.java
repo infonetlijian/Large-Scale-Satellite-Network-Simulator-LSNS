@@ -1,25 +1,28 @@
+/*
+ * Copyright 2016 University of Science and Technology of China , Infonet Lab
+ * Written by LiJian.
+ */
 package interfaces;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
+import routing.OptimizedClusteringRouter;
 import core.CBRConnection;
 import core.Connection;
-import core.DTNHost;
-import core.Neighbors;
 import core.NetworkInterface;
 import core.Settings;
-import core.SimClock;
+import core.DTNHost;
+import core.SimError;
+import movement.SatelliteMovement;
 
 /**
  * A simple Network Interface that provides a constant bit-rate service, where
  * one transmission can be on at a time.
  */
-public class SimpleSatelliteInterface  extends NetworkInterface {
+public class SimpleSatelliteInterface extends NetworkInterface {
 	
-	//新增
 	/** router mode in the sim -setting id ({@value})*/
 	public static final String USERSETTINGNAME_S = "userSetting";
 	/** router mode in the sim -setting id ({@value})*/
@@ -27,11 +30,24 @@ public class SimpleSatelliteInterface  extends NetworkInterface {
 	public static final String DIJSKTRA_S = "dijsktra";
 	public static final String SIMPLECONNECTIVITY_S = "simpleConnectivity";
 
+	private Collection<NetworkInterface> interfaces;
+	
+	/** indicates the interface type, i.e., radio or laser*/
+	public static final String interfaceType = "RadioInterface";
+	/** dynamic clustering by MEO or static clustering by MEO */
+	private static boolean dynamicClustering;
+	/** allConnected or clustering */
+	private static String mode;
+	
 	/**
 	 * Reads the interface settings from the Settings file
 	 */
 	public SimpleSatelliteInterface(Settings s)	{
 		super(s);
+		Settings s1 = new Settings("Interface");
+		dynamicClustering = s1.getBoolean("DynamicClustering");
+		Settings s2 = new Settings(USERSETTINGNAME_S);
+		mode = s2.getSetting(ROUTERMODENAME_S);
 	}
 		
 	/**
@@ -40,6 +56,7 @@ public class SimpleSatelliteInterface  extends NetworkInterface {
 	 */
 	public SimpleSatelliteInterface(SimpleSatelliteInterface ni) {
 		super(ni);
+		this.mode = ni.mode;
 	}
 
 	public NetworkInterface replicate()	{
@@ -56,10 +73,11 @@ public class SimpleSatelliteInterface  extends NetworkInterface {
 				&& anotherInterface.getHost().isRadioActive() 
 				&& isWithinRange(anotherInterface) 
 				&& !isConnected(anotherInterface)
-				&& (this != anotherInterface)) {
+				&& (this != anotherInterface)
+				&& (this.interfaceType == anotherInterface.getInterfaceType())) {
 			// new contact within range
 			// connection speed is the lower one of the two speeds 
-			int conSpeed = anotherInterface.getTransmitSpeed();//连接两端的连接速率由较小的一个决定
+			int conSpeed = anotherInterface.getTransmitSpeed();//连接两端的连接速率由较小的一个决定			
 			if (conSpeed > this.transmitSpeed) {
 				conSpeed = this.transmitSpeed; 
 			}
@@ -70,28 +88,39 @@ public class SimpleSatelliteInterface  extends NetworkInterface {
 		}
 	}
 
-	/*新增函数*/
-	public ConnectivityOptimizer predictionUpdate(){
+	/**
+	 * Independent calculation process in each node, which is used in multi-thread method.
+	 */
+	public Collection<NetworkInterface> multiThreadUpdate(){
 		if (optimizer == null) {
 			return null; /* nothing to do */
 		}
+
+		// First break the old ones
 		optimizer.updateLocation(this);
-		return optimizer;
-		
+
+		this.interfaces =
+				optimizer.getNearInterfaces(this);
+		return interfaces;
 	}
-	/*新增函数*/
 	/**
 	 * Updates the state of current connections (i.e. tears down connections
 	 * that are out of range and creates new ones).
 	 */
 	public void update() {
+		//update the satellite link info
+		List<DTNHost> allowConnectedList = 
+				((SatelliteMovement)this.getHost().getMovementModel()).updateSatelliteLinkInfo();
 		
-		if (optimizer == null) {
-			return; /* nothing to do */
+		if (!this.getHost().multiThread){
+			if (optimizer == null) {
+				return; /* nothing to do */
+			}
+			
+			// First break the old ones
+			optimizer.updateLocation(this);
 		}
-		
-		// First break the old ones
-		optimizer.updateLocation(this);
+
 		for (int i=0; i<this.connections.size(); ) {
 			Connection con = this.connections.get(i);
 			NetworkInterface anotherInterface = con.getOtherInterface(this);
@@ -102,39 +131,65 @@ public class SimpleSatelliteInterface  extends NetworkInterface {
 			if (!isWithinRange(anotherInterface)) {//更新节点位置后，检查之前维护的连接是否会因为太远而断掉
 				disconnect(con,anotherInterface);
 				connections.remove(i);
-				
-				//neighbors.removeNeighbor(con.getOtherNode(this.getHost()));//在断掉连接的同时移除在邻居列表里的邻居节点，新增！！！
 			}
 			else {
-				i++;
+					i++;
 			}
-		}
-		Settings s = new Settings(USERSETTINGNAME_S);
-		int mode = s.getInt(ROUTERMODENAME_S);//从配置文件中读取路由模式
-		switch(mode){
-		case 1:
-			// Then find new possible connections
-			Collection<NetworkInterface> interfaces =//无需调用optimizer.getNearInterfaces(this)来获取邻居节点了，现在连接的建立全部放在world。java当中进行
-				optimizer.getNearInterfaces(this);
-			for (NetworkInterface i : interfaces) {
-				connect(i);
-				//neighbors.addNeighbor(i.getHost());
-			}
-			break;
-		case 2 :
-			break;
-		/*case 3://分簇模式
-			Collection<NetworkInterface> interfaces_ =//无需调用optimizer.getNearInterfaces(this)来获取邻居节点了，现在连接的建立全部放在world。java当中进行
-				optimizer.getNearInterfaces(this, clusterHosts, hostsOfGEO);
-			for (NetworkInterface i : interfaces_) {
-				connect(i);
-			}
-			break;*/
 		}
 
-		//System.out.println(this.getHost()+"  interface  "+SimClock.getTime()+" this time  "+this.connections);
-		//this.getHost().getNeighbors().updateNeighbors(this.getHost(), this.connections);//更新邻居节点数据库
-		
+		switch (mode) { 
+		case "AllConnected":{
+			if (!this.getHost().multiThread) {
+				// Then find new possible connections
+				interfaces = optimizer.getNearInterfaces(this);
+			}
+			for (NetworkInterface i : interfaces) {
+				connect(i);
+			}
+			break;
+		}
+		case "Cluster":{
+			if (!this.getHost().multiThread) {
+				// Then find new possible connections
+				interfaces = optimizer.getNearInterfaces(this);
+			}		
+			
+			for (NetworkInterface i : interfaces) {	
+				/*检查是否处在允许建链的列表当中，否则不允许建立链路*/
+				boolean allowConnection = false;
+				switch(this.getHost().getSatelliteType()){
+				/*如果在范围内的这个节点既不是同一平面内的，又不是通讯节点，就不进行连接，节省开销**/
+					case "LEO":{						
+						//只用LEO通信节点才允许和MEO层建立链路
+						if (allowConnectedList.contains(i.getHost()))
+							allowConnection = true;//即进行连接
+						break;
+					}
+					case "MEO":{
+						//MEO只允许和LEO通信节点通信和GEO层建立链路
+						if (allowConnectedList.contains(i.getHost()))
+							allowConnection = true;//即进行连接
+						break;
+					}
+					case "GEO":{
+						if (i.getHost().getSatelliteType().contains("MEO")){
+							allowConnection = true;
+							break;
+						}
+						if (allowConnectedList.contains(i.getHost()))
+							allowConnection = true;//即进行连接
+						break;
+					}
+				}
+				
+				if (allowConnection){//不被置位，才进行连接
+					connect(i);
+				}
+			}
+			break;
+		}
+		}
+
 	}
 
 	
@@ -143,12 +198,12 @@ public class SimpleSatelliteInterface  extends NetworkInterface {
 	 * on whether the other node is in range or active 
 	 * @param anotherInterface The interface to create the connection to
 	 */
-	public void createConnection(NetworkInterface anotherInterface) {
-		if (!isConnected(anotherInterface) && (this != anotherInterface)) {    			
+	public void createConnection(NetworkInterface anotherInterface) {		
+		if (!isConnected(anotherInterface) && (this != anotherInterface)) {			
 			// connection speed is the lower one of the two speeds 
 			int conSpeed = anotherInterface.getTransmitSpeed();
 			if (conSpeed > this.transmitSpeed) {
-				conSpeed = this.transmitSpeed; 
+				conSpeed = this.transmitSpeed;
 			}
 
 			Connection con = new CBRConnection(this.host, this, 
@@ -164,5 +219,10 @@ public class SimpleSatelliteInterface  extends NetworkInterface {
 	public String toString() {
 		return "SatelliteLaserInterface " + super.toString();
 	}
-
+	
+	/** return the type of this interface */
+	@Override
+	public String getInterfaceType(){
+		return this.interfaceType;
+	}
 }

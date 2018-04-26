@@ -4,21 +4,10 @@
  */
 package interfaces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
+import core.*;
 import movement.MovementModel;
-import core.Coord;
-import core.DTNHost;
-import core.DTNSim;
-import core.Neighbors;
-import core.NetworkInterface;
-import core.Settings;
-import core.SettingsError;
-import core.SimClock;
-import core.World;
 
 /**
  * <P>
@@ -56,18 +45,26 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 	public static final String CELL_SIZE_MULT_S = "cellSizeMult";
 	/** default value for cell size multiplier ({@value}) */
 	public static final int DEF_CON_CELL_SIZE_MULT = 1;
+
+	/** interface name in the group -setting id ({@value})*/
+	public static final String INTERFACENAME_S = "Interface";
+	/** transmit range -setting id ({@value})*/
+	public static final String TRANSMIT_RANGE_S = "transmitRange";
+	/** judge near interface mode -setting id ({@value})*/
+	public static final String JUDGE_NEARINTERFACE_S = "judgeNearInterfaceMode";
 	
 	private GridCell[][][] cells;//GridCell这个类，创建一个实例代表一个单独的网格，整个world创建了一个三维数组存储这个网格，每个网格内又存储了当前在其中的host的networkinterface
 	private HashMap<NetworkInterface, GridCell> ginterfaces;
 	private int cellSize;
 	private int rows;
 	private int cols;
-	private int zs;//新增三维变量
+	private int zs;
 	private static int worldSizeX;
 	private static int worldSizeY;
-	private static int worldSizeZ;//新增
+	private static int worldSizeZ;
 	private static int cellSizeMultiplier;
-
+	private static String judgeNearInterfaceMode;
+	
 	static HashMap<Integer,ConnectivityGrid> gridobjects;
 
 	static {
@@ -82,7 +79,9 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 		int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE,3);//参数从2维修改为3维
 		worldSizeX = worldSize[0];
 		worldSizeY = worldSize[1];
-		worldSizeZ = worldSize[2];
+		worldSizeZ = worldSize[1];//新增三维变量，待检查！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+		
+		judgeNearInterfaceMode = s.getSetting(JUDGE_NEARINTERFACE_S);
 		
 		s.setNameSpace(World.OPTIMIZATION_SETTINGS_NS);		
 		if (s.contains(CELL_SIZE_MULT_S)) {
@@ -106,7 +105,7 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 	private ConnectivityGrid(int cellSize) {
 		this.rows = worldSizeY/cellSize + 1;
 		this.cols = worldSizeX/cellSize + 1;
-		this.zs = worldSizeZ/cellSize + 1;//新增
+		this.zs = worldSizeZ/cellSize + 1;
 		System.out.println(cellSize+"  "+this.rows+"  "+this.cols+"  "+this.zs);
 		// leave empty cells on both sides to make neighbor search easier 
 		this.cells = new GridCell[rows+2][cols+2][zs+2];
@@ -114,7 +113,7 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 
 		for (int i=0; i<rows+2; i++) {
 			for (int j=0; j<cols+2; j++) {
-				for (int n=0;n<zs+2; n++)//新增三维变量
+				for (int n=0;n<zs+2; n++)
 					this.cells[i][j][n] = new GridCell();
 			}
 		}
@@ -208,7 +207,7 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 	 * @param col Column index of the cell
 	 * @return Array of neighboring Cells
 	 */
-	private GridCell[] getNeighborCells(int row, int col ,int z) {//新增三维变量
+	private GridCell[] getNeighborCells(int row, int col ,int z) {
 		return new GridCell[] {
 			cells[row-1][col-1][z-1],cells[row-1][col-1][z],cells[row-1][col-1][z+1],//1st row,1st col
 			cells[row-1][col][z-1],cells[row-1][col][z],cells[row-1][col][z+1],//1st row,2nd col
@@ -256,40 +255,51 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 	 */
 	public Collection<NetworkInterface> getNearInterfaces(
 			NetworkInterface ni) {
-		ArrayList<NetworkInterface> niList = new ArrayList<NetworkInterface>();
-		GridCell loc = (GridCell)ginterfaces.get(ni);//ginterfaces是HashMap<NetworkInterface, GridCell>映射
-		/**
-		 * 下面改写，加了判断语句，即便是相邻的圈内也要在通信半径内才算邻居
-		 */
+		List<NetworkInterface> niList = new ArrayList<NetworkInterface>();
 		Coord c = ni.getLocation();//节点当前的位置坐标
 		
-		if (loc != null) {	
-			GridCell[] neighbors = 
-				getNeighborCellsByCoord(c);//得到可能与本节点成为邻居的9*9*9个相邻网格数组，依次检查这些数组内的
-			
-			//ni.getHost().getNeighbors()即返回ni网络接口对应的host的邻居数据库
-			
-			List<NetworkInterface> potentialNeighbors = 
-					new ArrayList<NetworkInterface>(neighbors.length);//潜在邻居对象，即相邻9个网格内的卫星节点
-			for (int i=0; i < neighbors.length; i++) {
-				for (NetworkInterface interf : neighbors[i].getInterfaces()){//相邻网格内节点的网络接口，依次检查是不是在距离范围之内									
-					if (ni.getHost().getNeighbors().JudgeNeighbors(interf.getHost().getLocation(), c))//判断是否为邻居
-						niList.add(interf);//确认是邻居节点的列表
-					else
-						potentialNeighbors.add(interf);//添加潜在邻居对象（但还不是邻居对象），即相邻9个网格内的卫星节点，做预测用
+		switch (judgeNearInterfaceMode){
+			case "Fast-Grid" :{
+				GridCell loc = (GridCell)ginterfaces.get(ni);//ginterfaces是HashMap<NetworkInterface, GridCell>映射			
+				if (loc != null) {
+					GridCell[] neighbors =
+						getNeighborCellsByCoord(c);//得到可能与本节点成为邻居的9*9*9个相邻网格数组，依次检查这些数组内的
+					for (int i=0; i < neighbors.length; i++) {								
+						niList.addAll(neighbors[i].getInterfaces());//确认是邻居节点的列表
+
+					}
 				}
-				//niList.addAll(neighbors[i].getInterfaces());//直接把这些网格内的节点都视作邻居节点加入?待改??????????????????????????????????????????????????
+			}			
+			case "Ergodic" :{				
+				for (NetworkInterface interf : getAllInterfaces()){//相邻网格内节点的网络接口，依次检查是不是在距离范围之内
+					if (JudgeNeighbors(interf, c))//判断是否为邻居
+					niList.add(interf);//确认是邻居节点的列表
+					
+				}
 			}
-			ni.getHost().getNeighbors().changePotentialNeighbors(potentialNeighbors);//放入记录的需要预测的节点
-		}
-		//System.out.print(this.host);
-		//System.out.print(SimClock.getTime());
-		//System.out.println(niList);//Networkinterface的显示函数  :return "net interface " + this.address + " of " + this.host + ". Connections: " +	this.connections;
+		}	
+//		System.out.print("for test"+SimClock.getTime());
+//		System.out.println(niList);//Networkinterface的显示函数  :return "net interface " + this.address + " of " + this.host + ". Connections: " +	this.connections;
 		
 		return niList;
 	}
 	
+	/**
+	 * Calculate the distance betweent two coordinates, and judge that if they are neighbors or not.
+	 * @param c1
+	 * @param c2
+	 * @return
+	 */
+	public boolean JudgeNeighbors(NetworkInterface interf, Coord c2){
+		Coord c1 = interf.getHost().getLocation();
+		double transmitRange = interf.getTransmitRange();
 
+		double distance = c1.distance(c2);
+		if (distance <= transmitRange)
+			return true;
+		else
+			return false;
+	}
 	/**
 	 * Returns a string representation of the ConnectivityCells object
 	 * @return a string representation of the ConnectivityCells object
@@ -357,41 +367,5 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 			return getClass().getSimpleName() + " with " + 
 				this.interfaces.size() + " interfaces :" + this.interfaces;
 		}
-	}
-	/**
-	 * 用于分簇路由的
-	 * @param ni
-	 * @param clusterHosts
-	 * @return
-	 */
-	public Collection<NetworkInterface> getNearInterfaces(
-			NetworkInterface ni, List<DTNHost> clusterHosts, List<DTNHost> hostsOfGEO) {
-		
-		ArrayList<NetworkInterface> niList = new ArrayList<NetworkInterface>();
-		GridCell loc = (GridCell)ginterfaces.get(ni);//ginterfaces是HashMap<NetworkInterface, GridCell>映射
-		/**
-		 * 下面改写，加了判断语句，即便是相邻的圈内也要在通信半径内才算邻居
-		 */
-		Coord c = ni.getLocation();//节点当前的位置坐标
-		
-		if (loc != null) {	
-			GridCell[] neighbors = 
-				getNeighborCellsByCoord(c);//得到可能与本节点成为邻居的9*9*9个相邻网格数组，依次检查这些数组内的
-			
-			List<NetworkInterface> potentialNeighbors = 
-					new ArrayList<NetworkInterface>(neighbors.length);//潜在邻居对象，即相邻9个网格内的卫星节点
-			for (int i=0; i < neighbors.length; i++) {
-				for (NetworkInterface interf : neighbors[i].getInterfaces()){//相邻网格内节点的网络接口，依次检查是不是在距离范围之内									
-					if (ni.getHost().getNeighbors().JudgeNeighbors(interf.getHost().getLocation(), c))//判断是否为邻居
-						if (clusterHosts.contains(interf.getHost()) || hostsOfGEO.contains(interf.getHost()))//且是否为本簇之内的节点或是GEO节点
-							niList.add(interf);//确认是邻居节点的列表
-					else
-						potentialNeighbors.add(interf);//添加潜在邻居对象（但还不是邻居对象），即相邻9个网格内的卫星节点，做预测用
-				}
-			}
-			ni.getHost().getNeighbors().changePotentialNeighbors(potentialNeighbors);//放入记录的需要预测的节点
-		}
-		
-		return niList;
 	}
 }

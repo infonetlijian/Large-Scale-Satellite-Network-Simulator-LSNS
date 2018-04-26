@@ -4,12 +4,14 @@
  */
 package routing;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 import routing.util.RoutingInfo;
@@ -23,6 +25,8 @@ import core.Settings;
 import core.SettingsError;
 import core.SimClock;
 import core.SimError;
+import Cache.CacheRouter;
+
 
 /**
  * Superclass for message routers.
@@ -53,6 +57,11 @@ public abstract class MessageRouter {
 	/** Setting value for FIFO queue mode */
 	public static final int Q_MODE_FIFO = 2;
 	
+    /** indicates that if this node is communication satellites*/
+    public boolean CommunicationSatellitesLabel;
+    /** record all communication nodes and their orbit plane number*/
+    public HashMap<DTNHost, Integer> CommunicationNodesList;//注意：这里记录的平面编号从0开始
+    
 	/* Return values when asking to start a transmission:
 	 * RCV_OK (0) means that the host accepts the message and transfer started, 
 	 * values < 0 mean that the  receiving host will not accept this 
@@ -81,8 +90,7 @@ public abstract class MessageRouter {
 	private List<MessageListener> mListeners;
 	/** The messages being transferred with msgID_hostName keys */
 	private HashMap<String, Message> incomingMessages;
-	/** The messages this router is carrying */
-	private HashMap<String, Message> messages; 
+
 	/** The messages this router has received as the final recipient */
 	private HashMap<String, Message> deliveredMessages;
 	/** The messages that Applications on this router have blacklisted */
@@ -94,40 +102,27 @@ public abstract class MessageRouter {
 	/** TTL for all messages */
 	protected int msgTtl;
 	/** Queue mode for sending messages */
-	private int sendQueueMode;
-
+	protected int sendQueueMode;
 	/** applications attached to the host */
-	private HashMap<String, Collection<Application>> applications = null;
+	private HashMap<String, Collection<Application>> applications = null;	
+	/** The messages this router is carrying */
+	protected HashMap<String, Message> messages; 
 	
-	/**
-	 * Constructor. Creates a new message router based on the settings in
-	 * the given Settings object. Size of the message buffer is read from
-	 * {@link #B_SIZE_S} setting. Default value is Integer.MAX_VALUE.
-	 * @param s The settings object
-	 */
-	public MessageRouter(Settings s) {
-		this.bufferSize = Integer.MAX_VALUE; // defaults to rather large buffer	
-		this.msgTtl = Message.INFINITE_TTL;
-		this.applications = new HashMap<String, Collection<Application>>();
-		
-		if (s.contains(B_SIZE_S)) {
-			this.bufferSize = s.getInt(B_SIZE_S);
-		}
-		if (s.contains(MSG_TTL_S)) {
-			this.msgTtl = s.getInt(MSG_TTL_S);
-		}
-		if (s.contains(SEND_QUEUE_MODE_S)) {
-			this.sendQueueMode = s.getInt(SEND_QUEUE_MODE_S);
-			if (sendQueueMode < 1 || sendQueueMode > 2) {
-				throw new SettingsError("Invalid value for " + 
-						s.getFullPropertyName(SEND_QUEUE_MODE_S));
-			}
-		}
-		else {
-			sendQueueMode = Q_MODE_RANDOM;
-		}
-		
-	}
+	/**------------------------------   对MessageRouter添加的变量       --------------------------------*/
+	/** 用于判断包的类型 */
+	public String SelectLabel;
+	/** user setting in the sim -setting id ({@value})*/
+	public static final String USERSETTINGNAME_S = "userSetting";
+	/** user setting in the sim Cache */
+	public static final String EnableCache_s = "EnableCache";
+	public String cacheEnable;
+	/** retransmission time of message */
+	private static final String RETRANS_TIME = "reTransTime";
+	private int reTranstime;
+	/** ------------------------------   对MessageRouter添加的变量       --------------------------------*/
+	
+	
+
 	
 	/**
 	 * Initializes the router; i.e. sets the host this router is in and
@@ -143,24 +138,13 @@ public abstract class MessageRouter {
 		this.blacklistedMessages = new HashMap<String, Object>();
 		this.mListeners = mListeners;
 		this.host = host;
+		
+		Settings setting = new Settings(USERSETTINGNAME_S);		//读取设置，判断是否需要分簇
+		cacheEnable = setting.getSetting(EnableCache_s); // decide whether to enable the cache function
+	    Settings s = new Settings("Interface");
+	    reTranstime = s.getInt("reTransmitTime");
 	}
-	
-	/**
-	 * Copy-constructor.
-	 * @param r Router to copy the settings from.
-	 */
-	protected MessageRouter(MessageRouter r) {
-		this.bufferSize = r.bufferSize;
-		this.msgTtl = r.msgTtl;
-		this.sendQueueMode = r.sendQueueMode;
 
-		this.applications = new HashMap<String, Collection<Application>>();
-		for (Collection<Application> apps : r.applications.values()) {
-			for (Application app : apps) {
-				addApplication(app.replicate());
-			}
-		}
-	}
 	
 	/**
 	 * Updates router.
@@ -173,6 +157,12 @@ public abstract class MessageRouter {
 				app.update(this.host);
 			}
 		}
+		
+		// 针对重传消息列表进行更新		
+//		if (cacheEnable.indexOf("true") >= 0) {
+//			this.getHost().getCacheRouter().updateReTransfer(); //测试更新重传表中信息
+//		}
+
 	}
 	
 	/**
@@ -186,7 +176,7 @@ public abstract class MessageRouter {
 	 * @param id ID of the message
 	 * @return The message
 	 */
-	protected Message getMessage(String id) {
+	public Message getMessage(String id) {
 		return this.messages.get(id);
 	}
 	
@@ -336,52 +326,58 @@ public abstract class MessageRouter {
 	 * @return The message that this host received
 	 */
 	public Message messageTransferred(String id, DTNHost from) {
-		Message incoming = removeFromIncomingBuffer(id, from);
-		boolean isFinalRecipient;
-		boolean isFirstDelivery; // is this first delivered instance of the msg
-		
-		//System.out.println("当前接收到的消息："+incoming.getFrom()+"  "+"  "+"当前节点："+this.getHost());
-		
+		Message incoming = removeFromIncomingBuffer(id, from);			//将消息从incomingMessages删除
+		boolean isFinalRecipient;										//判断消息传递到目的节点
+		boolean isFirstDelivery; 										//is this first delivered instance of the msg //消息传递到该节点	
 		if (incoming == null) {
 			throw new SimError("No message with ID " + id + " in the incoming "+
 					"buffer of " + this.host);
 		}
+		//用于测试的代码
+		System.out.println("当前节点："+"  "+this.getHost()+"   "+"消息剩余重传次数："+incoming.getProperty(RETRANS_TIME)+ "  "
+			+"消息ID："+"  "+incoming.getId()+" "+"源节点："+incoming.getFrom()+"  "+"目的节点："+incoming.getTo() +"  消息大小："+incoming.getSize());
 		
-		incoming.setReceiveTime(SimClock.getTime());
-		
+		incoming.setReceiveTime(SimClock.getTime());					//设置消息接收时间		
+				
 		// Pass the message to the application (if any) and get outgoing message
 		Message outgoing = incoming;
 		for (Application app : getApplications(incoming.getAppID())) {
-			// Note that the order of applications is significant
+			// Note that the order of applications is significant		
 			// since the next one gets the output of the previous.
 			outgoing = app.handle(outgoing, this.host);
-			if (outgoing == null) break; // Some app wanted to drop the message
+			if (outgoing == null) break; 								// Some app want to drop the message
 		}
 		
 		Message aMessage = (outgoing==null)?(incoming):(outgoing);
 		// If the application re-targets the message (changes 'to')
 		// then the message is not considered as 'delivered' to this host.
 		isFinalRecipient = aMessage.getTo() == this.host;
-		isFirstDelivery = isFinalRecipient &&
-		!isDeliveredMessage(aMessage);
-
-		if (!isFinalRecipient && outgoing!=null) {
-			// not the final recipient and app doesn't want to drop the message
-			// -> put to buffer
-			addToMessages(aMessage, false);
-		} else if (isFirstDelivery) {
-			this.deliveredMessages.put(id, aMessage);
-		} else if (outgoing == null) {
+		isFirstDelivery = isFinalRecipient && !isDeliveredMessage(aMessage);  	// 判断是否为目的节点且为第一次到达
+		
+		/** put the message into the corresponding buffer*/
+		if (!isFinalRecipient && outgoing!=null) {			// 不是目的节点，应用层也不想丢掉这个消息
+			// when dtnHost receive this message, the retransmission time should be updated
+		    aMessage.updateProperty(RETRANS_TIME, this.reTranstime);
+		    
+			addToMessages(aMessage, false);      
+			if(incoming.getProperty(SelectLabel)!=null){	// 是否使用缓存功能
+				this.getHost().getCacheRouter().NotDestinationCache(aMessage);
+			}
+		}	
+		else if (isFirstDelivery) {							// 这是目的节点且是第一次到达
+			this.deliveredMessages.put(id, aMessage);	
+			if(incoming.getProperty(SelectLabel)!=null){	// 是否使用缓存功能
+				this.getHost().getCacheRouter().DestinationCache(aMessage);
+			}
+		} 
+		else if (outgoing == null) {			
 			// Blacklist messages that an app wants to drop.
 			// Otherwise the peer will just try to send it back again.
-			this.blacklistedMessages.put(id, null);
-		}
-		
+			this.blacklistedMessages.put(id, null);											
+		}		
 		for (MessageListener ml : this.mListeners) {
-			ml.messageTransferred(aMessage, from, this.host,
-					isFirstDelivery);
-		}
-		
+			ml.messageTransferred(aMessage, from, this.host,isFirstDelivery);
+		}		
 		return aMessage;
 	}
 	
@@ -423,7 +419,7 @@ public abstract class MessageRouter {
 	 * @param newMessage If true, message listeners are informed about a new
 	 * message, if false, nothing is informed.
 	 */
-	protected void addToMessages(Message m, boolean newMessage) {
+	public void addToMessages(Message m, boolean newMessage) {		
 		this.messages.put(m.getId(), m);
 		
 		if (newMessage) {
@@ -433,15 +429,7 @@ public abstract class MessageRouter {
 		}
 	}
 	
-	/**
-	 * Removes and returns a message from the message buffer.
-	 * @param id Identifier of the message to remove
-	 * @return The removed message or null if message for the ID wasn't found
-	 */
-	protected Message removeFromMessages(String id) {
-		Message m = this.messages.remove(id);
-		return m;
-	}
+
 	
 	/**
 	 * This method should be called (on the receiving host) when a message 
@@ -526,8 +514,8 @@ public abstract class MessageRouter {
 						throw new SimError("Invalid type of objects in " + 
 								"the list");
 					}
-					
 					diff = m1.getReceiveTime() - m2.getReceiveTime();
+					
 					if (diff == 0) {
 						return 0;
 					}
@@ -539,7 +527,6 @@ public abstract class MessageRouter {
 		default:
 			throw new SimError("Unknown queue mode " + sendQueueMode);
 		}
-		
 		return list;
 	}
 
@@ -653,5 +640,68 @@ public abstract class MessageRouter {
 		return getClass().getSimpleName() + " of " + 
 			this.getHost().toString() + " with " + getNrofMessages() 
 			+ " messages";
+	}
+	
+	
+	
+	/** -------------------------- 对代码的修改  --------------------------- */
+	
+	/**
+	 * Constructor. Creates a new message router based on the settings in
+	 * the given Settings object. Size of the message buffer is read from
+	 * {@link #B_SIZE_S} setting. Default value is Integer.MAX_VALUE.
+	 * @param s The settings object
+	 */
+	public MessageRouter(Settings s) {
+		this.bufferSize = Integer.MAX_VALUE; // defaults to rather large buffer	
+		
+		this.msgTtl = Message.INFINITE_TTL;
+		this.applications = new HashMap<String, Collection<Application>>();
+
+		if (s.contains(B_SIZE_S)) {
+			this.bufferSize = s.getInt(B_SIZE_S);
+		}
+		if (s.contains(MSG_TTL_S)) {
+			this.msgTtl = s.getInt(MSG_TTL_S);
+		}
+		if (s.contains(SEND_QUEUE_MODE_S)) {
+			this.sendQueueMode = s.getInt(SEND_QUEUE_MODE_S);
+			if (sendQueueMode < 1 || sendQueueMode > 2) {
+				throw new SettingsError("Invalid value for " + 
+						s.getFullPropertyName(SEND_QUEUE_MODE_S));
+			}
+		}
+		else {
+			sendQueueMode = Q_MODE_RANDOM;
+		}
+		
+	}
+
+	
+	/**
+	 * Copy-constructor.
+	 * @param r Router to copy the settings from.
+	 */
+	protected MessageRouter(MessageRouter r) {
+		this.bufferSize = r.bufferSize;
+		this.msgTtl = r.msgTtl;
+		this.sendQueueMode = r.sendQueueMode;
+
+		this.applications = new HashMap<String, Collection<Application>>();
+		for (Collection<Application> apps : r.applications.values()) {
+			for (Application app : apps) {
+				addApplication(app.replicate());
+			}
+		}
+	}
+	
+	/**
+	 * Removes and returns a message from the message buffer.
+	 * @param id Identifier of the message to remove
+	 * @return The removed message or null if message for the ID wasn't found
+	 */
+	public Message removeFromMessages(String id) {
+		Message m = this.messages.remove(id);
+		return m;
 	}
 }

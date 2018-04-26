@@ -69,6 +69,14 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 	public JRadioButton gridCalculationMode1;// 网格计算模式选择， 预先计算存储 or 实时计算
 	public JRadioButton gridCalculationMode2;
 	
+//	public JRadioButton HopByHop_Confirm;					// 逐跳确认
+//	public JRadioButton fast_Forward;						// 快速转发
+	public JTextField nrofFile;
+
+	private JCheckBox HopByHop_Confirm;
+	private JCheckBox RandomDropMessage;
+	
+	
 	public RouterInfo(){
 		super("参数配置");										//   copyright by USTC");
 		setSize(WIN_DEFAULT_WIDTH,WIN_DEFAULT_HEIGHT);
@@ -126,11 +134,12 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 	    JLabel label1=new JLabel("路由协议选择：",JLabel.LEFT);
 		RouterC = new JComboBox();
 		String[] description = {
-				"DirectDeliveryRouter", "GridRouter", "ClusterRouter",
-				"EASRRouter", "FirstContactRouter", "EpidemicRouter",
+//				"ShortestPathFirstRouter","DirectDeliveryRouter", "GridRouter", "ClusteringRouter",
+//				"EASRRouter", "FirstContactRouter", "EpidemicRouter",
+				"ShortestPathFirstRouter", "ClusteringRouter", "NetGridRouter",  "EpidemicRouter",
 		};
 		
-	    for(int i = 0; i < 6; i++)
+	    for(int i = 0; i < description.length; i++)
 	    	RouterC.addItem(description[i]);
 		
 		label1.setBounds(10, 25, 100, 30);
@@ -166,15 +175,15 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		ButtonGroup queueModel = new ButtonGroup();
 		queueMode1 = new JRadioButton("Random", false);
 		queueMode2 = new JRadioButton("FIFO", false);
-		queueMode1.setSelected(true);
+		queueMode2.setSelected(true);
 	    
 	    queueModel.add(queueMode1);
 	    queueModel.add(queueMode2);
 	    qlabel1.setBounds(10, 105, 100, 30);
-	    qlabel2.setBounds(131,105, 55, 30);
-	    queueMode1.setBounds(189,105, 20, 30);
-	    qlabel3.setBounds(215,105, 55, 30);
-	    queueMode2.setBounds(272,105,20, 30);
+	    qlabel2.setBounds(215,105, 55, 30);
+	    queueMode1.setBounds(272,105,20, 30);
+	    qlabel3.setBounds(131,105, 55, 30);
+	    queueMode2.setBounds(189,105, 20, 30);
 	    
 		RouteFirst.add(qlabel1);
 		RouteFirst.add(qlabel2);
@@ -231,7 +240,7 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 	    //第七行
 	    JLabel label61=new JLabel("节点传输速率：",JLabel.LEFT);
 	    JLabel label62=new JLabel("kbps",JLabel.LEFT);
-		transmissionRate = new JTextField("100");
+		transmissionRate = new JTextField("500");
 		label61.setBounds(10, 265, 100, 30);
 		transmissionRate .setBounds(130,265, 130, 30);
 		label62.setBounds(265, 265, 40, 30);
@@ -241,8 +250,8 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		
 		//第八行
 	    JLabel label71=new JLabel("节点传输半径：",JLabel.LEFT);
-	    JLabel label72=new JLabel("m",JLabel.LEFT);
-		transmissionRadius = new JTextField("40000");
+	    JLabel label72=new JLabel("km",JLabel.LEFT);
+		transmissionRadius = new JTextField("4000");
 		label71.setBounds(10, 305, 100, 30);
 		transmissionRadius.setBounds(130,305, 130, 30);
 		label72.setBounds(265, 305, 40, 30);
@@ -322,37 +331,36 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		JPanel CacheFirst = new JPanel();
 		CacheFirst.setBorder(new TitledBorder("通用配置"));
 		CacheFirst.setLayout(null);
+		
 		//	第一行
 	    JLabel label1=new JLabel("逐跳确认",JLabel.LEFT);
-	    JLabel label2=new JLabel("快速转发",JLabel.LEFT);
+	    JLabel label2=new JLabel("随机丢包",JLabel.LEFT);
 	    
-	    ButtonGroup g = new ButtonGroup();
-	    JRadioButton	    rb1 = new JRadioButton("", false),
-	    					rb2 = new JRadioButton("", false);
-	    rb1.setSelected(true);
-	    g.add(rb1);
-	    g.add(rb2);
+	    HopByHop_Confirm = new JCheckBox();
+	    HopByHop_Confirm.setSelected(false);
+
+	    RandomDropMessage = new JCheckBox();
+	    RandomDropMessage.setSelected(false);
 	    
 	    label1.setBounds(10, 20, 60, 30);
-	    rb1.setBounds(70, 20, 20, 30);
+		HopByHop_Confirm.setBounds(70, 20, 20, 30);
 	    label2.setBounds(110, 20, 60, 30);
-	    rb2.setBounds(170, 20, 20, 30);
+	    RandomDropMessage.setBounds(170, 20, 20, 30);
 	    CacheFirst.add(label1);
-	    CacheFirst.add(rb1);
+	    CacheFirst.add(HopByHop_Confirm);
 	    CacheFirst.add(label2);
-	    CacheFirst.add(rb2);
+	    CacheFirst.add(RandomDropMessage);
 	    
 	    // 第三行
 	    JLabel label3=new JLabel("节点缓存大小：",JLabel.LEFT);
-		JTextField txt3 = new JTextField("100");
-		JLabel label31 = new JLabel("M",JLabel.LEFT);		
+		JTextField txt3 = new JTextField("1000");
+		JLabel label31 = new JLabel("k",JLabel.LEFT);		
 		label3.setBounds(10, 60, 100, 30);
 		txt3.setBounds(130,60, 130, 30);
 		label31.setBounds(265, 60, 20, 30);
 		CacheFirst.add(label3);
 		CacheFirst.add(txt3);
 		CacheFirst.add(label31);
-
 	    
 	    // 第四行
 	    JLabel label4 = new JLabel("文件请求间隔：",JLabel.LEFT);
@@ -371,7 +379,7 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		final JTextField txt5 = new JTextField("1");
 		final JTextField txt51 = new JTextField("10");
 		JLabel label51 = new JLabel("~",JLabel.LEFT);
-		JLabel label52 = new JLabel("M",JLabel.LEFT);
+		JLabel label52 = new JLabel("k",JLabel.LEFT);
 
 		label5.setBounds(10, 140, 100, 30);
 		txt5.setBounds(130, 140, 60, 30);
@@ -385,15 +393,25 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		CacheFirst.add(label52);
 		
 	    // 第六行
-	    JLabel label6 = new JLabel("分片数目：",JLabel.LEFT);
-		JTextField txt6 = new JTextField("10");
+	    JLabel label6 = new JLabel("文件数目：",JLabel.LEFT);
+		nrofFile = new JTextField("60");
 		JLabel label61 = new JLabel("个",JLabel.LEFT);
 		label6.setBounds(10, 180, 100, 30);
-		txt6.setBounds(130,180, 130, 30);
+		nrofFile.setBounds(130,180, 130, 30);
 		label61.setBounds(265, 180, 20, 30);
 		CacheFirst.add(label6);
-		CacheFirst.add(txt6);
+		CacheFirst.add(nrofFile);
 		CacheFirst.add(label61);
+		
+	    JLabel label7 = new JLabel("分片数目：",JLabel.LEFT);
+		JTextField txt7 = new JTextField("10");
+		JLabel label71 = new JLabel("个",JLabel.LEFT);
+		label7.setBounds(10, 220, 100, 30);
+		txt7.setBounds(130,220, 130, 30);
+		label71.setBounds(265, 220, 20, 30);
+		CacheFirst.add(label7);
+		CacheFirst.add(txt7);
+		CacheFirst.add(label71);
 
 	    
 		//---------------------------设置二级缓存参数页面----------------------------//			
@@ -511,7 +529,7 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		JLabel mslabel4 = new JLabel("轨道面倾角：",JLabel.LEFT);
 		
 		if (totalNodes == null){
-			totalNodes = new JTextField("30");
+			totalNodes = new JTextField("36");
 			totalPlane = new JTextField("3");
 			phaseFactor = new JTextField("0");
 			radius = new JTextField("785");
@@ -695,7 +713,7 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		//第二行 仿真时间设置
 		JLabel label2 = new JLabel("仿真时间：",JLabel.RIGHT);
 		JLabel time = new JLabel("s");
-		simTime = new JTextField("43200",JTextField.CENTER);
+		simTime = new JTextField("12000",JTextField.CENTER);
 		simTime.addActionListener(this);
 		label2.setBounds(0, 65, 80, 30);
 		simTime.setBounds(95, 65, 170, 30);
@@ -719,7 +737,7 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		//第四行 预热时间
 		JLabel label4 = new JLabel("预热时间：",JLabel.RIGHT);
 		JLabel time3 = new JLabel("s");
-		warmUp = new JTextField("1000");
+		warmUp = new JTextField("10");
 		label4.setBounds(0, 145, 80, 30);
 		warmUp.setBounds(95, 145, 170, 30);
 		time3.setBounds(270, 145, 20, 30);
@@ -785,7 +803,23 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 
 	private void CacheParaSet() {
 		// TODO Auto-generated method stub
+		Settings settings = new Settings();
+		/** 是否启用缓存功能 */
+		if (HopByHop_Confirm.isSelected()){			//发送队列模式
+			settings.setSetting("userSetting.EnableCache","true");			//逐跳确认
+		}else{
+			settings.setSetting("userSetting.EnableCache","false");			//快速转发
+		}
+
+		if(RandomDropMessage.isSelected()){
+			settings.setSetting("userSetting.RandomDropMessage","true");	//随机丢包
+		}else{
+			settings.setSetting("userSetting.RandomDropMessage","false");	//不选择随机丢包
+		}
 		
+		/**	设置仿真中文件数目*/
+		settings.setSetting("Group.nrofFile", String.valueOf(nrofFile.getText()));
+
 	}
 
 	public void RouteParaSet(){
@@ -805,9 +839,9 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 			settings.setSetting("Group.sendQueue","2");//FIFO
 		/**路由模式选择**/
 		if (routerMode1.isSelected())//路由模式
-			settings.setSetting("userSetting.routerMode","1");//逐跳确认
+			settings.setSetting("userSetting.routerMode","AllConnected");//逐跳确认
 		else
-			settings.setSetting("userSetting.routerMode","2");//指定路径
+			settings.setSetting("userSetting.routerMode","Cluster");//指定路径
 		/**网格法路由计算模式**/
 		if (gridCalculationMode1 != null){
 			if (gridCalculationMode1.isSelected())
@@ -817,8 +851,8 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 		}
 		
 		settings.setSetting("Group.bufferSize",String.valueOf(bufferSize.getText()) + "M");
-		settings.setSetting("Interface.transmitSpeed",String.valueOf(transmissionRate.getText()) + "k");//kbps
-		settings.setSetting("Interface.transmitRange",String.valueOf(transmissionRadius.getText()));//km
+		settings.setSetting("Interface.transmitSpeed",String.valueOf(transmissionRate.getText()) + "k");	//kbps
+		settings.setSetting("Interface.transmitRange",String.valueOf(transmissionRadius.getText()));		//km
 		
 		settings.setSetting("Scenario.endTime",String.valueOf(simTime.getText()));
 		settings.setSetting("Scenario.updateInterval",String.valueOf(interval.getText()));
@@ -838,7 +872,9 @@ public class RouterInfo extends JFrame implements ActionListener, ChangeListener
 	public void orbitSetting_LEO(){
 		Settings settings = new Settings();
 		settings.setSetting("Group.nrofHosts",String.valueOf(totalNodes.getText()));
-		settings.setSetting("userSetting.nrofPlane",String.valueOf(totalPlane.getText()));
+		String range = "[0,"+String.valueOf(totalNodes.getText())+"]";
+		settings.setSetting("Events1.hosts", range);
+		settings.setSetting("Group.nrofLEOPlanes",String.valueOf(totalPlane.getText()));
 		settings.setSetting("userSetting.phaseFactor",String.valueOf(phaseFactor.getText()));
 		settings.setSetting("userSetting.radius",String.valueOf(radius.getText()));
 		settings.setSetting("userSetting.eccentricity",String.valueOf(eccentricity.getText()));

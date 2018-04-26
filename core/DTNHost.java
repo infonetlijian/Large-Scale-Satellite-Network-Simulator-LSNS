@@ -5,18 +5,25 @@
 package core;
 
 import satellite_orbit.SatelliteOrbit;
+import interfaces.SimpleSatelliteInterface;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
+import Cache.File;
 import movement.MovementModel;
 import movement.Path;
 import movement.SatelliteMovement;
 import routing.GridRouter;
 import routing.MessageRouter;
 import routing.util.RoutingInfo;
+import Cache.CacheRouter;
 
 /**
  * A DTN capable host.
@@ -53,34 +60,44 @@ public class DTNHost implements Comparable<DTNHost> {
 	
 	/**记录卫星节点的序号*/
 	private int order_;
-	/**记录卫星节点的序号*/
-	
 	/**修改函数部分**/
 	private  double []parameters= new double[6];
-	private Neighbors nei;//新增;
+	private Neighbors nei;		//新增;
 	//private GridNeighbors GN;
 	
 	/** namespace for host group settings ({@value})*/
 	public static final String GROUP_NS = "Group";
 	/** number of hosts in the group -setting id ({@value})*/
 	public static final String NROF_HOSTS_S = "nrofHosts";
-	//private static final int NROF_PLANE = 32;//轨道平面数
-	//private static final int NROF_SATELLITES = 1024;//总节点数
-	//private static final int NROF_S_EACHPLANE = NROF_SATELLITES/NROF_PLANE;//每个轨道平面上的节点数
 	
-	private List<DTNHost> hosts = new ArrayList<DTNHost>();//全局卫星节点列表
-	private List<DTNHost> hostsinCluster = new ArrayList<DTNHost>();//同一个簇内的节点列表
-	private List<DTNHost> hostsinMEO = new ArrayList<DTNHost>();//管理卫星的节点列表
+	private List<DTNHost> hosts = new ArrayList<DTNHost>();				//全局卫星节点列表
+	private List<DTNHost> hostsinCluster = new ArrayList<DTNHost>();	//同一个簇内的节点列表
+	private List<DTNHost> hostsinMEO = new ArrayList<DTNHost>();		//管理卫星的节点列表
 	
-	private int totalSatellites;//总节点数
-	private int totalPlane;//总平面数
-	private int nrofPlane;//卫星所属轨道平面编号
-	private int nrofSatelliteINPlane;//卫星在轨道平面内的编号
-	private int ClusterNumber;//代表本节点所归属的簇序号
+	private int totalSatellites;		//总节点数
+	private int totalPlane;				//总平面数
+	private int nrofPlane;				//卫星所属轨道平面编号
+	private int nrofSatelliteINPlane;	//卫星在轨道平面内的编号
+	private int ClusterNumber;			//代表本节点所归属的簇序号
 	
 	private HashMap<Integer, List<DTNHost>> ClusterList = new HashMap<Integer, List<DTNHost>>();
 	/**修改参数部分**/
 	
+	/**------------------------------   对 DTNHost 添加的变量       --------------------------------*/
+
+	/** file中具体携带的内容 */
+	private HashMap<String,Integer> files;	
+	/** 做一个FileBuffer 对数据进行存储 */
+	private HashMap<String,File> FileBuffer;
+	/** 做一个ChunkBuffer 对数据进行缓存 */
+	private HashMap<String, HashMap<String,File>> ChunkBuffer = new HashMap<String, HashMap<String,File>>();
+	/** 绑定缓存路由 */
+	private CacheRouter cacherouter;
+	/** routing parameter */
+	public static boolean multiThread;
+	
+	
+	/**------------------------------   对  DTNHost 添加的变量       --------------------------------*/
 	
 	static {
 		DTNSim.registerForReset(DTNHost.class.getCanonicalName());
@@ -165,7 +182,7 @@ public class DTNHost implements Comparable<DTNHost> {
 	 * @return true if this node's radio is active (false if not)
 	 */
 	public boolean isRadioActive() {
-		/* TODO: make this work for multiple interfaces */
+		/* TODO: make this work for multiple interfaces */	
 		return this.getInterface(1).isActive();
 	}
 
@@ -220,11 +237,9 @@ public class DTNHost implements Comparable<DTNHost> {
 	 */
 	public List<Connection> getConnections() {
 		List<Connection> lc = new ArrayList<Connection>();
-
 		for (NetworkInterface i : net) {
 			lc.addAll(i.getConnections());
 		}
-
 		return lc;
 	}
 
@@ -375,18 +390,100 @@ public class DTNHost implements Comparable<DTNHost> {
 	 */
 	public void update(boolean simulateConnections) {
 		if (!isRadioActive()) {
-			// Make sure inactive nodes don't have connections
+			// Make sure inactive nodes don't have connections			
 			tearDownAllConnections();
 			return;
 		}
 		
 		if (simulateConnections) {
+			if (multiThread)
+				multiThreadInterfaceUpdate();
 			for (NetworkInterface i : net) {
+//				System.out.println("当前节点为：" + this.address
+//						+ "  DTNHsot.java 网络接口数目：" + net.size() + "  网络接口类型："
+//						+ i.getInterfaceType() + "  网络接口：" + i);
 				i.update();
 			}
 		}
 		this.router.update();
 	}
+	
+	/**
+	 * 
+	 */
+	public void multiThreadInterfaceUpdate(){
+		int nrofCPU = Runtime.getRuntime().availableProcessors();// adjust thread pool size according to the computer platform
+		//Create a thread pool
+		//ExecutorService pool = Executors.newFixedThreadPool(nrofCPU);
+		ExecutorService pool = Executors.newCachedThreadPool();
+		//create a task list contains return value
+		List<Callable> threadList = new ArrayList<Callable>();
+		List<Future<Boolean>> resultList = new ArrayList<Future<Boolean>>();
+		
+		for (NetworkInterface ni : net) {
+			threadList.add(new SingleCallable(ni.toString(), ni));
+		}
+		for (int i = 0; i < threadList.size(); i++) {
+			//execute the task and acquire 'future' object
+			Future<Boolean> future = pool.submit(threadList.get(i));
+			resultList.add(future);
+			
+			//acquire the return value from 'future' object
+
+//			if (resultList.size() >= nrofCPU) {
+//				boolean done = false;
+//				while (!done) {
+//					for (Future<Boolean> f : resultList) {
+//						if (f.isDone()) {
+//							done = true;
+//							resultList.remove(f);
+//						}
+//					}
+//				}
+//			}
+		}
+		boolean done = false;
+		while (!done){
+			if (resultList.get(resultList.size() - 1).isDone())
+				done = true;
+		}
+		pool.shutdown();
+	}
+	
+	/**
+	 * Enable or disable the multiThread method in the simulation according to user's setting 
+	 */
+	public static void setMultiThread(){
+		Settings s = new Settings("userSetting");
+		multiThread = s.getBoolean("multiThread");
+	}
+	/**
+	 * Define the task in the thread pool, i.e., the calculation process of one node
+	 */
+	class SingleCallable implements Callable<Object> {
+		private String taskNum;
+		private NetworkInterface inf;
+		SingleCallable(String taskNum, NetworkInterface inf) {
+			this.taskNum = taskNum;
+			this.inf = inf;
+		}
+		/**
+		 * Execute the specific task in thread pool.
+		 */
+		public Object call() throws Exception {
+			((SimpleSatelliteInterface)this.inf).multiThreadUpdate();
+			return true;
+		}
+		/**
+		 * Returns a string presentation of the host.
+		 * @return Host's name
+		 */
+		public String toString() {
+			return taskNum;
+		}
+	}
+	
+	
 	
 	/** 
 	 * Tears down all connections for this host.
@@ -461,7 +558,6 @@ public class DTNHost implements Comparable<DTNHost> {
 		if (retVal == MessageRouter.RCV_OK) {
 			m.addNodeOnPath(this);	// add this node on the messages path
 		}
-
 		return retVal;	
 	}
 
@@ -630,20 +726,26 @@ public class DTNHost implements Comparable<DTNHost> {
 		double possibleMovement;
 		double distance;
 		double dx, dy;
-		
 		this.location.setLocation3D(((SatelliteMovement)this.movement).getSatelliteCoordinate(SimClock.getTime()));
-		
-		//this.location.my_Test(SimClock.getTime(),timeIncrement,this.parameters);
-		//System.out.println(this+" time: "+SimClock.getTime()+"  "+location);
-		//System.out.println(SimClock.getTime()+"  "+this+"  "+location.getX()+"  "+location.getY()+"  "+location.getZ());
-
 	}	
+	/**
+	 * calculate the Orbit coordinate parameters
+	 * @param parameters
+	 * @param time
+	 * @return
+	 */
 	public double[] calculateOrbitCoordinate(double[] parameters, double time){
 		return ((SatelliteMovement)this.movement).calculateOrbitCoordinate(parameters, time);
 	}
+	
+	/**
+	 * get the movement model
+	 * @return
+	 */
 	public MovementModel getMovementModel(){
 		return this.movement;
 	}
+	
 	/*新增函数*/
 	//public GridNeighbors getGridNeighbors(){
 	//	return GN;
@@ -666,6 +768,17 @@ public class DTNHost implements Comparable<DTNHost> {
 		((SatelliteMovement)this.movement).setOrbitParameters(parameters);
 		this.location.my_Test(0.0,0.0,this.parameters);//修改节点的初始化位置函数,获取t=0时刻的位置
 	}
+	/**
+	 * test the orbit parameters
+	 * @param parameters
+	 */
+	public void SetSatelliteParametersTest(double[] parameters){
+		for (int i = 0; i < 6; i++){
+			this.parameters[i] = parameters[i];
+		}
+		this.location.my_Test(0.0,0.0,this.parameters);//修改节点的初始化位置函数,获取t=0时刻的位置
+	}
+	
 	/**
 	 * 初始化时，改变本节点所在的簇序号
 	 * @param num
@@ -816,4 +929,140 @@ public class DTNHost implements Comparable<DTNHost> {
 
 	}
 	
+	/**------------------------------   对  DTNHost 添加的函数方法       --------------------------------*/	
+	
+	/** 获取DTNHost中的chunkBuffer*/
+	public HashMap<String, HashMap<String,File>> getChunkBuffer() {
+		return ChunkBuffer;
+	}
+	
+	/** 对定义的表进行处理*/
+	public void setFiles(HashMap<String, Integer> files) {
+		this.files = files;
+	}
+	/** 获取节点中存放的关于file的表*/
+	public HashMap<String, Integer> getFiles() {
+		return files;
+	}
+
+	/** 对定义的缓存区进行处理*/
+	public void setFileBuffer(HashMap<String, File> FileBuffer) {
+		this.FileBuffer = FileBuffer;
+	}
+	/** 获取文件的缓存*/
+	public HashMap<String, File> getFileBuffer() {
+		return FileBuffer;
+	}
+	
+	/** 看缓存FileBuffer中有没有文件  */
+	public File getFileBufferForFile(Message aMessage) {
+
+		if (this.FileBuffer.containsKey(aMessage.getFilename()))
+			return this.FileBuffer.get(aMessage.getFilename());
+		else
+			return null;
+		//return this.FileBuffer.get(aMessage.getFilename());
+	}
+	/** gyq_test 2016/07/08     用于得到当前节点缓存的剩余空间  */
+	public int getFreeFileBufferSize(){
+		int occupancy = 0;		
+
+		if (this.router.getBufferSize() == Integer.MAX_VALUE) {
+			return Integer.MAX_VALUE;
+		}
+		for (File File: getFileCollection()){
+			occupancy += File.getSize();
+		}
+
+		return this.cacherouter.getFileBufferSize() - occupancy;
+	}
+	
+	/** 得到的是存放文件的fileBuffersize  */
+	public int getFileBufferSize(){
+		return this.cacherouter.getFileBufferSize();
+	}
+	
+	/** gyq_test 2016/07/08   用于删除缓存中被请求时间最久的文件  */
+	public boolean makeRoomForNewFile(int size){
+		if (size > this.cacherouter.getFileBufferSize()) {
+			return false; 										// message too big for the buffer
+		}
+		int freeBuffer = this.getFreeFileBufferSize();
+		/* delete messages from the buffer until there's enough space */
+		while (freeBuffer < size) {			
+			File File = getNextFileToRemove(true);
+			if (File == null) {
+				return false; 									// couldn't remove any more messages
+			}			
+			/* delete message from the buffer as "drop" */
+			deleteFile(File.getId(), true);
+			freeBuffer += File.getSize();
+		}
+		return true;
+	}
+	
+	/** gyq_test 2016/07/08    找到被请求时间最长的文件，作为下一个待移除文件   */
+	protected File getNextFileToRemove(boolean excludeMsgBeingSent){
+		Collection<File> filebuffer = this.getFileCollection();
+		File oldest = null;
+		for (File f: filebuffer){
+			if(!f.getInitFile()){          // 如果不是初始化放入的文件，继续执行
+				if (oldest == null ) {
+					oldest = f;
+				}
+				else if (oldest.getTimeRequest()> f.getTimeRequest()) {
+					oldest = f;
+				}
+			}
+		}
+		return oldest;
+	}
+	
+	/**  gyq_test 2016/07/08    删除节点buffer中文件    */
+	public void deleteFile(String id, boolean drop) {
+		File removed = removeFromFileBuffer(id);
+		if (removed == null) throw new SimError("no file for id " +
+				id + " to remove at " + this.getAddress());
+		
+		//for (MessageListener ml : this.mListeners) {
+		//ml.messageDeleted(removed, this.getAddress(), drop);
+		//}														                      // 少了时间监听器
+	}
+	
+	/** gyq_test 2016/07/08    用于从当前节点缓存空间中删除文件   */
+	public File removeFromFileBuffer(String id){
+		File f= this.FileBuffer.remove(id);
+		return f;
+	}
+	
+	/**　放当前消息进入待确认消息列表里  */
+//	public void putIntoJudgeForRetransfer(Message m){
+//		this.cacherouter.putJudgeForRetransfer(m);		
+//	}
+	
+	/** gyq_test 2016/07/08      用于得到当前节点的fileCollection */
+	public Collection<File> getFileCollection(){
+		return this.FileBuffer.values();
+	}
+	
+	/** 为当前节点设置缓存路由  CacheRouter */
+	/**
+	 * Set a CacheRouter for this host
+	 * @param cacherouter The router to set
+	 */
+	public void setRouter(CacheRouter cacherouter) {
+		cacherouter.init(this, msgListeners);
+		this.cacherouter = cacherouter;
+	}
+	public CacheRouter getCacheRouter(){
+		return this.cacherouter;
+	}
+	/**------------------------------   对  DTNHost 添加的函数方法       --------------------------------*/	
+	
+    /**
+     * @return satellite type in multi-layer satellite networks: LEO, MEO or GEO
+     */
+    public String getSatelliteType(){
+    	return ((SatelliteMovement)getMovementModel()).getSatelliteType();
+    }
 }
