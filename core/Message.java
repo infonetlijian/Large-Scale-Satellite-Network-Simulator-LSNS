@@ -1,7 +1,3 @@
-/* 
- * Copyright 2010 Aalto University, ComNet
- * Released under GPLv3. See LICENSE.txt for details. 
- */
 package core;
 
 
@@ -14,7 +10,12 @@ import java.util.Set;
 import Cache.File;
 
 /**
- * A message that is created at a node or passed between nodes.
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File Message.java
+ * Package Name:core
+ * Description: A message that is created at a node or passed between nodes.
+ * Copyright 2018 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
 public class Message implements Comparable<Message> {
 	/** Time-to-live (TTL) as seconds -setting id ({@value}). Boolean valued.

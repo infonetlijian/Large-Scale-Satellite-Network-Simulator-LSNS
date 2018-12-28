@@ -1,7 +1,3 @@
-/* 
- * Copyright 2010 Aalto University, ComNet
- * Released under GPLv3. See LICENSE.txt for details. 
- */
 package core;
 import gui.DTNSimGUI;
 
@@ -12,6 +8,7 @@ import java.awt.SplashScreen;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,7 +18,12 @@ import Develop.OneSimUI;
 import ui.DTNSimTextUI;
 
 /**
- * Simulator's main class 
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File DTNSim.java
+ * Package Name:core
+ * Description: Simulator's main class
+ * Copyright 2018 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
 public class DTNSim {
 	/** If this option ({@value}) is given to program, batch mode and
@@ -29,20 +31,39 @@ public class DTNSim {
 	public static final String BATCH_MODE_FLAG = "-b";
 	/** Delimiter for batch mode index range values (colon) */
 	public static final String RANGE_DELIMETER = ":";
-	
+
 	/** Name of the static method that all resettable classes must have
 	 * @see #registerForReset(String) */
 	public static final String RESET_METHOD_NAME = "reset";
 	/** List of class names that should be reset between batch runs */
 	private static List<Class<?>> resetList = new ArrayList<Class<?>>();
-	
-	//------------------------界面修改--------------------------//
-	//	private static DTNSimTextUI DSG;
-	//	private static Main_Window theApplet;
-	
-	
-	//------------------------界面修改--------------------------//
-	
+
+
+	/** user setting in the sim -setting id ({@value})*/
+	public static final String USERSETTINGNAME_S = "userSetting";
+	/** choose GUI in the sim -setting id ({@value})*/
+	public static final String GUI = "GUI";
+
+	/** Router : RelayRouterforInternetAccess */
+	public static final String NROF_BACKUPSATELLITES = "nrofBackupSatellites";
+	public static final String MIN_ELEVATIONANGLE = "minElevationAngle";
+	public static final String TRANSMIT_RANGE = "transmitRange";
+	public static final String INTERFACE = "Interface";
+	public static final String RAYLEIGH = "Rayleigh";
+	public static final String RICE = "Rice";
+	public static final String NODE_TYPE = "Type";
+	public static final String GS = "GroundStation";
+	public static final String SAT = "Satellite";
+	public static final String USER = "TerrestrialUser";
+
+	/** Interface: SatelliteWithChannelModelInterface */
+	/** router mode in the sim -setting id ({@value})*/
+	public static final String ROUTERMODENAME_S = "routerMode";
+
+	public static final String TRANSMITTING_POWER = "TransmittingPower";
+	public static final String TRANSMITTING_FREQUENCY = "TransmittingFrequency";
+	public static final String BANDWIDTH = "Bandwidth";
+
 	/**
 	 * Starts the user interface with given arguments.
 	 * If first argument is {@link #BATCH_MODE_FLAG}, the batch mode and text UI
@@ -127,8 +148,13 @@ public class DTNSim {
 	        catch (Exception e)
 	        {
 	        }
-	        new OneSimUI().start();   
-//			new DTNSimGUI().start();
+			Settings s = new Settings(USERSETTINGNAME_S);
+	        if (s.getBoolean(GUI))
+	        	//new GUI -- some bugs need to be fixed
+	        	new OneSimUI().start();
+	        else
+	        	//old GUI
+				new DTNSimGUI().start();
 		}
 	}
 	

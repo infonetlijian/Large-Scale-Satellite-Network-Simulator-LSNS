@@ -3,9 +3,10 @@
 #
 
 #User Setting
-#dijsktra;
-#userSetting.routerMode = AllConnected
-userSetting.routerMode = Cluster
+# decide to use new GUI or not, used in DTNSim.java
+userSetting.GUI = false
+userSetting.routerMode = AllConnected
+#userSetting.routerMode = Cluster
 
 #simpleConnectivity;
 #userSetting.routerMode = Cluster
@@ -21,7 +22,10 @@ Group.comfirmMessageSize = 1
 
 #缓存相关参数
 userSetting.EnableCache = false
-#userSetting.EnableCache = false
+# upper limits of backup satellites, used in RelayRouterforInternetAccess.java
+userSetting.nrofBackupSatellites = 4
+# minimum elevation angle unit: degree
+userSetting.minElevationAngle = 50.4
 userSetting.RandomDropMessage = false
 Group.nrofFile = 60
 Group.filebuffersize = 1000k
@@ -31,7 +35,17 @@ Group.filebuffersize = 1000k
 Group.nrofInterfaces = 1
 Group.interface1 = Interface1
 Group.interface2 = Interface2
-Interface1.type = SimpleSatelliteInterface
+
+#Interface1.type = SimpleSatelliteInterface
+Interface1.type = SatelliteWithChannelModelInterface
+
+#Transmitting Power Unit: Watt, used in SatellitetoGroundChannelModel.java
+Interface.TransmittingPower = 1
+#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
+Interface.TransmittingFrequency = 20000M
+#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
+Interface.Bandwidth = 100M
+
 Interface1.linkDelayRange = 0,0
 Interface1.transmitSpeed = 60k
 Interface1.transmitRange = 30000

@@ -1,7 +1,3 @@
-/* 
- * Copyright 2011 Aalto University, ComNet
- * Released under GPLv3. See LICENSE.txt for details. 
- */
 package core;
 
 import input.EventQueue;
@@ -23,8 +19,13 @@ import movement.map.SimMap;
 import routing.MessageRouter;
 
 /**
- * A simulation scenario used for getting and storing the settings of a
- * simulation run.
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File SimScenario.java
+ * Package Name:core
+ * Description: A simulation scenario used for getting and storing the
+ * settings of a simulation run.
+ * Copyright 2018 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
 public class SimScenario implements Serializable {
 	

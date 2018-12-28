@@ -1,16 +1,9 @@
-/* 
- * Copyright 2010 Aalto University, ComNet
- * Released under GPLv3. See LICENSE.txt for details. 
- */
 package core;
 
 import satellite_orbit.SatelliteOrbit;
 import interfaces.SimpleSatelliteInterface;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,7 +19,12 @@ import routing.util.RoutingInfo;
 import Cache.CacheRouter;
 
 /**
- * A DTN capable host.
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File DTNHost.java
+ * Package Name:core
+ * Description: A DTN capable host.
+ * Copyright 2018 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
 public class DTNHost implements Comparable<DTNHost> {
 	private static int nextAddress = 0;
@@ -45,8 +43,12 @@ public class DTNHost implements Comparable<DTNHost> {
 	private List<MovementListener> movListeners;
 	private List<NetworkInterface> net;
 	private ModuleCommunicationBus comBus;
-	
-	
+
+	/** Container for generic message properties. Note that all values
+	 * stored in the properties should be immutable as the same of
+	 * properties in Message.java */
+	private Map<String, Object> properties;
+
 	/**存储由运动模型得到的200个三维坐标和200个经纬度坐标，图形界面画图*/
 	int steps = 200;
 	int step = 0;
@@ -636,7 +638,66 @@ public class DTNHost implements Comparable<DTNHost> {
 	public int compareTo(DTNHost h) {
 		return this.getAddress() - h.getAddress();
 	}
-	
+
+	/**
+	 * Adds a generic property for this DTNHost. The key can be any string but
+	 * it should be such that no other class accidently uses the same value.
+	 * @param key The key which is used to lookup the value
+	 * @param value The value to store
+	 * @throws SimError if the DTNHost already has a value for the given key
+	 */
+	public void addProperty(String key, Object value) throws SimError {
+		if (this.properties != null && this.properties.containsKey(key)) {
+			/* check to prevent accidental name space collisions */
+			throw new SimError("DTNHost " + this + " already contains value " +
+					"for a key " + key);
+		}
+
+		this.updateProperty(key, value);
+	}
+	/**
+	 * Returns an object that was stored to this DTNHost using the given
+	 * key. If such object is not found, null is returned.
+	 * @param key The key used to lookup the object
+	 * @return The stored object or null if it isn't found
+	 */
+	public Object getProperty(String key) {
+		if (this.properties == null) {
+			return null;
+		}
+		return this.properties.get(key);
+	}
+
+	/**
+	 * Updates a value for an existing property. For storing the value first
+	 * time, {@link #addProperty(String, Object)} should be used which
+	 * checks for name space clashes.
+	 * @param key The key which is used to lookup the value
+	 * @param value The new value to store
+	 */
+	public void updateProperty(String key, Object value) throws SimError {
+		if (this.properties == null) {
+			/* lazy creation to prevent performance overhead for classes
+			   that don't use the property feature  */
+			this.properties = new HashMap<String, Object>();
+		}
+
+		this.properties.put(key, value);
+	}
+
+	/**
+	 * Removes a value for an existing property.
+	 * @param key The key which should be removed from properties
+	 */
+	public void removeProperty(String key){
+		if (this.properties == null) {
+			/* lazy creation to prevent performance overhead for classes
+			   that don't use the property feature  */
+			this.properties = new HashMap<String, Object>();
+		}
+		this.properties.remove(key);
+
+	}
 	/**------------------------------   对  DTNHost 添加的函数方法       --------------------------------*/	
 	/**将三维坐标转换为二维坐标*/
 	public double[][] convert3DTo2D(double X, double Y, double Z) {

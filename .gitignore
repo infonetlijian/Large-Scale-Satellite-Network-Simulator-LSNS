@@ -17,6 +17,16 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# IntelliJ IDEA
+.idea/
+
+# Folders in ONE simulator
+data/
+out/
+reports/
+wdm_settings/
+
+
 # =========================
 # Operating System Files
 # =========================

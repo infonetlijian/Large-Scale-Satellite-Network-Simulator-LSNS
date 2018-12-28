@@ -1,7 +1,3 @@
-/* 
- * Copyright 2010 Aalto University, ComNet
- * Released under GPLv3. See LICENSE.txt for details. 
- */
 package core;
 
 import java.util.Random;
@@ -11,7 +7,12 @@ import interfaces.SimpleSatelliteInterface;
 import routing.MessageRouter;
 
 /**
- * A connection between two DTN nodes.
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File Connection.java
+ * Package Name:core
+ * Description: A connection between two DTN nodes.
+ * Copyright 2018 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
 public abstract class Connection {
 	protected DTNHost toNode;

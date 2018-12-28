@@ -1,6 +1,6 @@
 /** 
  * Project Name:SatelliteNetworkSimulationPlatform 
- * File Name:DijsktraSearchBasedonTemporalGraph.java 
+ * File CGR.java
  * Package Name:routing 
  * Date:2017年4月6日上午11:09:57 
  * Copyright (c) 2017, LiJian9@mail.ustc.mail.cn. All Rights Reserved. 

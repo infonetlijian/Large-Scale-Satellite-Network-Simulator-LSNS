@@ -1,7 +1,3 @@
-/* 
- * Copyright 2010 Aalto University, ComNet
- * Released under GPLv3. See LICENSE.txt for details. 
- */
 package core;
 
 import input.EventQueue;
@@ -13,8 +9,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * World contains all the nodes and is responsible for updating their
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File World.java
+ * Package Name:core
+ * Description: World contains all the nodes and is responsible for updating their
  * location and connections.
+ * Copyright 2018 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
 public class World {
 	/** name space of optimization settings ({@value})*/
