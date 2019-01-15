@@ -5,8 +5,9 @@
 #User Setting
 # decide to use new GUI or not, used in DTNSim.java
 userSetting.GUI = false
-userSetting.routerMode = AllConnected
-#userSetting.routerMode = Cluster
+#dijsktra;
+#userSetting.routerMode = AllConnected
+userSetting.routerMode = Cluster
 
 #simpleConnectivity;
 #userSetting.routerMode = Cluster
@@ -22,32 +23,20 @@ Group.comfirmMessageSize = 1
 
 #缓存相关参数
 userSetting.EnableCache = false
+#userSetting.EnableCache = false
 userSetting.RandomDropMessage = false
 Group.nrofFile = 60
-
+Group.filebuffersize = 1000k
 
 ## 链路模块参数
 # one satellite node can bind multiple interfaces
 Group.nrofInterfaces = 1
 Group.interface1 = Interface1
 Group.interface2 = Interface2
-
-#Interface1.type = SimpleSatelliteInterface
-Interface1.type = SatelliteWithChannelModelInterface
-
-#Transmitting Power Unit: Watt, used in SatellitetoGroundChannelModel.java
-Interface.TransmittingPower = 1
-#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
-Interface.TransmittingFrequency = 20000M
-#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
-Interface.Bandwidth = 100M
-# used in RelayRouterforInternetAccess.java
-# Rayleigh
-Interface.channelModel = Rice
-
+Interface1.type = SimpleSatelliteInterface
 Interface1.linkDelayRange = 0,0
 Interface1.transmitSpeed = 60k
-Interface1.transmitRange = 6000
+Interface1.transmitRange = 30000
 Interface1.nrofRadioInterface = 1
 Interface2.type = SatelliteLaserInterface
 Interface2.linkDelayRange = 1,5
@@ -58,29 +47,22 @@ Interface2.transmitRange = 30000
 # How many event generators
 Events.nrof = 1
 # Class of the first event generator
-#Events1.class = MessageEventGenerator
-
-Events1.class = ExtendedMessageEventGenerator
-#used in ExtendedMessageEventGenerator.java
-Events1.SpecificMessageGenerator = true
-Events1.hosts = [41,41]
-Events1.tohosts = [40,40]
-
+Events1.class = MessageEventGenerator
 Events2.class = MessageEventGenerator
 #Events1.class = MessageCreateEvent
 # (following settings are specific for the MessageEventGenerator class)
 # Creation interval in seconds (one new message every 25 to 35 seconds)
 #Events1.interval = 1,100
-Events1.interval = 1,1
+Events1.interval = 1,10
 Events2.interval = 1,10
 # Message sizes (500kB - 1MB)
 #Events1.size = 100k,1M
-Events1.size = 64k,64k
+Events1.size = 100k,100k
 Events2.size = 2M,5M
 # range of message source/destination addresses
 #Events1.hosts = [0,9;0,19;0,29;0,39;0,49]修改，注意hosts和tohosts包括下界但不包括上界，即[0, 9)
-Events1.hosts = [41,41]
-Events2.hosts = [0,40]
+Events1.hosts = [0,200]
+Events2.hosts = [0,200]
 # Message ID prefix
 Events1.prefix = RadioM
 Events2.prefix = LaserM
@@ -98,47 +80,17 @@ DynamicMultiLayerSatelliteRouter.Optimized = false
 # 是否开启源路由方式
 Group.msgPathLabel = true
 
-#卫星接入添加的设置选项
-# upper limits of backup satellites, used in RelayRouterforInternetAccess.java
-userSetting.nrofBackupSatellites = 4
-# minimum elevation angle unit: degree
-userSetting.minElevationAngle = 50.4
-Group.filebuffersize = 1000k
-#用户
-Group2.nrofHosts = 1
-Group2.groupID = TerrestrialUser
-Group2.nrofInterfaces = 1
-Group2.interface1 = Interface1
-Interface1.type = SatelliteWithChannelModelInterface
-Interface1.linkDelayRange = 0
-#Interface1.transmitRange = 30000
-Interface1.transmitSpeed = 2.5M
-Group2.movementModel = StationaryMovement3D
-Group2.nodeLocation = [46982,48733,55467]
-#[46982,48733,55467]
-#地面站
-Group3.groupID = GroundStation
-Group3.nrofHosts = 1
-Group3.nrofInterfaces = 1
-Group3.interface1 = Interface1
-Interface1.type = SatelliteWithChannelModelInterface
-Interface1.linkDelayRange = 0
-#Interface1.transmitRange = 30000
-Interface1.transmitSpeed = 10M
-Group3.movementModel = StationaryMovement3D
-Group3.nodeLocation = [46000,48000,55000]
-
 # 太阳同步轨道倾角参考ODIN卫星轨道倾角为97.8度
 # LEO卫星节点参数
 Group.nrofCommunicationNodesInEachPlane = 4
-Group.nrofLEO = 40
+Group.nrofLEO = 200
 Group.nrofLEOPlanes = 10
 Group.LEO_OrbitPlaneAngle = 97.8
 Group.LEO_Eccentricity = 0
 Group.LEO_Radius = 500
 
 # MEO卫星节点参数
-Group.EnableMEO = false
+Group.EnableMEO = true
 Group.MEO_OrbitPlaneAngle = 97.8
 Group.MEO_Radius = 12000
 Group.nrofMEO = 20
@@ -154,15 +106,15 @@ Group.nrofGEOPlane = 1
 Group.GEO_Eccentricity = 0
 
 # 总的卫星节点数目
-Group.nrofHosts = 40
+Group.nrofHosts = 220
 
 # Define 6 different node groups
-Scenario.nrofHostGroups = 3
+Scenario.nrofHostGroups = 1
 
 ## Scenario settings
 Scenario.name = satellite network simulation
 Scenario.simulateConnections = true
-Scenario.updateInterval = 0.1
+Scenario.updateInterval = 1
 # 43200s == 12h
 Scenario.endTime = 1600
 
@@ -177,7 +129,7 @@ Scenario.endTime = 1600
 # "Bluetooth" interface for all nodes
 #Interface.type = SimpleSatelliteInterface
 
-# Transmit speed of 2 Mbps (bit/s) = 250kBps (Byte/s), transmit speed unit in ONE is Byte
+# Transmit speed of 2 Mbps = 250kBps
 Interface.transmitSpeed = 250k
 #注意：ONE中距离单位是meters
 #由于JAT中距离单位为km，因此我们将ONE中的距离单位统一视为km，这样只会在自带的图形界面单位上产生误解，但内部程序的逻辑上没有问题
@@ -249,8 +201,7 @@ Group.Constellation = WalkerDelta
 #Group.router = DirectDeliveryRouter
 #Group.router = ShortestPathFirstRouter
 #Group.router = OptimizedClusteringRouter
-#Group.router = DynamicMultiLayerSatelliteRouter
-Group.router = RelayRouterforInternetAccess
+Group.router = DynamicMultiLayerSatelliteRouter
 
 
 #分簇路由
@@ -282,10 +233,10 @@ Group.waitTime = 0, 120
 # Walking speeds
 Group.speed = 0.5, 1.5
 # Message TTL of 300 minutes (5 hours)
-Group.msgTtl = 300
+Group.msgTtl = 30
 
 # group1 (pedestrians) specific settings
-Group1.groupID = Satellite
+Group1.groupID = Node
 
 
 ## Movement model settings

@@ -1,7 +1,3 @@
-/* 
- * Copyright 2010 Aalto University, ComNet
- * Released under GPLv3. See LICENSE.txt for details. 
- */
 package interfaces;
 
 import java.util.*;
@@ -10,26 +6,34 @@ import core.*;
 import movement.MovementModel;
 
 /**
- * <P>
- * Overlay grid of the world where each interface is put on a cell depending
- * of its location. This is used in cell-based optimization of connecting
- * the interfaces.</P>
- * 
- * <P>The idea in short:<BR>
- * Instead of checking for every interface if some of the other interfaces are close
- * enough (this approach obviously doesn't scale) we check only interfaces that
- * are "close enough" to be possibly connected. Being close enough is
- * determined by keeping track of the approximate location of the interfaces 
- * by storing them in overlay grid's cells and updating the cell information
- * every time the interfaces move. If two interfaces are in the same cell or in 
- * neighboring cells, they have a chance of being close enough for
- * connection. Then only that subset of interfaces is checked for possible
- * connectivity. 
- * </P>
- * <P>
- * <strong>Note:</strong> this class does NOT support negative
- * coordinates. Also, it makes sense to normalize the coordinates to start
- * from zero to conserve memory. 
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File ConnectivityGrid.java
+ * Package Name:interfaces
+ * Description:
+ *
+ *  * <P>
+ *  * Overlay grid of the world where each interface is put on a cell depending
+ *  * of its location. This is used in cell-based optimization of connecting
+ *  * the interfaces.</P>
+ *  *
+ *  * <P>The idea in short:<BR>
+ *  * Instead of checking for every interface if some of the other interfaces are close
+ *  * enough (this approach obviously doesn't scale) we check only interfaces that
+ *  * are "close enough" to be possibly connected. Being close enough is
+ *  * determined by keeping track of the approximate location of the interfaces
+ *  * by storing them in overlay grid's cells and updating the cell information
+ *  * every time the interfaces move. If two interfaces are in the same cell or in
+ *  * neighboring cells, they have a chance of being close enough for
+ *  * connection. Then only that subset of interfaces is checked for possible
+ *  * connectivity.
+ *  * </P>
+ *  * <P>
+ *  * <strong>Note:</strong> this class does NOT support negative
+ *  * coordinates. Also, it makes sense to normalize the coordinates to start
+ *  * from zero to conserve memory.
+ *
+ * Copyright 2018 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
 public class ConnectivityGrid extends ConnectivityOptimizer {
 
@@ -79,7 +83,7 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 		int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE,3);//参数从2维修改为3维
 		worldSizeX = worldSize[0];
 		worldSizeY = worldSize[1];
-		worldSizeZ = worldSize[1];//新增三维变量，待检查！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+		worldSizeZ = worldSize[1];//TODO 新增三维变量，待检查！
 		
 		judgeNearInterfaceMode = s.getSetting(JUDGE_NEARINTERFACE_S);
 		
@@ -273,27 +277,28 @@ public class ConnectivityGrid extends ConnectivityOptimizer {
 			case "Ergodic" :{				
 				for (NetworkInterface interf : getAllInterfaces()){//相邻网格内节点的网络接口，依次检查是不是在距离范围之内
 					if (JudgeNeighbors(interf, c))//判断是否为邻居
-					niList.add(interf);//确认是邻居节点的列表
+						niList.add(interf);//确认是邻居节点的列表
 					
 				}
 			}
-		}	
-//		System.out.print("for test"+SimClock.getTime());
-//		System.out.println(niList);//Networkinterface的显示函数  :return "net interface " + this.address + " of " + this.host + ". Connections: " +	this.connections;
+		}
+		//test command
+		//System.out.print("for test"+SimClock.getTime());
+		//System.out.println(niList);//Networkinterface的显示函数  :return "net interface " + this.address + " of " + this.host + ". Connections: " +	this.connections;
 		
 		return niList;
 	}
 	
 	/**
 	 * Calculate the distance betweent two coordinates, and judge that if they are neighbors or not.
-	 * @param c1
+	 * @param interf
 	 * @param c2
 	 * @return
 	 */
 	public boolean JudgeNeighbors(NetworkInterface interf, Coord c2){
 		Coord c1 = interf.getHost().getLocation();
 		double transmitRange = interf.getTransmitRange();
-
+		//TODO transmitRange
 		double distance = c1.distance(c2);
 		if (distance <= transmitRange)
 			return true;

@@ -121,25 +121,11 @@ public class SimScenario implements Serializable {
 	/** Global application event listeners */
 	private List<ApplicationListener> appListeners;
 
-	/**新增参数**/
-	/** user setting in the sim -setting id ({@value})*/
-	public static final String USERSETTINGNAME_S = "userSetting";
-	public static final String HOSTSMODENAME_S = "hostsMode";
-	/** user setting in the sim -setting id ({@value})*/
-	public static final String CLUSTER_S = "cluster";
-	/** user setting in the sim -setting id ({@value})*/
-	public static final String NORMAL_S = "normal";
-	/** user setting in the sim -setting id ({@value})*/
-	public static final String NROFPLANE_S = "nrofPlane";
-	
-	/**修改函数部分**/
+	/** new 3-dimensional coordinate */
 	private int worldSizeX;
-	/** Height of the world */
 	private int worldSizeY;
 	private int worldSizeZ;//新增参数，三维坐标
-	/**修改函数部分**/
-	
-	
+
 	/**------------------------------   对Message添加的变量       --------------------------------*/
 	/** user setting in the sim Cache */
 	public static final String EnableCache_s = "EnableCache";
@@ -150,10 +136,8 @@ public class SimScenario implements Serializable {
     /** Record the orbit parameters info for satellite movement model **/
     private HashMap<DTNHost, double[]> orbitInfo;
     
-    public static final String nrofFile_s = "nrofFile";
-	
-	
-	
+
+
 	static {
 		DTNSim.registerForReset(SimScenario.class.getCanonicalName());
 		reset();
@@ -188,16 +172,14 @@ public class SimScenario implements Serializable {
 		this.updateListeners = new ArrayList<UpdateListener>();
 		this.appListeners = new ArrayList<ApplicationListener>();
 		this.eqHandler = new EventQueueHandler();
-		
-		/**新增三维世界参数--Z轴**/
+
+		/** new 3-dimensional coordinate */
 		/* TODO: check size from movement models */
 		s.setNameSpace(MovementModel.MOVEMENT_MODEL_NS);
 		int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE, 3);//从2维修改为3维
 		this.worldSizeX = worldSize[0];
 		this.worldSizeY = worldSize[1];
 		this.worldSizeZ = worldSize[2];
-		/**新增三维世界参数**/
-		
 		
 		createHosts();
 		
@@ -383,8 +365,10 @@ public class SimScenario implements Serializable {
      */
     protected void createHosts() {
         this.hosts = new ArrayList<DTNHost>();
+		List<DTNHost> satelliteHosts = new ArrayList<DTNHost>();//record satellite nodes as DTNHost
 
         for (int i = 1; i <= nrofGroups; i++) {
+        	System.out.println(GROUP_NS + i);
             List<NetworkInterface> mmNetInterfaces =
                     new ArrayList<NetworkInterface>();
             Settings s = new Settings(GROUP_NS + i);
@@ -461,26 +445,35 @@ public class SimScenario implements Serializable {
                         this.movementListeners, gid, mmNetInterfaces, comBus,
                         mmProto, mRouterProto);
                 hosts.add(host);
-                System.out.println(j);				
-                
-                mmProto = host.getMovementModel();// mmProto will be replicated in the DTNHost
-                setSatelliteOrbitInfo(host, mmProto, s, j);
+
+                //For satellite nodes, in order to deploy the satellite network according to
+				//constellation, an initialization for satellite orbit should be done
+                mmProto = host.getMovementModel();// warning: mmProto will be replicated in the DTNHost
+				if (mmProto instanceof SatelliteMovement) {
+					satelliteHosts.add(host);
+					setSatelliteOrbitInfo(host, mmProto, s, j);
+				}
             }
-            setOrbitInfo(s);
+            //内部设置了判断条件，只会在满足SatelliteMovement模块时执行
+            setOrbitInfo(s, satelliteHosts);
             setCommunicationNodesProperty(s, hosts);
-            
-            /* initialization of satellite link info */
-            for (DTNHost h : hosts) {
-            	if (h.getMovementModel() instanceof SatelliteMovement)
-            		((SatelliteMovement)h.getMovementModel()).initSatelliteInfo();
-            }
-            //set static clustering for LEO nodes
-            if (!((SatelliteMovement)hosts.get(0).getMovementModel()).getDynamicClustering()){
-            	//System.out.println("dynamic false!");
-            	((SatelliteMovement)hosts.get(0).getMovementModel()).getSatelliteLinkInfo().initStaticClustering();
-            }
+
         }
-        
+
+		/* initialization of satellite link info */
+		for (DTNHost h : hosts) {
+			if (h.getMovementModel() instanceof SatelliteMovement)//卫星节点
+				((SatelliteMovement)h.getMovementModel()).initSatelliteInfo();
+			else {
+				h.changeHostsList(hosts);//对于不是卫星的节点，也将全局节点列表写入
+			}
+		}
+		//set static clustering for LEO nodes
+		if (!((SatelliteMovement)hosts.get(0).getMovementModel()).getDynamicClustering()){
+			//System.out.println("dynamic false!");
+			((SatelliteMovement)hosts.get(0).getMovementModel()).getSatelliteLinkInfo().initStaticClustering();
+		}
+
         // Set the multiThread label according to user's setting
         DTNHost.setMultiThread();
         // decide whether to use cache function
@@ -491,6 +484,10 @@ public class SimScenario implements Serializable {
      * set some nodes in the same orbit plane as communication nodes
      */
 	public void setCommunicationNodesProperty(Settings s, List<DTNHost> hosts){
+		//只对卫星节点进行设置，其它组的节点不管
+		if (!s.getSetting(MOVEMENT_MODEL_S).contains("SatelliteMovement"))
+			return;
+
 		//设置通信卫星节点
 		int nrofCommunicationNodesInEachPlane = s.getInt("nrofCommunicationNodesInEachPlane");
 		//轨道平面信息
@@ -535,18 +532,19 @@ public class SimScenario implements Serializable {
      * @param satelliteNum
      */
     public void setSatelliteOrbitInfo(DTNHost host, MovementModel mmProto, Settings s, int satelliteNum) {
-        int nrofHosts = s.getInt(NROF_HOSTS_S);			//total number of satellite nodes
+		//TODO
+		int nrofLEO = s.getInt("nrofLEO");
         int nrofLEOPlanes = s.getInt("nrofLEOPlanes");	//total number of orbit planes in the constellation
         
         //multi-layer satellite networks
         if(s.getBoolean("EnableGEO") == true){
-        	
         	int nrofGEO = s.getInt("nrofGEO");
-        	int nrofGEOPlanes = s.getInt("nrofGEOPlane");
-            int nrofMEO = s.getInt("nrofMEO");
+			int nrofGEOPlanes = s.getInt("nrofGEOPlane");
+			int nrofMEO = s.getInt("nrofMEO");
             int nrofMEOPlanes = s.getInt("nrofMEOPlane");
-        	int nrofLEO = nrofHosts - nrofGEO - nrofMEO;
-            
+
+			int nrofSatellites = nrofGEO + nrofLEO + nrofMEO; //total number of satellite nodes
+
         	// generate LEO nodes first, then generate MEO nodes
             if (satelliteNum < nrofLEO){
                 //Set LEO orbit parameters
@@ -557,7 +555,7 @@ public class SimScenario implements Serializable {
                 // set the satellite parameters
 				
             } 
-            else if(satelliteNum < (nrofLEO+nrofMEO)){
+            else if(satelliteNum < (nrofLEO + nrofMEO)){
             	int MEONum = satelliteNum - nrofLEO + 1;
                 //Set MEO orbit parameters
                 CalculateOrbitInfo(host, mmProto, s, MEONum, nrofMEO, nrofMEOPlanes, "MEO");
@@ -578,8 +576,9 @@ public class SimScenario implements Serializable {
         	
             int nrofMEO = s.getInt("nrofMEO");
             int nrofMEOPlanes = s.getInt("nrofMEOPlane");
-            int nrofLEO = nrofHosts - nrofMEO;
-           
+
+			int nrofSatellites = nrofLEO + nrofMEO; //total number of satellite nodes
+
             // generate LEO nodes first, then generate MEO nodes
             if (satelliteNum < nrofLEO){
                 //Set LEO orbit parameters
@@ -601,10 +600,10 @@ public class SimScenario implements Serializable {
         }
         // only LEO satellite networks
         else{
-        	CalculateOrbitInfo(host, mmProto, s, satelliteNum, nrofHosts, nrofLEOPlanes, "LEO");
+        	CalculateOrbitInfo(host, mmProto, s, satelliteNum, nrofLEO, nrofLEOPlanes, "LEO");
         	//Set other orbit information
-            ((SatelliteMovement) mmProto).setOrbit(nrofHosts, nrofLEOPlanes, 
-            		satelliteNum/nrofLEOPlanes, satelliteNum-(nrofHosts/nrofLEOPlanes)*(satelliteNum - 1));
+            ((SatelliteMovement) mmProto).setOrbit(nrofLEO, nrofLEOPlanes,
+            		satelliteNum/nrofLEOPlanes, satelliteNum-(nrofLEO/nrofLEOPlanes)*(satelliteNum - 1));
         }
     }
     /**
@@ -676,8 +675,8 @@ public class SimScenario implements Serializable {
      *
      * @param s
      */
-    public void setOrbitInfo(Settings s) {      
-        for (DTNHost host : hosts) {
+    public void setOrbitInfo(Settings s, List<DTNHost> satelliteHosts) {
+        for (DTNHost host : satelliteHosts) {
             if (s.getSetting(MOVEMENT_MODEL_S).contains("SatelliteMovement")) {
                 MovementModel mmProto = host.getMovementModel();
                 ((SatelliteMovement) mmProto).setOrbitInfo(orbitInfo, hosts);
@@ -1022,12 +1021,13 @@ public class SimScenario implements Serializable {
 		
 		return parameters;
 	}
+
 	/**
 	 * 计算GEO卫星参数
 	 * @param s
 	 * @param m
-	 * @param NROF_MEOSATELLITES
-	 * @param nrofMEOPlane
+	 * @param NROF_GEOSATELLITES
+	 * @param nrofGEOPlane
 	 * @return
 	 */
 	public double[] initialGEOWalkerDeltaParameters(Settings s, int m, int NROF_GEOSATELLITES, int nrofGEOPlane){
@@ -1093,14 +1093,14 @@ public class SimScenario implements Serializable {
 	 * @param
 	 */
 	public void CacheEnalbe(){
-		Settings settings = new Settings(USERSETTINGNAME_S);	 // read the setting parameters
+		Settings settings = new Settings(DTNSim.USERSETTINGNAME_S);	 // read the setting parameters
 		String cacheEnable = settings.getSetting(EnableCache_s); // decide whether to enable the cache function
 		
 		if (cacheEnable.indexOf("true") >= 0) {
 			Settings ss = new Settings(GROUP_NS + 1);					// 每一个主机组有一个配置对象，具体的可能和命名空间有关
 			ss.setSecondaryNamespace(GROUP_NS);
 			int num = ss.getInt(NROF_HOSTS_S);
-			int nrofFile = ss.getInt(nrofFile_s);						// default设定的文件数目
+			int nrofFile = ss.getInt(DTNSim.nrofFile_s);						// default设定的文件数目
 			
 			this.FileOfHosts = new HashMap<String, Integer>(); 			// （添加）一个文件列表
 

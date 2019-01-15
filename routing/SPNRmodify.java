@@ -1,27 +1,5 @@
-/** 
- * Project Name:SatelliteRouterTest 
- * File Name:SPNR.java 
- * Package Name:routing 
- * Date:2017年3月31日下午4:21:56 
- * Copyright (c) 2017, LiJian9@mail.ustc.mail.cn. All Rights Reserved. 
- * 
-*/  
-  
-package routing;  
-/** 
- * ClassName:SPNR <br/> 
- * Function: TODO ADD FUNCTION. <br/> 
- * Reason:   TODO ADD REASON. <br/> 
- * Date:     2017年3月31日 下午4:21:56 <br/> 
- * @author   USTC, LiJian
- * @version   
- * @since    JDK 1.7 
- * @see       
- */
-/* 
- * Copyright 2016 University of Science and Technology of China , Infonet
- * Written by LiJian.
- */
+package routing;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,6 +20,13 @@ import core.Settings;
 import core.SimClock;
 import core.SimError;
 
+/**
+ * Project Name:Large-scale Satellite Networks Simulator (LSNS)
+ * File SPNRmodify.java
+ * Package Name:routing
+ * Copyright 2017 University of Science and Technology of China , Infonet
+ * lijian9@mail.ustc.mail.cn. All Rights Reserved.
+ */
 public class SPNRmodify extends ActiveRouter{
 	/**自己定义的变量和映射等
 	 * 

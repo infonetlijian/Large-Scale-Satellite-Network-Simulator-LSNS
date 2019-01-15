@@ -62,6 +62,13 @@ public class VBRConnectionWithChannelModel extends Connection {
     }
 
     /**
+     * return current speed according to current channel status
+     * @return
+     */
+    public double getCurrentSpeed(){
+        return ((SatelliteWithChannelModelInterface)this.fromInterface).getTransmitSpeed(fromNode, toNode);
+    }
+    /**
      * Calculate the current transmission speed from the information
      * given by the interfaces, and calculate the missing data amount.
      *
@@ -70,15 +77,14 @@ public class VBRConnectionWithChannelModel extends Connection {
         //TODO
         if (this.fromInterface instanceof SatelliteWithChannelModelInterface)
             currentspeed =  ((SatelliteWithChannelModelInterface)this.fromInterface).getTransmitSpeed(fromNode, toNode);
-        else
-            currentspeed =  this.fromInterface.getTransmitSpeed();
-        //currentspeed =  this.fromInterface.getTransmitSpeed();
-        //int othspeed =  this.toInterface.getTransmitSpeed();
+        else {
+            currentspeed = this.fromInterface.getTransmitSpeed();
+            int othspeed = this.toInterface.getTransmitSpeed();
 
-        //if (othspeed < currentspeed) {
-        //    currentspeed = othspeed;
-        //}
-
+            if (othspeed < currentspeed) {
+                currentspeed = othspeed;
+            }
+        }
         msgsent = msgsent + currentspeed;
     }
 

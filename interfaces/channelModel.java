@@ -12,7 +12,7 @@ import java.util.Random;
  * Copyright 2018 University of Science and Technology of China , Infonet
  * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
-public class SatellitetoGroundChannelModel {
+public class channelModel {
     /** transmission power at transmitter, unit: dBm */
     private double transmitPower = 24;
     /** allocated subcarrier bandwidth in FDMA */
@@ -27,8 +27,10 @@ public class SatellitetoGroundChannelModel {
     private HashMap<DTNHost, Double> currentChannelCapacity = new HashMap<DTNHost, Double>();
     /** generate random number */
     private Random random = new Random();
+    ///** general channel update count **/
+    //private static int channelUpdateCount = 0;
 
-    public SatellitetoGroundChannelModel(double transmitPower, double transmitFrequency, double bandwidth){
+    public channelModel(double transmitPower, double transmitFrequency, double bandwidth){
         this.transmitPower = transmitPower;
         this.transmitFrequency = transmitFrequency;
         this.bandwidth = bandwidth;

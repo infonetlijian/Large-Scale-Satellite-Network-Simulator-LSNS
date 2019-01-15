@@ -412,7 +412,6 @@ public abstract class ActiveRouter extends MessageRouter {
 	  */
 	protected Message tryAllMessages(Connection con, List<Message> messages) {
 		for (Message m : messages) {
-			
 			int retVal = startTransfer(m, con); 
 			if (retVal == RCV_OK) {
 				return m;	// accepted a message, don't try others
@@ -494,7 +493,7 @@ public abstract class ActiveRouter extends MessageRouter {
 		
 		// didn't start transfer to any node -> ask messages from connected
 		for (Connection con : connections) {
-			System.out.println("ActiveRouter.java test for connections:" + con.getLinkType());
+			//TODO System.out.println("ActiveRouter.java test for connections:" + con.getLinkType());
 			if (con.getOtherNode(getHost()).requestDeliverableMessages(con)) {
 				return con;
 			}

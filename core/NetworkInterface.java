@@ -123,7 +123,7 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 		}
 		this.linkDelay = randomLinkDelay();
 		
-		System.out.println("链路类型为："+this.interfacetype + "  "+"链路时延为：" + this.linkDelay);
+		System.out.println("Interface type is："+this.interfacetype + "  "+"Link delay is：" + this.linkDelay);
 		
 		this.transmitRange = s.getDouble(TRANSMIT_RANGE_S);
 		this.transmitSpeed = s.getInt(TRANSMIT_SPEED_S);

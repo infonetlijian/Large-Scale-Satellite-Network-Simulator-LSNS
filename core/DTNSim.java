@@ -44,11 +44,19 @@ public class DTNSim {
 	/** choose GUI in the sim -setting id ({@value})*/
 	public static final String GUI = "GUI";
 
+	/** core: SimScenario */
+	public static final String HOSTSMODENAME_S = "hostsMode";
+	public static final String CLUSTER_S = "cluster";
+	public static final String NORMAL_S = "normal";
+	public static final String NROFPLANE_S = "nrofPlane";
+	public static final String nrofFile_s = "nrofFile";
+
 	/** Router : RelayRouterforInternetAccess */
 	public static final String NROF_BACKUPSATELLITES = "nrofBackupSatellites";
 	public static final String MIN_ELEVATIONANGLE = "minElevationAngle";
 	public static final String TRANSMIT_RANGE = "transmitRange";
 	public static final String INTERFACE = "Interface";
+	public static final String CHANNEL_MODEL = "channelModel";
 	public static final String RAYLEIGH = "Rayleigh";
 	public static final String RICE = "Rice";
 	public static final String NODE_TYPE = "Type";

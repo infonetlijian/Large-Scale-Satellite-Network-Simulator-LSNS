@@ -396,7 +396,7 @@ public class DTNHost implements Comparable<DTNHost> {
 			tearDownAllConnections();
 			return;
 		}
-		
+
 		if (simulateConnections) {
 			if (multiThread)
 				multiThreadInterfaceUpdate();
@@ -787,7 +787,40 @@ public class DTNHost implements Comparable<DTNHost> {
 		double possibleMovement;
 		double distance;
 		double dx, dy;
-		this.location.setLocation3D(((SatelliteMovement)this.movement).getSatelliteCoordinate(SimClock.getTime()));
+
+		if (this.movement instanceof SatelliteMovement)
+			this.location.setLocation3D(((SatelliteMovement)this.movement).getSatelliteCoordinate(SimClock.getTime()));
+		else{
+			if (!isMovementActive() || SimClock.getTime() < this.nextTimeToMove) {
+				return;
+			}
+			if (this.destination == null) {
+				if (!setNextWaypoint()) {
+					return;
+				}
+			}
+
+			possibleMovement = timeIncrement * speed;
+			distance = this.location.distance(this.destination);
+
+			while (possibleMovement >= distance) {
+				// node can move past its next destination
+				this.location.setLocation(this.destination); // snap to destination
+				possibleMovement -= distance;
+				if (!setNextWaypoint()) { // get a new waypoint
+					return; // no more waypoints left
+				}
+				distance = this.location.distance(this.destination);
+			}
+
+			// move towards the point for possibleMovement amount
+			dx = (possibleMovement/distance) * (this.destination.getX() -
+					this.location.getX());
+			dy = (possibleMovement/distance) * (this.destination.getY() -
+					this.location.getY());
+			this.location.translate(dx, dy);
+		}
+
 	}	
 	/**
 	 * calculate the Orbit coordinate parameters
@@ -933,10 +966,12 @@ public class DTNHost implements Comparable<DTNHost> {
 	 * @param hosts
 	 */
 	public void changeHostsList(List<DTNHost> hosts){
-		 this.nei.changeHostsList(hosts);
-		 //this.GN.setHostsList(hosts);
-		 //this.router.setTotalHosts(hosts);
-		 this.hosts = hosts;
+		List<DTNHost> allHosts = new ArrayList<>(hosts);
+		if (this.nei != null)
+			this.nei.changeHostsList(allHosts);
+		//this.GN.setHostsList(hosts);
+		//this.router.setTotalHosts(hosts);
+		this.hosts = allHosts;
 	}
 	/**
 	 * 改变本簇内节点列表，初始化用

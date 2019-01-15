@@ -74,6 +74,12 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
     public void update() {
         super.update();
 
+        //TODO test
+        for (Connection con: this.sendingConnections){
+            double currentSpeed = ((VBRConnectionWithChannelModel)con).getCurrentSpeed();
+            System.out.println(this.getHost()+" current speed: "+currentSpeed);
+        }
+
         //allow the same satellite node to send multiple messages through different connections simultaneously
         if (!canStartTransfer()) {
             return;
@@ -82,21 +88,21 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         if (exchangeDeliverableMessages() != null) {
             return;
         }
-        String channelModel = DTNSim.RAYLEIGH;
-        //String channelModel = RICE;
-        updateChannelModelForInterface(channelModel);//should be updated once by DTNHost router in each update function
 
         String type = (String)this.getProperty(DTNSim.NODE_TYPE);
-
+        if (type == null) {
+            this.addProperty(DTNSim.NODE_TYPE, this.getHost().toString());//TODO should be done in SimScenario.java
+            type = this.getHost().toString();
+        }
 
         //1.User only needs to receive messages from satellites
-        if (type.contains(DTNSim.USER))
+        if (type.contains(DTNSim.USER)) {
+            System.out.println("test1  "+allocatedBackupGroupForEachUser.get(this.getHost()));
             return;
+        }
 
         //2.Ground Station is in charge of centralized data updating
         if (type.contains(DTNSim.GS)) {
-            updateSlidingWindow();
-
             //update access node and backup group
             if (this.lastAccessUserUpdateTime + this.updateInterval < SimClock.getTime()) {
                 //update backup group for each terrestrial user
@@ -107,10 +113,20 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                 //tryControlMessagesToSatellites();
             }
             this.lastAccessUserUpdateTime = SimClock.getTime();
+
+            tryMessagesToBackupSatellites();
         }
 
         //3.For satellite nodes, to forward data messages to terrestrial users
         if (type.contains(DTNSim.SAT)) {
+            // warning:
+            // updateChannelModelForInterface() must be executed before updateSlidingWindow()
+            Settings s = new Settings(DTNSim.INTERFACE);
+            String channelModel = s.getSetting(DTNSim.CHANNEL_MODEL);
+            //String channelModel = RICE;
+            updateChannelModelForInterface(channelModel);//should be updated once by DTNHost router in each update function
+            updateSlidingWindow(this.getHost());
+
             if (!this.accessUsers.isEmpty())
                 //try to send messages to users
                 tryMessagesToTerrestrialUsers(this.accessUsers);
@@ -145,26 +161,26 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
      * only for ground station since ground station is in charge of
      * centralized status collecting and updating
      * */
-    protected void updateSlidingWindow(){
+    protected void updateSlidingWindow(DTNHost satellite){
         //TODO
         this.countInSlidingWindow++;
         int firstInterface = 1;//not 0
-        for (DTNHost h : findDedicatedHosts(DTNSim.USER)){
+        for (DTNHost h : findDedicatedHosts(DTNSim.USER)){        // find terrestrial user list
             List<DTNHost> satellitesInBackupGroup = findBackupGroup(h);
             HashMap<DTNHost, Double> StatusInBackupGroup = this.SlidingWindowRecord.get(h);
 
-            for (DTNHost satellite : satellitesInBackupGroup){
-                double currentCapacity = ((SatelliteWithChannelModelInterface)this.getHost().
-                        getInterface(firstInterface)).getCurrentChannelStatus().get(h);
-                double history = StatusInBackupGroup.get(satellite);
+            double currentCapacity = ((SatelliteWithChannelModelInterface)satellite.
+                    getInterface(firstInterface)).getCurrentChannelStatus().get(h);
+            double history = StatusInBackupGroup.get(satellite);
 
-                StatusInBackupGroup.put(satellite,(history*(countInSlidingWindow - 1) + currentCapacity)/countInSlidingWindow);
-            }
+            //update history information
+            StatusInBackupGroup.put(satellite,(history*(countInSlidingWindow - 1) + currentCapacity)/countInSlidingWindow);
+            this.SlidingWindowRecord.put(h, StatusInBackupGroup);
         }
     }
 
     /**
-     * find
+     * find backup group for dedicated terrestrial user
      * @param user
      * @return
      */
@@ -178,6 +194,7 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         else
             return null;
     }
+
     /**
      * find all dedicated property hosts (terrestrial user or satellites)
      * in DTNHost list
@@ -186,12 +203,22 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
     protected List<DTNHost> findDedicatedHosts(String type){
         List<DTNHost> dedicatedHosts = new ArrayList<DTNHost>();
         for (DTNHost h : this.getHost().getHostsList()){
-            if (((RelayRouterforInternetAccess)h.getRouter()).getProperty(NODE_TYPE) == type)
+
+            String getType = h.toString();
+            if (getType.contains(type))
                 dedicatedHosts.add(h);
         }
+        //number check
+        if (dedicatedHosts.isEmpty())
+            throw new SimError("there is no " + type + " in the setting " +
+                    "(RelayRouterforInternetAccess.java)");
+
         return dedicatedHosts;
     }
 
+    /**
+     * Ground station takes charge of backup group calculation
+     */
     protected void updateBackupGroup(){
         //read the setting of number of satellites in each backup group
         Settings s = new Settings(USERSETTINGNAME_S);
@@ -210,13 +237,16 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                     backupGroup.add(new Tuple<DTNHost, Double>(satellite, isReachable.getValue()));
             }
             backupGroup = (ArrayList<Tuple<DTNHost, Double>>) sort(backupGroup);
-            if (backupGroup.size() <= nrofBackupSatellites)
-                for (int i = 0; i < nrofBackupSatellites - backupGroup.size(); i++)
+            int size = backupGroup.size();
+
+            if (backupGroup.size() >= nrofBackupSatellites) {
+                for (int i = 0; i < size - nrofBackupSatellites; i++)
                     //warning: the length of backupGroup list is changing
-                    backupGroup.remove(nrofBackupSatellites);
+                    backupGroup.remove(backupGroup.size() - 1);
+            }
 
             //if the satellites in the backup group become invalid
-            if (!this.allocatedBackupGroupForEachUser.get(user).isEmpty()){
+            if (!(this.allocatedBackupGroupForEachUser.get(user) == null)){
                 //check the status of each satellite in backup group
                 List<DTNHost> needToReplaceSat = new ArrayList<DTNHost>();
                 for (Tuple<DTNHost, Double> t : this.allocatedBackupGroupForEachUser.get(user)){
@@ -234,6 +264,14 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             //only do this when initialization for each user
             this.allocatedBackupGroupForEachUser.put(user, backupGroup);
         }
+    }
+
+    /**
+     * Ground station takes charge of backup group management,
+     * and also allocate satellite's buffer resource for each user
+     */
+    private void bufferManager(){
+        //TODO
     }
 
     /**
@@ -277,7 +315,8 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                 (Math.sqrt(1 - Math.pow(Math.cos(G), 2)*Math.pow((Math.cos(L)), 2)) ) );
 
         //TODO
-        if (elevationAngle > minElevationAngle && distance <= transmitRange)
+        //if (elevationAngle > minElevationAngle && distance <= transmitRange)
+        if (distance <= transmitRange)
             //return new Tuple<Boolean, Double>(true, elevationAngle);
             return new Tuple<Boolean, Double>(true, distance);
         else
@@ -292,6 +331,8 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         for (DTNHost h : findDedicatedHosts(DTNSim.USER)){
             List<DTNHost> satellitesInBackupGroup = findBackupGroup(h);
             HashMap<DTNHost, Double> StatusInBackupGroup = this.SlidingWindowRecord.get(h);
+            if (StatusInBackupGroup == null)
+                return;
             //format convert
             List<Tuple<DTNHost, Double>> AL = new ArrayList<Tuple<DTNHost, Double>>();
             for (DTNHost satellite: StatusInBackupGroup.keySet()) {
@@ -331,13 +372,67 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         }
         return distanceList;
     }
+
     /**
-        try to forward stored messages to terrestrial users
+     * find message collection to dedicated user
+     * @param user
+     * @return
      */
+    protected List<Message> getDedicatedMessages(DTNHost user){
+        List<Message> getMessages = new ArrayList<Message>();
+        for (Message m : this.messages.values()){
+            if (m.getTo() == user)
+                getMessages.add(m);
+        }
+        return getMessages;
+    }
+
     /**
-     * Tries to send all messages that this router is carrying to all
-     * connections this node has. Messages are ordered using the
-     * {@link MessageRouter#sortByQueueMode(List)}. See
+     * find connections from this node to the dedicated nodes
+     * @param toSatellites
+     * @return
+     */
+    protected List<Connection> getDedicatedConnectionsToNodes(List<DTNHost> toSatellites){
+        List<Connection> connectionsToNodes = new ArrayList<Connection>();
+        for (Connection con : this.getConnections()){
+            if (toSatellites.contains(con.getOtherNode(this.getHost())))
+                connectionsToNodes.add(con);
+        }
+        return connectionsToNodes;
+    }
+
+    /**
+     * for ground station to use, try to send messages to backup group
+     * of dedicated terrestrial user
+     */
+    protected void  tryMessagesToBackupSatellites() {
+        List<DTNHost> userHosts = findDedicatedHosts(DTNSim.USER);
+
+        for (DTNHost user : userHosts){
+            List<Message> getMessages = getDedicatedMessages(user);//User ID
+            if (getMessages.isEmpty())
+                continue;
+
+            List<DTNHost> backupGroup = findBackupGroup(user);
+            List<Connection> toBackupGroupConnections =
+                    getDedicatedConnectionsToNodes(backupGroup);
+
+            //TODO
+            for (Connection con : toBackupGroupConnections) {
+                Message started = tryAllMessages(con, getMessages);
+                //if (started != null) {
+                //    return con;
+                //}
+            }
+
+            //tryAllMessagesToAllConnections();
+        }
+    }
+
+    /**
+     * Tries to forward stored messages that this router is carrying to all
+     * connections this node has to terrestrial users. Messages are
+     * ordered using the {@link MessageRouter#sortByQueueMode(List)}. See
      * {@link #tryMessagesToConnections(List, List)} for sending details.
      * @return The connections that started a transfer or null if no connection
      * accepted a message.

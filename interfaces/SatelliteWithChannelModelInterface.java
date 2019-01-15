@@ -5,7 +5,9 @@
 package interfaces;
 
 import core.*;
+import movement.MovementModel;
 import movement.SatelliteMovement;
+import movement.StationaryMovement3D;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +19,7 @@ import java.util.List;
  */
 public class SatelliteWithChannelModelInterface extends NetworkInterface {
 
-	private SatellitetoGroundChannelModel channelModel;
+	private channelModel channelModel;
 	private Collection<NetworkInterface> interfaces;
 
 	/** indicates the interface type, i.e., radio or laser*/
@@ -38,7 +40,7 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 		mode = s2.getSetting(DTNSim.ROUTERMODENAME_S);
 
 		//to simulate random status of wireless link
-		channelModel = new SatellitetoGroundChannelModel(
+		channelModel = new channelModel(
 				s1.getDouble(DTNSim.TRANSMITTING_POWER), s1.getDouble(DTNSim.TRANSMITTING_FREQUENCY), s1.getDouble(DTNSim.BANDWIDTH));
 	}
 
@@ -74,8 +76,8 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 				conSpeed = this.transmitSpeed; 
 			}
 
-			Connection con = new CBRConnection(this.host, this, 
-					anotherInterface.getHost(), anotherInterface, conSpeed);
+			Connection con = new VBRConnectionWithChannelModel(this.host, this,
+					anotherInterface.getHost(), anotherInterface);
 			connect(con,anotherInterface);//会访问连接双方的host节点，把这个新生成的连接con加入连接列表中
 		}
 	}
@@ -101,20 +103,13 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 	 * Updates the state of current connections (i.e. tears down connections
 	 * that are out of range and creates new ones).
 	 */
-	public void update() {
-		//update the satellite link info
-		List<DTNHost> allowConnectedList = 
-				((SatelliteMovement)this.getHost().getMovementModel()).updateSatelliteLinkInfo();
-		
-		if (!this.getHost().multiThread){
-			if (optimizer == null) {
-				return; /* nothing to do */
-			}
-			
-			// First break the old ones
-			optimizer.updateLocation(this);
+	public void normalUpdate(){
+		if (optimizer == null) {
+			return; /* nothing to do */
 		}
 
+		// First break the old ones
+		optimizer.updateLocation(this);
 		for (int i=0; i<this.connections.size(); ) {
 			Connection con = this.connections.get(i);
 			NetworkInterface anotherInterface = con.getOtherInterface(this);
@@ -122,68 +117,131 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 			// all connections should be up at this stage
 			assert con.isUp() : "Connection " + con + " was down!";
 
-			if (!isWithinRange(anotherInterface)) {//更新节点位置后，检查之前维护的连接是否会因为太远而断掉
+			if (!isWithinRange(anotherInterface)) {
 				disconnect(con,anotherInterface);
 				connections.remove(i);
 			}
 			else {
+				i++;
+			}
+		}
+		// Then find new possible connections
+		Collection<NetworkInterface> interfaces =
+				optimizer.getNearInterfaces(this);
+		for (NetworkInterface i : interfaces) {
+			if (i.getHost().toString().contains(DTNSim.USER) ||
+					i.getHost().toString().contains(DTNSim.GS))
+				continue;//Ground station can not connect to user directly
+			connect(i);
+		}
+	}
+
+	/**
+	 * Updates the state of current connections (i.e. tears down connections
+	 * that are out of range and creates new ones). For satellite nodes, they
+	 * should be treated differently.
+	 */
+	public void update() {
+		//TODO test
+		String type = this.getHost().toString();
+
+		//1.User only needs to receive messages from satellites
+		if (type.contains(DTNSim.USER))
+			normalUpdate();
+
+		//2.Ground Station is in charge of centralized data updating
+		if (type.contains(DTNSim.GS))
+			normalUpdate();
+
+		//3.For satellite nodes, to forward data messages to terrestrial users
+		if (type.contains(DTNSim.SAT)) {
+			//update the satellite link info
+			MovementModel mm = this.getHost().getMovementModel();
+			if (!(mm instanceof SatelliteMovement))
+				throw new SimError("Error use satellite interface " +
+						"SatelliteWithChannelModelInterface.java " +
+						"at " + this);
+			List<DTNHost> allowConnectedList =
+					((SatelliteMovement) mm).updateSatelliteLinkInfo();
+
+			if (!this.getHost().multiThread) {
+				if (optimizer == null) {
+					return; /* nothing to do */
+				}
+
+				// First break the old ones
+				optimizer.updateLocation(this);
+			}
+
+			for (int i = 0; i < this.connections.size(); ) {
+				Connection con = this.connections.get(i);
+				NetworkInterface anotherInterface = con.getOtherInterface(this);
+
+				// all connections should be up at this stage
+				assert con.isUp() : "Connection " + con + " was down!";
+
+				if (!isWithinRange(anotherInterface)) {//更新节点位置后，检查之前维护的连接是否会因为太远而断掉
+					disconnect(con, anotherInterface);
+					connections.remove(i);
+				} else {
 					i++;
+				}
 			}
-		}
 
-		switch (mode) { 
-		case "AllConnected":{
-			if (!this.getHost().multiThread) {
-				// Then find new possible connections
-				interfaces = optimizer.getNearInterfaces(this);
-			}
-			for (NetworkInterface i : interfaces) {
-				connect(i);
-			}
-			break;
-		}
-		case "Cluster":{
-			if (!this.getHost().multiThread) {
-				// Then find new possible connections
-				interfaces = optimizer.getNearInterfaces(this);
-			}		
-			
-			for (NetworkInterface i : interfaces) {	
-				/*检查是否处在允许建链的列表当中，否则不允许建立链路*/
-				boolean allowConnection = false;
-				switch(this.getHost().getSatelliteType()){
-				/*如果在范围内的这个节点既不是同一平面内的，又不是通讯节点，就不进行连接，节省开销**/
-					case "LEO":{						
-						//只用LEO通信节点才允许和MEO层建立链路
-						if (allowConnectedList.contains(i.getHost()))
-							allowConnection = true;//即进行连接
-						break;
+			switch (mode) {
+				case "AllConnected": {
+					if (!this.getHost().multiThread) {
+						// Then find new possible connections
+						interfaces = optimizer.getNearInterfaces(this);
 					}
-					case "MEO":{
-						//MEO只允许和LEO通信节点通信和GEO层建立链路
-						if (allowConnectedList.contains(i.getHost()))
-							allowConnection = true;//即进行连接
-						break;
+					for (NetworkInterface i : interfaces) {
+						connect(i);
 					}
-					case "GEO":{
-						if (i.getHost().getSatelliteType().contains("MEO")){
-							allowConnection = true;
-							break;
+					break;
+				}
+				case "Cluster": {
+					if (!this.getHost().multiThread) {
+						// Then find new possible connections
+						interfaces = optimizer.getNearInterfaces(this);
+					}
+
+					for (NetworkInterface i : interfaces) {
+						/*检查是否处在允许建链的列表当中，否则不允许建立链路*/
+						boolean allowConnection = false;
+						switch (this.getHost().getSatelliteType()) {
+							/*如果在范围内的这个节点既不是同一平面内的，又不是通讯节点，就不进行连接，节省开销**/
+							case "LEO": {
+								//只用LEO通信节点才允许和MEO层建立链路
+								if (allowConnectedList.contains(i.getHost()))
+									allowConnection = true;//即进行连接
+								break;
+							}
+							case "MEO": {
+								//MEO只允许和LEO通信节点通信和GEO层建立链路
+								if (allowConnectedList.contains(i.getHost()))
+									allowConnection = true;//即进行连接
+								break;
+							}
+							case "GEO": {
+								if (i.getHost().getSatelliteType().contains("MEO")) {
+									allowConnection = true;
+									break;
+								}
+								if (allowConnectedList.contains(i.getHost()))
+									allowConnection = true;//即进行连接
+								break;
+							}
 						}
-						if (allowConnectedList.contains(i.getHost()))
-							allowConnection = true;//即进行连接
-						break;
+
+						if (allowConnection) {//不被置位，才进行连接
+							connect(i);
+						}
 					}
-				}
-				
-				if (allowConnection){//不被置位，才进行连接
-					connect(i);
+					break;
 				}
 			}
-			break;
-		}
-		}
 
+		}
 	}
 
 	@Override
@@ -233,8 +291,8 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 				conSpeed = this.transmitSpeed;
 			}
 
-			Connection con = new CBRConnection(this.host, this, 
-					anotherInterface.getHost(), anotherInterface, conSpeed);
+			Connection con = new VBRConnectionWithChannelModel(this.host, this,
+					anotherInterface.getHost(), anotherInterface);
 			connect(con,anotherInterface);
 		}
 	}
