@@ -70,16 +70,14 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         return recvCheck;
     }
 
+
     @Override
     public void update() {
         super.update();
 
-        //TODO test
-        for (Connection con: this.sendingConnections){
-            double currentSpeed = ((VBRConnectionWithChannelModel)con).getCurrentSpeed();
-            System.out.println(this.getHost()+" current speed: "+currentSpeed);
+        for (Connection con : this.sendingConnections){
+            System.out.println(con.toString()+"  "+con.getRemainingByteCount());
         }
-
         //allow the same satellite node to send multiple messages through different connections simultaneously
         if (!canStartTransfer()) {
             return;
@@ -124,7 +122,6 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             Settings s = new Settings(DTNSim.INTERFACE);
             String channelModel = s.getSetting(DTNSim.CHANNEL_MODEL);
             //String channelModel = RICE;
-            updateChannelModelForInterface(channelModel);//should be updated once by DTNHost router in each update function
             updateSlidingWindow(this.getHost());
 
             if (!this.accessUsers.isEmpty())
@@ -133,18 +130,6 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         }
     }
 
-    /**
-     * should be updated once by DTNHost router in each update function
-     */
-    protected void updateChannelModelForInterface(String channelModel){
-        List<DTNHost> users = findDedicatedHosts(DTNSim.USER);
-        for (DTNHost user : users){
-            double distance = calculateDistance(user, this.getHost());
-            int first = 1;
-            ((SatelliteWithChannelModelInterface)this.getHost().getInterface(first)).
-                    updateLinkState(channelModel, user, distance);
-        }
-    }
 
     /**
      * calculate the distance between two DTNHost
@@ -169,9 +154,14 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             List<DTNHost> satellitesInBackupGroup = findBackupGroup(h);
             HashMap<DTNHost, Double> StatusInBackupGroup = this.SlidingWindowRecord.get(h);
 
-            double currentCapacity = ((SatelliteWithChannelModelInterface)satellite.
-                    getInterface(firstInterface)).getCurrentChannelStatus().get(h);
-            double history = StatusInBackupGroup.get(satellite);
+            double currentCapacity = ((SatelliteWithChannelModelInterface)satellite.getInterface(firstInterface)).
+                    getCurrentChannelStatus(h);
+
+            double history = 0;
+            if (StatusInBackupGroup != null)
+                history = StatusInBackupGroup.get(satellite);
+            else
+                StatusInBackupGroup = new HashMap<DTNHost, Double>();
 
             //update history information
             StatusInBackupGroup.put(satellite,(history*(countInSlidingWindow - 1) + currentCapacity)/countInSlidingWindow);
@@ -553,7 +543,16 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
     @Override
     protected void transferDone(Connection con) {
         /* don't leave a copy for the sender */
-        this.deleteMessage(con.getMessage().getId(), false);
+        boolean sending = false;
+        String id = con.getMessage().getId();
+        for (Connection c : this.sendingConnections){
+            if (id.contains(c.getMessage().getId())) {
+                sending = true;
+                break;
+            }
+        }
+        if (!sending)
+            this.deleteMessage(con.getMessage().getId(), false);
     }
 
     @Override

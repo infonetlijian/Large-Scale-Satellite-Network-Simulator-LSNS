@@ -593,17 +593,13 @@ public abstract class ActiveRouter extends MessageRouter {
 		/* in theory we can have multiple sending connections even though
 		  currently all routers allow only one concurrent sending connection */
 
-//		if(this.sendingConnections.size()>=3){
-//			System.out.println("当前节点为："+this.getHost()+" ActiveRouter.java："+this.sendingConnections.size()+" "+this.sendingConnections);
-//		}
-
 		for (int i=0; i<this.sendingConnections.size(); ) {
 			boolean removeCurrent = false;
 			Connection con = sendingConnections.get(i);
 
 			/* probability of interrupt */
 			String Id = con.getMessage().getId();
-			boolean Interrupt = con.RandomInterrupt();  
+			boolean Interrupt = con.RandomInterrupt();
 			if(Interrupt){
 				/** 仍然具有重传次数，则重传次数减1，否则链路中断并丢弃消息 */
 				int time = (int)this.messages.get(Id).getProperty(RETRANS_TIME);

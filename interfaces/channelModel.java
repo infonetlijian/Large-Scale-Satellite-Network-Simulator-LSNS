@@ -1,6 +1,9 @@
 package interfaces;
 
+import core.Connection;
+import core.Coord;
 import core.DTNHost;
+import core.VBRConnectionWithChannelModel;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -23,36 +26,46 @@ public class channelModel {
     private double transmitFrequency;
     /** Gaussian white noise in the background, which is related to the bandwidth, unit dBm/Hz */
     private double spectralDensityNoisePower = -174;
-    /** current channel capacity, should be updated once by DTNHost router in each update function*/
-    private HashMap<DTNHost, Double> currentChannelCapacity = new HashMap<DTNHost, Double>();
+    /** channel model type (e.g. Gaussian, Rayleigh)**/
+    private String modelType;
     /** generate random number */
-    private Random random = new Random();
+    private static Random channelRandom = new Random();
+
+    /** temporary store the current speed of link**/
+    private double currentSpeed;
     ///** general channel update count **/
     //private static int channelUpdateCount = 0;
 
-    public channelModel(double transmitPower, double transmitFrequency, double bandwidth){
+    public channelModel(String modelType, double transmitPower, double transmitFrequency, double bandwidth){
         this.transmitPower = transmitPower;
         this.transmitFrequency = transmitFrequency;
         this.bandwidth = bandwidth;
+        this.modelType = modelType;
     }
+
 
     /**
      * should be updated once by DTNHost router in each update function
-     * @param model
-     * @param distance
      * @return the current channel capacity (aka speed, bit/s)
      */
-    public void updateLinkState(String model, DTNHost otherNode, double distance){
-        double fadingFactor = channelState(model, distance);
-        this.currentChannelCapacity.put(otherNode, channelCapacity(fadingFactor, bandwidth));
+    public double updateLinkState(Connection con, DTNHost from, DTNHost to){
+        double distance = calculateDistance(from, to);
+        double fadingFactor = channelState(modelType, distance);
+        double currentSpeed = channelCapacity(fadingFactor, bandwidth);
+        System.out.println(currentSpeed+"  "+con);
+        return currentSpeed;
     }
 
     /**
-     * will not change the current channel status
-     * @return the current channel capacity (aka speed, bit/s) in each time slot
+     * calculate distance between two DTNHosts
+     * @param from
+     * @param to
+     * @return
      */
-    public HashMap<DTNHost, Double> getCurrentChannelStatus(){
-        return this.currentChannelCapacity;
+    public  double calculateDistance(DTNHost from, DTNHost to){
+        Coord a = from.getLocation();
+        Coord b = to.getLocation();
+        return a.distance(b);
     }
 
     /**
@@ -62,10 +75,10 @@ public class channelModel {
         double fadingFactor = 1;
 
         switch (channelModel){
-            case "Shannon": {
+            case "Rayleigh": {
                 //reference: https://daim.idi.ntnu.no/masteroppgaver/003/3614/masteroppgave.pdf
-                double I = random.nextGaussian();
-                double J = random.nextGaussian();
+                double I = channelRandom.nextGaussian();
+                double J = channelRandom.nextGaussian();
                 double envelope = Math.sqrt(Math.pow(I, 2) + Math.pow(J, 2));//幅度
                 double standardDeviation = 1.0;//标准差
                 double PDF = 0;
@@ -73,7 +86,7 @@ public class channelModel {
                     PDF = envelope/Math.pow(standardDeviation, 2)*
                         Math.exp(- Math.pow(envelope, 2)/(2*Math.pow(standardDeviation, 2)));
                 //formula : CDF = 1 - Math.exp(- fadingFactor / 2*Math.pow(standardDeviation, 2)) = randomNumber(0 - 1)
-                fadingFactor = Math.sqrt(-2*Math.pow(standardDeviation, 2)*Math.log(1 - random.nextDouble()));
+                fadingFactor = Math.sqrt(-2*Math.pow(standardDeviation, 2)*Math.log(1 - channelRandom.nextDouble()));
             }
             case "Rice": {
                 //TODO;
@@ -96,6 +109,7 @@ public class channelModel {
      */
     public double channelCapacity(double fadingFactor, double bandwidth){
         double transmitPower_mW = Math.exp(this.transmitPower/10);
+        System.out.println(transmitPower_mW);
         double noise_mW = bandwidth*Math.exp(spectralDensityNoisePower/10);
         double SNR = transmitPower_mW*fadingFactor/noise_mW;
         double capacity = bandwidth*Math.log10(1+SNR);//Shannon Equation

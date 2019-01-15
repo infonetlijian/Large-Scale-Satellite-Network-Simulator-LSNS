@@ -157,12 +157,6 @@ public abstract class MessageRouter {
 				app.update(this.host);
 			}
 		}
-		
-		// 针对重传消息列表进行更新		
-//		if (cacheEnable.indexOf("true") >= 0) {
-//			this.getHost().getCacheRouter().updateReTransfer(); //测试更新重传表中信息
-//		}
-
 	}
 	
 	/**

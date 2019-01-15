@@ -1,6 +1,7 @@
 package core;
 
 import interfaces.SatelliteWithChannelModelInterface;
+import interfaces.channelModel;
 import routing.MessageRouter;
 
 /**
@@ -15,8 +16,8 @@ import routing.MessageRouter;
 public class VBRConnectionWithChannelModel extends Connection {
     private int msgsize;
     private int msgsent;
-    private int currentspeed = 0;
-
+    private double currentspeed = 0;
+    private channelModel channelModel;
     /**
      * Creates a new connection between nodes and sets the connection
      * state to "up".
@@ -29,6 +30,11 @@ public class VBRConnectionWithChannelModel extends Connection {
                          DTNHost toNode, NetworkInterface toInterface) {
         super(fromNode, fromInterface, toNode, toInterface);
         this.msgsent = 0;
+
+        Settings s1 = new Settings(DTNSim.INTERFACE);
+        //to simulate random status of wireless link
+        channelModel = new channelModel(DTNSim.RAYLEIGH,
+                s1.getDouble(DTNSim.TRANSMITTING_POWER), s1.getDouble(DTNSim.TRANSMITTING_FREQUENCY), s1.getDouble(DTNSim.BANDWIDTH));
     }
 
     /**
@@ -62,30 +68,14 @@ public class VBRConnectionWithChannelModel extends Connection {
     }
 
     /**
-     * return current speed according to current channel status
-     * @return
-     */
-    public double getCurrentSpeed(){
-        return ((SatelliteWithChannelModelInterface)this.fromInterface).getTransmitSpeed(fromNode, toNode);
-    }
-    /**
      * Calculate the current transmission speed from the information
      * given by the interfaces, and calculate the missing data amount.
      *
      */
     public void update() {
-        //TODO
-        if (this.fromInterface instanceof SatelliteWithChannelModelInterface)
-            currentspeed =  ((SatelliteWithChannelModelInterface)this.fromInterface).getTransmitSpeed(fromNode, toNode);
-        else {
-            currentspeed = this.fromInterface.getTransmitSpeed();
-            int othspeed = this.toInterface.getTransmitSpeed();
-
-            if (othspeed < currentspeed) {
-                currentspeed = othspeed;
-            }
-        }
-        msgsent = msgsent + currentspeed;
+        currentspeed = channelModel.updateLinkState(this, fromNode, toNode);
+        System.out.println("VBRconnection "+currentspeed+ " size "+msgsize);
+        msgsent = msgsent + (int)currentspeed;
     }
 
     /**
@@ -105,7 +95,6 @@ public class VBRConnectionWithChannelModel extends Connection {
         int bytesLeft = msgsize - msgsent;
         return (bytesLeft > 0 ? bytesLeft : 0);
     }
-
     /**
      * Returns true if the current message transfer is done.
      * @return True if the transfer is done, false if not

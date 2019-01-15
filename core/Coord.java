@@ -66,26 +66,8 @@ public class Coord implements Cloneable, Comparable<Coord> {
 		double dx = this.x - other.x;
 		double dy = this.y - other.y;
 		double dz = this.z - other.z;
-		//return Math.sqrt(dx*dx + dy*dy ); //此处注释
-		return Math.sqrt(dx*dx + dy*dy +dz*dz); //此处注释
-
-		//double a=400000000;
-	//	return a;
-	}
-
-	/**
-	 * Returns the square of the distance to another coordinate
-	 * @param other The other coordinate
-	 * @return The square distance between this and another coordinate
-	 */
-	public double distance2(Coord other) {
-		double dx = this.x - other.x;
-		double dy = this.y - other.y;
-		double dz = this.z - other.z;
-		//return (dx*dx + dy*dy ); //此处注释
-		return (dx*dx + dy*dy +dz*dz);////此处注释
-		// 扩展
-
+		//return Math.sqrt(dx*dx + dy*dy );
+		return Math.sqrt(dx*dx + dy*dy +dz*dz);
 	}
 
 	/**

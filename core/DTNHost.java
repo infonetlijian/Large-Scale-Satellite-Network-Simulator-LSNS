@@ -999,9 +999,7 @@ public class DTNHost implements Comparable<DTNHost> {
 	 * @return 返回全局节点列表
 	 */
 	public List<DTNHost> getHostsList(){
-		List<DTNHost> totalhosts = new ArrayList<DTNHost>();
-		totalhosts = this.hosts;
-		return totalhosts;
+		return this.hosts;
 	}
 	/**
 	 * 当选用gridRouter时，需要进行初始化操作，即提前计算所有轨道信息

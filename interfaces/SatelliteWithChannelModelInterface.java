@@ -9,6 +9,7 @@ import movement.MovementModel;
 import movement.SatelliteMovement;
 import movement.StationaryMovement3D;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +20,6 @@ import java.util.List;
  */
 public class SatelliteWithChannelModelInterface extends NetworkInterface {
 
-	private channelModel channelModel;
 	private Collection<NetworkInterface> interfaces;
 
 	/** indicates the interface type, i.e., radio or laser*/
@@ -28,7 +28,8 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 	private static boolean dynamicClustering;
 	/** allConnected or clustering */
 	private static String mode;
-
+	/** Record channel speed after update each connection **/
+	private HashMap<DTNHost, List<Double>> channelStatusRecord = new HashMap<DTNHost, List<Double>>();
 	/**
 	 * Reads the interface settings from the Settings file
 	 */
@@ -39,9 +40,6 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 		Settings s2 = new Settings(DTNSim.USERSETTINGNAME_S);
 		mode = s2.getSetting(DTNSim.ROUTERMODENAME_S);
 
-		//to simulate random status of wireless link
-		channelModel = new channelModel(
-				s1.getDouble(DTNSim.TRANSMITTING_POWER), s1.getDouble(DTNSim.TRANSMITTING_FREQUENCY), s1.getDouble(DTNSim.BANDWIDTH));
 	}
 
 	/**
@@ -242,40 +240,46 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 			}
 
 		}
+
+		connectionUpdate();
+	}
+
+	/**
+	 *  update connections (VBRConnectionWithChannelModel.java)
+	 */
+	private void connectionUpdate(){
+		for (Connection con : getConnections()) {
+			con.update();
+			double currentSpeed = con.getSpeed();
+			DTNHost otherNode = con.getOtherNode(this.getHost());
+			List<Double> record = this.channelStatusRecord.get(otherNode);
+			if (record == null)
+				record = new ArrayList<Double>();
+			record.add(currentSpeed);
+			this.channelStatusRecord.put(otherNode, record);
+		}
+	}
+
+	/**
+	 *
+	 * @return the other host's channel status record
+	 */
+	public HashMap<DTNHost, List<Double>> getChannelStatus(){
+		return this.channelStatusRecord;
+	}
+
+	/**
+	 *
+	 * @return the other host's channel status record
+	 */
+	public Double getCurrentChannelStatus(DTNHost h){
+		List<Double> record = this.channelStatusRecord.get(h);
+		return record.get(record.size() - 1);
 	}
 
 	@Override
 	public int getTransmitSpeed() {
 		return this.transmitSpeed;
-	}
-
-	/**
-	 * Returns the transmit speed of this physical layer according to
-	 * the channel model
-	 * @return the transmit speed
-	 */
-	public int getTransmitSpeed(DTNHost from, DTNHost to){
-		if (from == this.getHost())
-			return getCurrentChannelStatus().get(to).intValue();
-		return getCurrentChannelStatus().get(from).intValue();
-	}
-
-	/**
-	 * should be updated once by DTNHost router in each update function
-	 * @param model
-	 * @param distance
-	 */
-	public void updateLinkState(String model, DTNHost otherNode, double distance){
-		this.channelModel.updateLinkState(model, otherNode, distance);
-	}
-
-	/**
-	 * Return current channel status in terms of Signal-to-Noise Ratio (SNR)
-	 * will not change the current channel status
-	 * @return the current channel capacity (aka speed, bit/s) in each time slot
-	 */
-	public HashMap<DTNHost, Double> getCurrentChannelStatus(){
-		return this.channelModel.getCurrentChannelStatus();
 	}
 
 	/** 

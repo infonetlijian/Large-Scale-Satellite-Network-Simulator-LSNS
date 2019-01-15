@@ -462,8 +462,10 @@ public class SimScenario implements Serializable {
 
 		/* initialization of satellite link info */
 		for (DTNHost h : hosts) {
-			if (h.getMovementModel() instanceof SatelliteMovement)//卫星节点
-				((SatelliteMovement)h.getMovementModel()).initSatelliteInfo();
+			if (h.getMovementModel() instanceof SatelliteMovement){	//卫星节点
+				((SatelliteMovement) h.getMovementModel()).initSatelliteInfo();
+				h.changeHostsList(hosts);
+			}
 			else {
 				h.changeHostsList(hosts);//对于不是卫星的节点，也将全局节点列表写入
 			}
