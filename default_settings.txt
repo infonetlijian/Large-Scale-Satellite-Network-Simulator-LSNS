@@ -35,12 +35,12 @@ Group.interface2 = Interface2
 #Interface1.type = SimpleSatelliteInterface
 Interface1.type = SatelliteWithChannelModelInterface
 
-#Transmitting Power Unit: Watt, used in SatellitetoGroundChannelModel.java
-Interface.TransmittingPower = 1
+#Transmitting Power Unit: dBm W, used in SatellitetoGroundChannelModel.java
+Interface.TransmittingPower = 50
 #Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
 Interface.TransmittingFrequency = 20000M
 #Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
-Interface.Bandwidth = 100M
+Interface.Bandwidth = 1M
 # used in RelayRouterforInternetAccess.java
 # Rayleigh
 Interface.channelModel = Rice
@@ -162,9 +162,9 @@ Scenario.nrofHostGroups = 3
 ## Scenario settings
 Scenario.name = satellite network simulation
 Scenario.simulateConnections = true
-Scenario.updateInterval = 0.1
+Scenario.updateInterval = 0.01
 # 43200s == 12h
-Scenario.endTime = 1600
+Scenario.endTime = 10
 
 
 ## Interface-specific settings:

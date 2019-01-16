@@ -31,10 +31,10 @@ public class VBRConnectionWithChannelModel extends Connection {
         super(fromNode, fromInterface, toNode, toInterface);
         this.msgsent = 0;
 
-        Settings s1 = new Settings(DTNSim.INTERFACE);
+        Settings s = new Settings(DTNSim.INTERFACE);
         //to simulate random status of wireless link
-        channelModel = new channelModel(DTNSim.RAYLEIGH,
-                s1.getDouble(DTNSim.TRANSMITTING_POWER), s1.getDouble(DTNSim.TRANSMITTING_FREQUENCY), s1.getDouble(DTNSim.BANDWIDTH));
+        channelModel = new channelModel(s.getSetting(DTNSim.CHANNEL_MODEL),
+                s.getDouble(DTNSim.TRANSMITTING_POWER), s.getDouble(DTNSim.TRANSMITTING_FREQUENCY), s.getDouble(DTNSim.BANDWIDTH));
     }
 
     /**
@@ -74,7 +74,8 @@ public class VBRConnectionWithChannelModel extends Connection {
      */
     public void update() {
         currentspeed = channelModel.updateLinkState(this, fromNode, toNode);
-        System.out.println("VBRconnection "+currentspeed+ " size "+msgsize);
+        if (msgsize > 0)
+            System.out.println("VBRconnection "+currentspeed+ " size "+msgsize);
         msgsent = msgsent + (int)currentspeed;
     }
 
