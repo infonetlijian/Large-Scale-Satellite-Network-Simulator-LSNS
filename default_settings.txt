@@ -13,6 +13,10 @@ userSetting.routerMode = AllConnected
 #userSetting.hostsMode = cluster
 userSetting.hostsMode = normal
 
+# messageCreateMode (normal or batch) used in MessageCreateEvent.java
+userSetting.messageCreateMode = batch
+userSetting.batchCreateNumber = 1
+
 #分簇路由相关参数
 #clusterCheckInterval unit:seconds
 Group.clusterCheckInterval = 60
@@ -36,17 +40,17 @@ Group.interface2 = Interface2
 Interface1.type = SatelliteWithChannelModelInterface
 
 #Transmitting Power Unit: dBm W, used in SatellitetoGroundChannelModel.java
-Interface.TransmittingPower = 50
+Interface.TransmittingPower = 48
 #Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
 Interface.TransmittingFrequency = 20000M
 #Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
-Interface.Bandwidth = 1M
+Interface.Bandwidth = 10M
 # used in RelayRouterforInternetAccess.java
 # Rayleigh
 Interface.channelModel = Rice
 
 Interface1.linkDelayRange = 0,0
-Interface1.transmitSpeed = 60k
+Interface1.transmitSpeed = 1M
 Interface1.transmitRange = 6000
 Interface1.nrofRadioInterface = 1
 Interface2.type = SatelliteLaserInterface
@@ -63,8 +67,7 @@ Events.nrof = 1
 Events1.class = ExtendedMessageEventGenerator
 #used in ExtendedMessageEventGenerator.java
 Events1.SpecificMessageGenerator = true
-Events1.hosts = [41,41]
-Events1.tohosts = [40,40]
+
 
 Events2.class = MessageEventGenerator
 #Events1.class = MessageCreateEvent
@@ -74,13 +77,14 @@ Events2.class = MessageEventGenerator
 Events1.interval = 1,1
 Events2.interval = 1,10
 # Message sizes (500kB - 1MB)
-#Events1.size = 100k,1M
-Events1.size = 64k,64k
+Events1.size = 1M,1M
+#Events1.size = 64k,64k
 Events2.size = 2M,5M
 # range of message source/destination addresses
 #Events1.hosts = [0,9;0,19;0,29;0,39;0,49]修改，注意hosts和tohosts包括下界但不包括上界，即[0, 9)
-Events1.hosts = [41,41]
-Events2.hosts = [0,40]
+Events1.hosts = [129,129]
+Events1.tohosts = [128,128]
+Events2.hosts = [0,128]
 # Message ID prefix
 Events1.prefix = RadioM
 Events2.prefix = LaserM
@@ -89,7 +93,7 @@ Events2.prefix = LaserM
 Interface.MessageThreshold = 1M
 # 是否选择开启中断
 Interface.enableInterrupt = false
-Interface.probabilityOfInterrupt = 0.08
+Interface.probabilityOfInterrupt = 0.00
 Interface.reTransmitTime = 3
 # 是否允许动态分簇
 Interface.DynamicClustering = false
@@ -99,11 +103,15 @@ DynamicMultiLayerSatelliteRouter.Optimized = false
 Group.msgPathLabel = true
 
 #卫星接入添加的设置选项
+userSetting.enableBackupSatellite = true
 # upper limits of backup satellites, used in RelayRouterforInternetAccess.java
 userSetting.nrofBackupSatellites = 4
 # minimum elevation angle unit: degree
 userSetting.minElevationAngle = 50.4
-Group.filebuffersize = 1000k
+# change satellite handover criterion (minimumElevationAngle / maximumConnectionDuration), used in RelayRouterforInternetAccess.java
+#userSetting.handoverCriterion = minimumElevationAngle
+#userSetting.handoverCriterion = maximumConnectionDuration
+Group.filebuffersize = 1000M
 #用户
 Group2.nrofHosts = 1
 Group2.groupID = TerrestrialUser
@@ -122,6 +130,7 @@ Group3.nrofHosts = 1
 Group3.nrofInterfaces = 1
 Group3.interface1 = Interface1
 Interface1.type = SatelliteWithChannelModelInterface
+#Interface1.type = SimpleSatelliteInterface
 Interface1.linkDelayRange = 0
 #Interface1.transmitRange = 30000
 Interface1.transmitSpeed = 10M
@@ -130,12 +139,12 @@ Group3.nodeLocation = [46000,48000,55000]
 
 # 太阳同步轨道倾角参考ODIN卫星轨道倾角为97.8度
 # LEO卫星节点参数
-Group.nrofCommunicationNodesInEachPlane = 4
-Group.nrofLEO = 40
-Group.nrofLEOPlanes = 10
+Group.nrofCommunicationNodesInEachPlane = 16
+Group.nrofLEO = 128
+Group.nrofLEOPlanes = 8
 Group.LEO_OrbitPlaneAngle = 97.8
 Group.LEO_Eccentricity = 0
-Group.LEO_Radius = 500
+Group.LEO_Radius = 550
 
 # MEO卫星节点参数
 Group.EnableMEO = false
@@ -154,7 +163,7 @@ Group.nrofGEOPlane = 1
 Group.GEO_Eccentricity = 0
 
 # 总的卫星节点数目
-Group.nrofHosts = 40
+Group.nrofHosts = 128
 
 # Define 6 different node groups
 Scenario.nrofHostGroups = 3
@@ -162,9 +171,9 @@ Scenario.nrofHostGroups = 3
 ## Scenario settings
 Scenario.name = satellite network simulation
 Scenario.simulateConnections = true
-Scenario.updateInterval = 0.01
+Scenario.updateInterval = 0.1
 # 43200s == 12h
-Scenario.endTime = 10
+Scenario.endTime = 120
 
 
 ## Interface-specific settings:
@@ -178,7 +187,7 @@ Scenario.endTime = 10
 #Interface.type = SimpleSatelliteInterface
 
 # Transmit speed of 2 Mbps (bit/s) = 250kBps (Byte/s), transmit speed unit in ONE is Byte
-Interface.transmitSpeed = 250k
+Interface.transmitSpeed = 1M
 #注意：ONE中距离单位是meters
 #由于JAT中距离单位为km，因此我们将ONE中的距离单位统一视为km，这样只会在自带的图形界面单位上产生误解，但内部程序的逻辑上没有问题
 Interface.transmitRange = 4000
@@ -300,7 +309,7 @@ MovementModel.warmup = 10
 ## Reports - all report names have to be valid report classes
 
 # how many reports to load
-Report.nrofReports = 8
+Report.nrofReports = 9
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
@@ -314,6 +323,7 @@ Report.report5 = ContactTimesReport
 Report.report6 = MessageReport
 Report.report7 = MessageDeletedReport
 Report.report8 = MessageAbortedReport
+Report.report9 = MessageTransmissionRateReport
 
 ## Default settings for some routers settings
 ProphetRouter.secondsInTimeUnit = 30

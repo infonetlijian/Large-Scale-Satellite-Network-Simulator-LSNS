@@ -108,9 +108,17 @@ public class SimpleSatelliteInterface extends NetworkInterface {
 	 * that are out of range and creates new ones).
 	 */
 	public void update() {
-		//update the satellite link info
-		List<DTNHost> allowConnectedList = 
-				((SatelliteMovement)this.getHost().getMovementModel()).updateSatelliteLinkInfo();
+		List<DTNHost> allowConnectedList;
+
+		//TODO special situation
+		if (! (this.getHost().getMovementModel() instanceof SatelliteMovement)) {
+			allowConnectedList = this.getHost().getHostsList();
+		}
+		else {
+			//update the satellite link info
+			allowConnectedList =
+					((SatelliteMovement) this.getHost().getMovementModel()).updateSatelliteLinkInfo();
+		}
 		
 		if (!this.getHost().multiThread){
 			if (optimizer == null) {

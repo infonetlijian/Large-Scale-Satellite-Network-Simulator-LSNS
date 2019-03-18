@@ -52,6 +52,10 @@ public class DTNSim {
 	public static final String nrofFile_s = "nrofFile";
 
 	/** Router : RelayRouterforInternetAccess */
+	public static final String GROUP = "Group";
+	public static final String HANDOVER_CRITERION = "handoverCriterion";
+	public static final String LEO_RADIUS = "LEO_Radius";
+	public static final String ENABLE_BACKUPSATELLITE = "enableBackupSatellite";
 	public static final String NROF_BACKUPSATELLITES = "nrofBackupSatellites";
 	public static final String MIN_ELEVATIONANGLE = "minElevationAngle";
 	public static final String TRANSMIT_RANGE = "transmitRange";
@@ -64,6 +68,11 @@ public class DTNSim {
 	public static final String SAT = "Satellite";
 	public static final String USER = "TerrestrialUser";
 
+	/** input: MessageCreateEvent */
+	public static final String MESSAGECREATEMODE = "messageCreateMode";
+	public static final String BATCHCREATENUMBER = "batchCreateNumber";
+	public static final String BATCH = "batch";
+
 	/** Interface: SatelliteWithChannelModelInterface */
 	/** router mode in the sim -setting id ({@value})*/
 	public static final String ROUTERMODENAME_S = "routerMode";
@@ -72,6 +81,10 @@ public class DTNSim {
 	public static final String TRANSMITTING_FREQUENCY = "TransmittingFrequency";
 	public static final String BANDWIDTH = "Bandwidth";
 
+	/** Core: VBRConnectionWithChannelModel */
+	public static final String SCENARIO = "Scenario";
+	public static final String UPDATEINTERVAL = "updateInterval";
+	public static final String ENDTIME = "endTime";
 	/**
 	 * Starts the user interface with given arguments.
 	 * If first argument is {@link #BATCH_MODE_FLAG}, the batch mode and text UI

@@ -478,7 +478,6 @@ public abstract class ActiveRouter extends MessageRouter {
 	 */
 	protected Connection exchangeDeliverableMessages() {
 		List<Connection> connections = getConnections();
-
 		if (connections.size() == 0) {
 			return null;
 		}
@@ -486,7 +485,7 @@ public abstract class ActiveRouter extends MessageRouter {
 		@SuppressWarnings(value = "unchecked")
 		Tuple<Message, Connection> t =
 			tryMessagesForConnected(sortByQueueMode(getMessagesForConnected()));
-		
+
 		if (t != null) {
 			return t.getValue(); // started transfer
 		}

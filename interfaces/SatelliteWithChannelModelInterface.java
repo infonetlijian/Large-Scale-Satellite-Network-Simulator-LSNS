@@ -274,7 +274,10 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 	 */
 	public Double getCurrentChannelStatus(DTNHost h){
 		List<Double> record = this.channelStatusRecord.get(h);
-		return record.get(record.size() - 1);
+		if (record == null)
+			return null;
+		else
+			return record.get(record.size() - 1);
 	}
 
 	@Override

@@ -18,6 +18,7 @@ public class VBRConnectionWithChannelModel extends Connection {
     private int msgsent;
     private double currentspeed = 0;
     private channelModel channelModel;
+    private double timeSlot = 0.1;
     /**
      * Creates a new connection between nodes and sets the connection
      * state to "up".
@@ -35,6 +36,9 @@ public class VBRConnectionWithChannelModel extends Connection {
         //to simulate random status of wireless link
         channelModel = new channelModel(s.getSetting(DTNSim.CHANNEL_MODEL),
                 s.getDouble(DTNSim.TRANSMITTING_POWER), s.getDouble(DTNSim.TRANSMITTING_FREQUENCY), s.getDouble(DTNSim.BANDWIDTH));
+
+        Settings set = new Settings(DTNSim.SCENARIO);
+        this.timeSlot = set.getDouble(DTNSim.UPDATEINTERVAL);
     }
 
     /**
@@ -75,8 +79,9 @@ public class VBRConnectionWithChannelModel extends Connection {
     public void update() {
         currentspeed = channelModel.updateLinkState(this, fromNode, toNode);
         if (msgsize > 0)
-            System.out.println("VBRconnection "+currentspeed+ " size "+msgsize);
-        msgsent = msgsent + (int)currentspeed;
+            //System.out.println("VBRconnection current speed: "+currentspeed+ " bps, msg size: "+msgsize+" transmission time: "+msgsize/currentspeed);
+
+        msgsent = msgsent + (int)(currentspeed*timeSlot);
     }
 
     /**

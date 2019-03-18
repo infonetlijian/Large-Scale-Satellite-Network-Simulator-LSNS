@@ -4,7 +4,7 @@ Rsrc-Class-Path: ./ DTNConsoleConnection.jar ECLA.jar gnujaxp.jar iTex
  0.10.jar jfreechart-1.0.10-experimental.jar jfreechart-1.0.10-swt.jar
   junit.jar servlet.jar swtgraphics2d.jar vecmath.jar
 Class-Path: .
-SplashScreen-Image: Develop/earth.png
 Rsrc-Main-Class: core.DTNSim
-Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+SplashScreen-Image: Develop/earth.png
+Main-Class: core.DTNSim
 

@@ -366,8 +366,6 @@ public class ShortestPathFirstRouter extends ActiveRouter {
      * Try to update router table and find the routing path from router table.
      * If 'msgPathLabel' is true, then the routing path should be written into the header.
      * @param message
-     * @param connections
-     * @param msgPathLabel
      * @return
      */
     public Tuple<Message, Connection> findPathFromRouterTabel(Message message) {
@@ -454,17 +452,23 @@ public class ShortestPathFirstRouter extends ActiveRouter {
 
         double radius = transmitRange;//Represent communication Radius
         //Get satellite movement model which store orbit-info of all satellites in the network
+        if (! (this.getHost().getMovementModel() instanceof SatelliteMovement))
+            return topologyInfo;
+
         SatelliteMovement movementModel = ((SatelliteMovement) this.getHost().getMovementModel());
 
         //Calculate the current coordinate of all satellite nodes in the network
-        for (DTNHost h : movementModel.getHosts()) {
+        List<DTNHost> allHosts = this.getHosts();
+        if (allHosts.size() <= this.getHost().getHostsList().size())
+            allHosts = this.getHost().getHostsList();
+        for (DTNHost h : allHosts) {
             //locationRecord.put(h, movementModel.getCoordinate(h, SimClock.getTime()));
             locationRecord.put(h, h.getLocation());          
         }
         //System.out.println(this.getHost()+" list: "+locationRecord+"  "+SimClock.getTime());
         //Calculate links between each two satellite nodes
-        for (DTNHost h : movementModel.getHosts()) {
-            for (DTNHost otherNode : movementModel.getHosts()) {
+        for (DTNHost h : allHosts) {
+            for (DTNHost otherNode : allHosts) {
                 if (otherNode == h)
                     continue;
                 Coord otherNodeLocation = locationRecord.get(otherNode);
@@ -491,6 +495,18 @@ public class ShortestPathFirstRouter extends ActiveRouter {
      */
     public void shortestPathSearch(Message msg) {
         HashMap<DTNHost, List<DTNHost>> topologyInfo = temporalGraphCaluculation();//update the current topology information
+
+        //TODO special situation
+        if (topologyInfo.isEmpty()) {
+            List<Tuple<Message, Connection>> tuples = new ArrayList<Tuple<Message, Connection>>();
+            for (Connection con :this.getHost().getConnections()){
+                tuples.add(new Tuple<Message, Connection>(msg, con));
+                if (tryMessagesForConnected(tuples) != null)// try to send msg on each connection, once success, then return
+                    return;
+                tuples.clear();
+            }
+            return;
+        }
 
         if (routerTableUpdateLabel == true)		//routerTableUpdateLabel == true则代表此次更新路由表已经更新过了，所以不要重复计算
             return;

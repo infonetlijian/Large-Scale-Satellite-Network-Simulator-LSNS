@@ -2,6 +2,7 @@ package input;
 
 import java.util.Random;
 
+import core.DTNSim;
 import core.Settings;
 import core.SettingsError;
 
@@ -62,6 +63,8 @@ public class ExtendedMessageEventGenerator implements EventQueue {
     private double[] msgInterval;
     /** Time range for message creation (min, max) */
     protected double[] msgTime;
+
+    private boolean batch = false;
 
     /** Random number generator for this Class */
     protected Random rng;
@@ -203,7 +206,13 @@ public class ExtendedMessageEventGenerator implements EventQueue {
         /* Create event and advance to next event */
         MessageCreateEvent mce = new MessageCreateEvent(from, to, this.getID(),
                 msgSize, responseSize, this.nextEventsTime);
-        this.nextEventsTime += interval;
+
+        //batch creation or not
+        if (!this.batch)
+            this.nextEventsTime += interval;
+        else{
+            this.nextEventsTime += Double.MIN_VALUE;
+        }
 
         if (this.msgTime != null && this.nextEventsTime > this.msgTime[1]) {
             /* next event would be later than the end time */
@@ -213,6 +222,12 @@ public class ExtendedMessageEventGenerator implements EventQueue {
         return mce;
     }
 
+    /**
+     * Update batch label for batch message creation
+     */
+    public void updateBatchLable(boolean batch){
+        this.batch = batch;
+    }
     /**
      * Returns next message creation event's time
      * @see input.EventQueue#nextEventsTime()

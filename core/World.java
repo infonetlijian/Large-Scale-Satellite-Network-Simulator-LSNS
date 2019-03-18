@@ -1,6 +1,7 @@
 package core;
 
 import input.EventQueue;
+import input.ExtendedMessageEventGenerator;
 import input.ExternalEvent;
 import input.ScheduledUpdatesQueue;
 import java.util.ArrayList;
@@ -160,6 +161,19 @@ public class World {
 			simClock.setTime(this.nextQueueEventTime);
 			ExternalEvent ee = this.nextEventQueue.nextEvent();
 			ee.processEvent(this);
+
+			//batch creation (for new messages) or not
+			Settings setting = new Settings(DTNSim.USERSETTINGNAME_S);
+			if (setting.contains(DTNSim.MESSAGECREATEMODE) && this.nextEventQueue instanceof ExtendedMessageEventGenerator){
+				int batchCreateNumber = setting.getInt(DTNSim.BATCHCREATENUMBER);
+				for (int i = 0 ; i < batchCreateNumber - 1; i++){
+					((ExtendedMessageEventGenerator)this.nextEventQueue).updateBatchLable(true);
+					ee = this.nextEventQueue.nextEvent();
+					ee.processEvent(this);
+				}
+				((ExtendedMessageEventGenerator)this.nextEventQueue).updateBatchLable(false);
+			}
+
 			updateHosts(); 										// update all hosts after every event
 			setNextEventQueue();
 		}

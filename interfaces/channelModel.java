@@ -14,7 +14,7 @@ import java.util.Random;
  */
 public class channelModel {
     /** transmission power at transmitter, unit: dBm */
-    private double transmitPower = 24;
+    private double transmitPower = 20;
     /** allocated subcarrier bandwidth in FDMA */
     private double bandwidth;
     /** allocated time slot for transmission in TDMA */
@@ -26,7 +26,7 @@ public class channelModel {
     /** standard deviation used in each channel model **/
     private  double standardDeviation = 1.0;
     /** energy ratio (K) in Rice channel model **/
-    private double energyRatio_K = 10;
+    private double energyRatio_K = 1;
     /** channel model type (e.g. Gaussian, Rayleigh, Rice...)**/
     private String modelType;
     /** generate random number */
@@ -54,7 +54,7 @@ public class channelModel {
         double fadingFactor = channelState(modelType, distance);
         double currentSpeed = channelCapacity(fadingFactor, bandwidth);
 
-        return currentSpeed;
+        return currentSpeed/8;//bit ->> byte
     }
 
     /**
@@ -120,7 +120,7 @@ public class channelModel {
                 Math.sqrt(1/(energyRatio_K + 1))*rayleighFactor;
 
         fadingFactor = h * ratio;
-        System.out.println("free space loss: "+path_loss+" lamda "+lamda+" fading factor "+fadingFactor+" rayleigh fading: "+rayleighFactor);
+        //System.out.println("free space loss: "+path_loss+" lamda "+lamda+" fading factor "+fadingFactor+" rayleigh fading: "+rayleighFactor);
         return fadingFactor;
     }
 
@@ -158,7 +158,7 @@ public class channelModel {
         double noise_mW = bandwidth*Math.exp(spectralDensityNoisePower/10);
         double SNR = transmitPower_mW*fadingFactor/noise_mW;
         double capacity = bandwidth*Math.log10(1+SNR);//Shannon Equation
-        System.out.println(transmitPower+"  power:  "+transmitPower_mW+"   "+SNR+"  speed: "+capacity);
+        //System.out.println(transmitPower+"  power:  "+transmitPower_mW+"   "+SNR+"  speed: "+capacity);
         return capacity;
     }
 
