@@ -125,7 +125,7 @@ public abstract class Connection {
 	 * the interfaces, and calculate the missing data amount.
 	 */
 	public void update() {
-	};
+	}
 
 	/**
 	 * Aborts the transfer of the currently transferred message.

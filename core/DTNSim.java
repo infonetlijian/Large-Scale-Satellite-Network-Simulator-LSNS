@@ -56,17 +56,25 @@ public class DTNSim {
 	public static final String HANDOVER_CRITERION = "handoverCriterion";
 	public static final String LEO_RADIUS = "LEO_Radius";
 	public static final String ENABLE_BACKUPSATELLITE = "enableBackupSatellite";
+    public static final String PREMIGRATION_HANDOVER = "preMigrationHandover";
+    public static final String NORMAL_HANDOVER = "normalHandover";
+	public static final String TRANSMISSION_MODE = "transmissionMode";
 	public static final String NROF_BACKUPSATELLITES = "nrofBackupSatellites";
-	public static final String MIN_ELEVATIONANGLE = "minElevationAngle";
+	public static final String NROF_ROBUSTBACKUPSATELLITE = "nrofRobustBackupSatellite";
+	public static final String ACCESS_SAT_UPDATEINTERVAL = "accessSatellitesUpdateInterval";
 	public static final String TRANSMIT_RANGE = "transmitRange";
 	public static final String INTERFACE = "Interface";
 	public static final String CHANNEL_MODEL = "channelModel";
 	public static final String RAYLEIGH = "Rayleigh";
 	public static final String RICE = "Rice";
+    public static final String SHADOWING = "Shadowing";
 	public static final String NODE_TYPE = "Type";
 	public static final String GS = "GroundStation";
 	public static final String SAT = "Satellite";
 	public static final String USER = "TerrestrialUser";
+	public static final String MIN_ELEVATIONANGLE = "minimumElevationAngle";
+    public static final String MAX_CONNECTIONDURATION = "maximumConnectionDuration";
+    public static final String SPEED_GSLINK = "constantSpeedOfGroundStationLink";
 
 	/** input: MessageCreateEvent */
 	public static final String MESSAGECREATEMODE = "messageCreateMode";
@@ -85,6 +93,14 @@ public class DTNSim {
 	public static final String SCENARIO = "Scenario";
 	public static final String UPDATEINTERVAL = "updateInterval";
 	public static final String ENDTIME = "endTime";
+
+	/**Core: channelModel */
+    public static final String SHADOWING_DURATION ="shadowingDuration";
+	public static final String SHADOWING_PROB = "shadowingProbability";
+	public static final String ENERGYRATIO_RICE = "energyRatio_Rice";
+	public static final String TRANSMIT_ANTENNADIAMETER = "transmitAntennaDiameter";
+	public static final String RECEIVER_ANTENNADIAMETER = "receiverAntennaDiameter";
+	public static final String SPECTRIAL_DENSITYNOISE= "spectralDensityNoisePower";
 	/**
 	 * Starts the user interface with given arguments.
 	 * If first argument is {@link #BATCH_MODE_FLAG}, the batch mode and text UI

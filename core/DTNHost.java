@@ -839,12 +839,26 @@ public class DTNHost implements Comparable<DTNHost> {
 	public MovementModel getMovementModel(){
 		return this.movement;
 	}
-	
-	/*ÐÂÔöº¯Êý*/
-	//public GridNeighbors getGridNeighbors(){
-	//	return GN;
-	//}
-	
+
+	/**
+	 * if message has been received by this node
+	 * @param m
+	 * @return
+	 */
+	public boolean isMessgaeReceived(Message m){
+		if (m == null)
+			throw new SimError(" input null message when check message received in DTNHost.java ");
+		return this.getRouter().isDeliveredMessage(m);
+
+	}
+	/**
+	 * set satellite orbit parameters
+	 * @param totalSatellites
+	 * @param totalPlane
+	 * @param nrofPlane
+	 * @param nrofSatelliteInPlane
+	 * @param parameters
+	 */
 	public void setSatelliteParameters(int totalSatellites, int totalPlane, int nrofPlane, int nrofSatelliteInPlane, double[] parameters){
 		
 		for (int i = 0; i < 6; i++){

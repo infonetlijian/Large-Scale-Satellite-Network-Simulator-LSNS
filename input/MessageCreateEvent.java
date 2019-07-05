@@ -14,9 +14,9 @@ import core.*;
 public class MessageCreateEvent extends MessageEvent {
 	private int size;
 	private int responseSize;
-	/**------------------------------   ¶Ô MessageCreateEvent Ìí¼ÓµÄ²ÎÁ¿       --------------------------------*/
+	/**------------------------------   å¯¹ MessageCreateEvent æ·»åŠ çš„å‚é‡       --------------------------------*/
 	
-	private String fileID; 			// Ìí¼ÓÁËÎÄ¼şµÄIDÃû
+	private String fileID; 			// æ·»åŠ äº†æ–‡ä»¶çš„IDå
 	public final static String SelectLabel = "PacketType";
 	/** user setting in the sim -setting id ({@value})*/
 	public static final String USERSETTINGNAME_S = "userSetting";
@@ -28,7 +28,7 @@ public class MessageCreateEvent extends MessageEvent {
 	public static final String GROUP_NS = "Group";
 	/** retransmission time of message */
 	private static final String RETRANS_TIME = "reTransTime";
-	/**------------------------------   ¶Ô MessageCreateEvent Ìí¼ÓµÄ²ÎÁ¿       --------------------------------*/
+	/**------------------------------   å¯¹ MessageCreateEvent æ·»åŠ çš„å‚é‡       --------------------------------*/
 	
 	/**
 	 * Creates a message creation event with a optional response request
@@ -53,12 +53,12 @@ public class MessageCreateEvent extends MessageEvent {
 		"size:" + size + " CREATE";
 	}
 	
-	/**------------------------------   ¶Ô MessageCreateEvent Ìí¼ÓµÄº¯Êı·½·¨       --------------------------------*/
+	/**------------------------------   å¯¹ MessageCreateEvent æ·»åŠ çš„å‡½æ•°æ–¹æ³•       --------------------------------*/
 	
-	/** ÓĞ¹ØÓÚÎÄ¼şÏà¹ØĞŞ¸ÄµÄ²¿·Ö       */
+	/** æœ‰å…³äºæ–‡ä»¶ç›¸å…³ä¿®æ”¹çš„éƒ¨åˆ†       */
 	public String RandomGetFileID() {
-		Settings ss = new Settings(GROUP_NS);					// Ã¿Ò»¸öÖ÷»ú×éÓĞÒ»¸öÅäÖÃ¶ÔÏó£¬¾ßÌåµÄ¿ÉÄÜºÍÃüÃû¿Õ¼äÓĞ¹Ø
-		int nrofFile = ss.getInt(nrofFile_s);						// defaultÉè¶¨µÄÎÄ¼şÊıÄ¿
+		Settings ss = new Settings(GROUP_NS);					// æ¯ä¸€ä¸ªä¸»æœºç»„æœ‰ä¸€ä¸ªé…ç½®å¯¹è±¡ï¼Œå…·ä½“çš„å¯èƒ½å’Œå‘½åç©ºé—´æœ‰å…³
+		int nrofFile = ss.getInt(nrofFile_s);						// defaultè®¾å®šçš„æ–‡ä»¶æ•°ç›®
 		Random random = new Random();
 		int id =random.nextInt(nrofFile);
 		return "filename" +id;										// return filename;
@@ -68,7 +68,7 @@ public class MessageCreateEvent extends MessageEvent {
 	 */
 	@Override
 	public void processEvent(World world) {
-		Settings setting = new Settings(USERSETTINGNAME_S);		//¶ÁÈ¡ÉèÖÃ£¬ÅĞ¶ÏÊÇ·ñĞèÒª·Ö´Ø
+		Settings setting = new Settings(USERSETTINGNAME_S);		//è¯»å–è®¾ç½®ï¼Œåˆ¤æ–­æ˜¯å¦éœ€è¦åˆ†ç°‡
 		String cacheEnable = setting.getSetting(EnableCache_s); // decide whether to enable the cache function
 
 		Message m = createMessage(world, cacheEnable);
@@ -83,22 +83,22 @@ public class MessageCreateEvent extends MessageEvent {
 //	        this.fileID = RandomGetFileID();
 //
 //	        DTNHost from = world.getNodeByAddress(this.fromAddr);
-//			this.toAddr = from.getFiles().get(this.fileID);							// ĞŞ¸Ä
+//			this.toAddr = from.getFiles().get(this.fileID);							// ä¿®æ”¹
 //			DTNHost to = world.getNodeByAddress(this.toAddr);
 //
-//			this.responseSize = to.getFileBuffer().get(this.fileID).getSize();		// responseSizeÉè¶¨µÄÊÇÎÄ¼şµÄ´óĞ¡£¬
+//			this.responseSize = to.getFileBuffer().get(this.fileID).getSize();		// responseSizeè®¾å®šçš„æ˜¯æ–‡ä»¶çš„å¤§å°ï¼Œ
 //
 //			Message m = new Message(from, to, this.id, this.size);
 //			m.setResponseSize(this.responseSize);
 //			m.setFilename(this.fileID);
-//			m.updateProperty(SelectLabel, 0);													// ±êÊ¶Îª¿ØÖÆ°ü
+//			m.updateProperty(SelectLabel, 0);													// æ ‡è¯†ä¸ºæ§åˆ¶åŒ…
 //
-////			System.out.println("µ±Ç°½ÚµãÊÇ·ñ°üº¬ÎÄ¼ş£º"+ from.getFileBuffer().containsKey(this.fileID) +" " + "µ±Ç°Ê±¿Ì£º"+ SimClock.getTime() );
+////			System.out.println("å½“å‰èŠ‚ç‚¹æ˜¯å¦åŒ…å«æ–‡ä»¶ï¼š"+ from.getFileBuffer().containsKey(this.fileID) +" " + "å½“å‰æ—¶åˆ»ï¼š"+ SimClock.getTime() );
 //
-//			// Èç¹ûÄ¿µÄ½ÚµãºÍÔ´½Úµã²»Í¬£¬²Å´´½¨ÏûÏ¢£¬ÒòÎªÈ¡µÃÎÄ¼şÊÇËæ»úµÄ£»     Í¬Ê±Èç¹û½Úµã»º´æÓĞÎÄ¼ş£¬²»ÔÙ·¢ÉúÇëÇó¡£
+//			// å¦‚æœç›®çš„èŠ‚ç‚¹å’ŒæºèŠ‚ç‚¹ä¸åŒï¼Œæ‰åˆ›å»ºæ¶ˆæ¯ï¼Œå› ä¸ºå–å¾—æ–‡ä»¶æ˜¯éšæœºçš„ï¼›     åŒæ—¶å¦‚æœèŠ‚ç‚¹ç¼“å­˜æœ‰æ–‡ä»¶ï¼Œä¸å†å‘ç”Ÿè¯·æ±‚ã€‚
 //			if(this.toAddr!=this.fromAddr && !from.getFileBuffer().containsKey(this.fileID)) {
-//				from.createNewMessage(m); 														// °ÑÏûÏ¢·Å½ø»º´æÖĞÈ¥
-////				from.putIntoJudgeForRetransfer(m);												// ĞèÒª½«ÏûÏ¢·ÅÈëµ½ÅĞ¶ÏÏûÏ¢ÊÇ·ñÖØ´«µÄbufferÖĞ
+//				from.createNewMessage(m); 														// æŠŠæ¶ˆæ¯æ”¾è¿›ç¼“å­˜ä¸­å»
+////				from.putIntoJudgeForRetransfer(m);												// éœ€è¦å°†æ¶ˆæ¯æ”¾å…¥åˆ°åˆ¤æ–­æ¶ˆæ¯æ˜¯å¦é‡ä¼ çš„bufferä¸­
 //			}
 //		}
 //		else{
@@ -111,11 +111,10 @@ public class MessageCreateEvent extends MessageEvent {
 		Settings s = new Settings("Interface");
 		int time = s.getInt("reTransmitTime");
 		m.updateProperty(RETRANS_TIME, time);
+		m.setReceiveTime(SimClock.getTime());
 
 		m.setResponseSize(this.responseSize);
 		//		}
 		return m;
 	}
-	
-	/**------------------------------   ¶Ô MessageCreateEvent Ìí¼ÓµÄº¯Êı·½·¨       --------------------------------*/
 }

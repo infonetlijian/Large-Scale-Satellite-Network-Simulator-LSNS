@@ -191,7 +191,7 @@ public abstract class MessageRouter {
 	 * @return true if a message with the same ID has been received by 
 	 * this host as the final recipient.
 	 */
-	protected boolean isDeliveredMessage(Message m) {
+	public boolean isDeliveredMessage(Message m) {
 		return (this.deliveredMessages.containsKey(m.getId()));
 	}
 	
@@ -218,6 +218,18 @@ public abstract class MessageRouter {
 	 */
 	public Collection<Message> getMessageCollection() {
 		return this.messages.values();
+	}
+
+	/**
+	 * Returns a reference to the delivered messages of this router in collection.
+	 * <b>Note:</b> If there's a chance that some message(s) from the collection
+	 * could be deleted (or added) while iterating through the collection, a
+	 * copy of the collection should be made to avoid concurrent modification
+	 * exceptions.
+	 * @return a reference to the delivered messages of this router in collection
+	 */
+	public Collection<Message> getDeliveredMessageCollection() {
+		return this.deliveredMessages.values();
 	}
 	
 	/**

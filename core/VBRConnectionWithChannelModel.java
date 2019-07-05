@@ -4,6 +4,10 @@ import interfaces.SatelliteWithChannelModelInterface;
 import interfaces.channelModel;
 import routing.MessageRouter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 /**
  * Project Name:Large-scale Satellite Networks Simulator (LSNS)
  * File VBRConnectionWithChannelModel.java
@@ -17,8 +21,21 @@ public class VBRConnectionWithChannelModel extends Connection {
     private int msgsize;
     private int msgsent;
     private double currentspeed = 0;
+    private String channelModelType;
     private channelModel channelModel;
-    private double timeSlot = 0.1;
+    private double timeSlot;
+    private static double backhaulSpeed;
+    /** probability when shadowing happens **/
+    private static double shadowingProbability = 0;
+    /** time duration when shadowing happens*/
+    private static double shadowingDuration = 1;
+    /** label at this time duration if it has shadowing*/
+    private static boolean shadowingLabel = false;
+    /** save the shadowing connection */
+    private static List<Connection> shadowingList = new ArrayList<Connection>();
+    /** record shadowing duration end time */
+    private static double shadowingEndTime = 0;
+
     /**
      * Creates a new connection between nodes and sets the connection
      * state to "up".
@@ -32,13 +49,18 @@ public class VBRConnectionWithChannelModel extends Connection {
         super(fromNode, fromInterface, toNode, toInterface);
         this.msgsent = 0;
 
-        Settings s = new Settings(DTNSim.INTERFACE);
+        Settings s = new Settings(DTNSim.USERSETTINGNAME_S);
         //to simulate random status of wireless link
         channelModel = new channelModel(s.getSetting(DTNSim.CHANNEL_MODEL),
                 s.getDouble(DTNSim.TRANSMITTING_POWER), s.getDouble(DTNSim.TRANSMITTING_FREQUENCY), s.getDouble(DTNSim.BANDWIDTH));
+        shadowingProbability = s.getDouble(DTNSim.SHADOWING_PROB);
+        shadowingDuration = s.getDouble(DTNSim.SHADOWING_DURATION);
+        channelModelType = s.getSetting(DTNSim.CHANNEL_MODEL);
+        backhaulSpeed = s.getDouble(DTNSim.SPEED_GSLINK);
 
         Settings set = new Settings(DTNSim.SCENARIO);
         this.timeSlot = set.getDouble(DTNSim.UPDATEINTERVAL);
+
     }
 
     /**
@@ -77,13 +99,67 @@ public class VBRConnectionWithChannelModel extends Connection {
      *
      */
     public void update() {
-        currentspeed = channelModel.updateLinkState(this, fromNode, toNode);
-        if (msgsize > 0)
+        //Warning:can not set current speed to 0, otherwise the sliding window can not
+        //record channel status in "RelayRouterforInternetAccess.java"
+        /*if (!isTransferring()) {
+            currentspeed = 0;
+            return;
+        }*/
+        if (toNode.toString().contains(DTNSim.GS)||fromNode.toString().contains(DTNSim.GS)) {
+            currentspeed = backhaulSpeed;
+            msgsent = msgsent + (int)(currentspeed * timeSlot);
+            return;
+        }
+        switch (channelModelType){
+            case DTNSim.SHADOWING :{
+                currentspeed = -1;
+                if (shadowingLabel){
+                    if (shadowingEndTime > SimClock.getTime()){
+                        if (shadowingList.contains(this)){
+                            currentspeed = channelModel.updateLinkState(fromNode, toNode, DTNSim.SHADOWING);
+                            System.out.println("shadowing: "+currentspeed+"  "+SimClock.getTime()+ " con: " +this+"  ");
+                        }
+                        else{
+                            currentspeed = channelModel.updateLinkState(fromNode, toNode, DTNSim.RICE);
+                        }
+                    }
+                    else{
+                        shadowingEndTime = 0;
+                        shadowingLabel = false;
+                        currentspeed = channelModel.updateLinkState(fromNode, toNode, DTNSim.RICE);
+                    }
+                }
+                else{
+                    if (getChannelRandom().nextDouble() < shadowingProbability && !shadowingLabel && this.isTransferring()){
+                        shadowingList.clear();
+                        shadowingList.add(this);
+                        shadowingEndTime = SimClock.getTime() + shadowingDuration;
+                        currentspeed = channelModel.updateLinkState(fromNode, toNode, DTNSim.SHADOWING);
+                        System.out.println("shadowing: "+currentspeed+"  "+SimClock.getTime()+ " con: " +this);
+                    }
+                }
+                if (currentspeed <= 0)
+                    currentspeed = channelModel.updateLinkState(fromNode, toNode, DTNSim.RICE);
+                break;
+            }
+
+            default:{
+                currentspeed = channelModel.updateLinkState(fromNode, toNode, channelModelType);
+            }
+        }
+        //if (msgsize > 0)
             //System.out.println("VBRconnection current speed: "+currentspeed+ " bps, msg size: "+msgsize+" transmission time: "+msgsize/currentspeed);
 
-        msgsent = msgsent + (int)(currentspeed*timeSlot);
+        msgsent = msgsent + (int)(currentspeed * timeSlot);
     }
 
+    /**
+     * get random variable
+     * @return
+     */
+    public Random getChannelRandom(){
+        return channelModel.getChannelRandom();
+    }
     /**
      * returns the current speed of the connection
      */

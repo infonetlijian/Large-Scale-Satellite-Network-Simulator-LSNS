@@ -27,18 +27,37 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
     /** Key: User Host, Value: Allocated satellites in backup group for each terrestrial user and their weight */
     public static HashMap<DTNHost, ArrayList<Tuple<DTNHost, Double>>> allocatedBackupGroupForEachUser =
             new HashMap<DTNHost, ArrayList<Tuple<DTNHost, Double>>>();
+    /** Key: Satellite Host, Value: Allocated users accessed through this satellite */
+    public static HashMap<DTNHost, List<DTNHost>> allocatedAccessUsers = new HashMap<DTNHost, List<DTNHost>>();
 
     /** Key: User Host, Value: handover count **/
     public static HashMap<DTNHost, Integer> handoverCount = new HashMap<DTNHost, Integer>();
     /** Key: User Host, Value: last user's access node **/
     public static HashMap<DTNHost, DTNHost> lastAccessNode = new HashMap<DTNHost, DTNHost>();
 
-    public static double updateInterval = 2;//100ms
+    private String transmissionMode;
+    private String handoverMode;
+    private int nrofBackupSatellites = 1;
+    private int nrofRobustBackupSatellite = 0;
+    private double transmitRange = 0;
+    private double minElevationAngle;
+    private double earthRadius = 6371;//km;
+    private double LEO_radius;
+    private int worldSize[];
+    private int endTime;
+
+    private boolean parameterInitializationLabel = false;
+
+    public static double updateInterval = new Settings(DTNSim.USERSETTINGNAME_S).getDouble(DTNSim.ACCESS_SAT_UPDATEINTERVAL);//100ms
     public static double lastAccessUserUpdateTime = 0 - updateInterval + 1;
+    private double lastConnectionDurationUpdateTime = 0;
+    private double connectionDurationUpdateInterval = 10;
     private int countInSlidingWindow = 0;
+    /**record user's current sending message id*/
+    private int currentSendingMessageID = 0;
 
     public static double accumulativeHandoverDelay = 0;
-    private static double handoverDelay = 0;
+    private static double handoverDelay = -1;
     private List<DTNHost> accessUsers = new ArrayList<DTNHost>();
     /** Key: satellite which can establish connection with the typical user  Value: Connection break time point **/
     private HashMap<DTNHost, Double> connectionDurationRecord = new HashMap<DTNHost, Double>();
@@ -76,10 +95,43 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         return recvCheck;
     }
 
+    /**
+     * read simulation parameters in setting.txt
+     */
+    public void settingParameterInitialization(){
+        Settings userSetting = new Settings(USERSETTINGNAME_S);
+        //enable of backup satellites or not
+        transmissionMode = userSetting.getSetting(DTNSim.TRANSMISSION_MODE);
+        //read the setting of number of satellites in each backup group
+        nrofBackupSatellites = userSetting.getInt(DTNSim.NROF_BACKUPSATELLITES);//upper limits of backup satellites
+        nrofRobustBackupSatellite = userSetting.getInt(DTNSim.NROF_ROBUSTBACKUPSATELLITE);
 
+        Settings interfaceSetting= new Settings(DTNSim.INTERFACE);
+        transmitRange = interfaceSetting.getDouble(DTNSim.TRANSMIT_RANGE);
+
+        handoverMode = userSetting.getSetting(DTNSim.HANDOVER_CRITERION);
+        //read the setting of minimum elevation angle
+        minElevationAngle = userSetting.getDouble(DTNSim.MIN_ELEVATIONANGLE);
+
+        Settings groupSetting = new Settings(DTNSim.GROUP);
+        LEO_radius = groupSetting.getDouble(DTNSim.LEO_RADIUS);
+
+        Settings movementModelSetting = new Settings("MovementModel");
+        updateWorldSize(movementModelSetting.getCsvInts("worldSize"));
+
+        Settings s = new Settings(DTNSim.SCENARIO);
+        endTime = s.getInt(DTNSim.ENDTIME);// simulation end time
+
+        this.parameterInitializationLabel = true;
+    }
     @Override
     public void update() {
         super.update();
+
+        //read simulation parameters in setting.txt
+        if (!parameterInitializationLabel){
+            settingParameterInitialization();
+        }
 
         //TODO skip update if this node is far away from the dedicated user
         //if (!distanceJudge(this.getHost(), findDedicatedHosts(DTNSim.USER).get(0)))
@@ -104,60 +156,66 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
 
         /** 1.User only needs to receive messages from satellites **/
         if (type.contains(DTNSim.USER)) {
-            //System.out.println("test1  "+allocatedBackupGroupForEachUser.get(this.getHost()));
             return;
         }
 
         /** 2.Ground Station is in charge of centralized data updating **/
         if (type.contains(DTNSim.GS)) {
-            Settings s = new Settings(USERSETTINGNAME_S);
-            boolean enableBackupSatellite = s.getBoolean(DTNSim.ENABLE_BACKUPSATELLITE);//enable of backup satellites or not
+            switch (transmissionMode) {
+                case DTNSim.ENABLE_BACKUPSATELLITE: {
+                    //update access node and backup group
+                    if (this.lastAccessUserUpdateTime + this.updateInterval < SimClock.getTime()) {
+                        //update backup group for each terrestrial user
+                        updateBackupGroup();
+                        //update users served by this satellite node in each time interval
+                        updateAccessSatellite();
 
-            if (!enableBackupSatellite){
-                //judgement criterion is in isReachable()
-                if (!updateNormalHandoverProcess())
-                    return;
+                        updateAccessUsers();
+                        //TODO forward signal control message to satellites
+                        //tryControlMessagesToSatellites();
+                        this.lastAccessUserUpdateTime = SimClock.getTime();
 
-                updateAccessUsers();
-                System.out.println("access node: "+this.allocatedAccessSatelliteForEachUser+" time "+SimClock.getTime());
-                tryMessagesToBackupSatellites();
-
-                handoverCount();
-                handoverDelay();
-            }
-            else{
-                //update access node and backup group
-                if (this.lastAccessUserUpdateTime + this.updateInterval < SimClock.getTime()) {
-                    //update backup group for each terrestrial user
-                    updateBackupGroup();
-                    //update users served by this satellite node in each time interval
-                    updateAccessSatellite();
+                        System.out.println("backup group:  " + nrofBackupSatellites + "  " + this.allocatedBackupGroupForEachUser + " time " + SimClock.getTime());
+                        System.out.println("access node: " + this.allocatedAccessSatelliteForEachUser + " time " + SimClock.getTime());
+                    }
+                    tryMessagesToBackupSatellites();
+                    break;
+                }
+                case DTNSim.PREMIGRATION_HANDOVER: {
+                    HashMap<DTNHost, Integer> storedMessages = updatePreMigrationHandover();
 
                     updateAccessUsers();
-                    //TODO forward signal control message to satellites
-                    //tryControlMessagesToSatellites();
-                    this.lastAccessUserUpdateTime = SimClock.getTime();
 
-                    System.out.println("backup group:  "+this.allocatedBackupGroupForEachUser+" time "+SimClock.getTime());
+                    tryMessagesToMigratedSatellites(storedMessages);
+                    break;
+                }
+                case DTNSim.NORMAL_HANDOVER:{
+                    //judgement criterion is in isReachable()
+                    if (!updateNormalHandoverProcess())
+                        return;
+
+                    updateAccessUsers();
+                    System.out.println("backup group:  "+nrofBackupSatellites+"  "+this.allocatedBackupGroupForEachUser+" time "+SimClock.getTime());
                     System.out.println("access node: "+this.allocatedAccessSatelliteForEachUser+" time "+SimClock.getTime());
+
+                    tryMessagesToBackupSatellites();
+                    break;
+                    }
                 }
 
-                tryMessagesToBackupSatellites();
-
+                /** update user's current sending message id to ensure satellite
+                 can send message to user one by one */
+                updateUserCurrentSendingMessageID();
                 handoverCount();
                 handoverDelay();
             }
-        }
 
 
         /** 3.For satellite nodes, to forward data messages to terrestrial users **/
         if (type.contains(DTNSim.SAT)) {
-            // warning:
-            // updateChannelModelForInterface() must be executed before updateSlidingWindow()
-            Settings s = new Settings(DTNSim.INTERFACE);
-            String channelModel = s.getSetting(DTNSim.CHANNEL_MODEL);
-            //String channelModel = RICE;
             updateSlidingWindow(this.getHost());
+
+            messageQueueManagement(this);
 
             if (!this.accessUsers.isEmpty()) {
                 //try to send messages to users
@@ -169,25 +227,199 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             //}
         }
     }
+
+    /**
+     * manage backup satellite's message queue, delete unnecessary messages
+     */
+    private List<String> messageQueueManagement(RelayRouterforInternetAccess router){
+        List<String> noNeedToSend = new ArrayList<String>();
+
+        for (DTNHost user : findDedicatedHosts(DTNSim.USER)){
+            for (Message m : router.getMessageCollection()){
+                if (user.isMessgaeReceived(m)){
+                    noNeedToSend.add(m.getId());
+                }
+            }
+            for (String mID : noNeedToSend) {
+                router.removeFromMessages(mID);//user already received the message, then delete it from ground station
+            }
+        }
+        return noNeedToSend;
+    }
+    /**
+     * Exchanges deliverable (to final recipient) messages between this host
+     * and all hosts this host is currently connected to. First all messages
+     * from this host are checked and then all other hosts are asked for
+     * messages to this host. If a transfer is started, the search ends.
+     * @return A connection that started a transfer or null if no transfer
+     * was started
+     */
+    @Override
+    protected Connection exchangeDeliverableMessages() {
+        List<Connection> connections = getConnections();
+        if (connections.size() == 0) {
+            return null;
+        }
+
+        @SuppressWarnings(value = "unchecked")
+        Tuple<Message, Connection> t =
+                tryMessagesForConnected(sortByQueueMode(getMessagesForConnected()));
+
+        if (t != null) {
+            return t.getValue(); // started transfer
+        }
+
+        // didn't start transfer to any node -> ask messages from connected
+        for (Connection con : connections) {
+            //TODO System.out.println("ActiveRouter.java test for connections:" + con.getLinkType());
+            if (con.getOtherNode(getHost()).requestDeliverableMessages(con)) {
+                return con;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * resolve meeeage's id, transform string type id to integer type id
+     * @param m
+     * @return
+     */
+    public int resolveMessageID(Message m){
+        //String id = m.getId();
+        String id = m.getId().substring("RadioM".length());
+        int ID = Integer.parseInt(id);
+
+        return ID;
+    }
+
+    /**
+     * update user's current sending message id to ensure satellite
+     * can send message to user one by one
+     */
+    private void updateUserCurrentSendingMessageID(){
+        for (DTNHost user: findDedicatedHosts(DTNSim.USER)){
+            int maximumID = ((RelayRouterforInternetAccess)user.getRouter()).getCurrentSendingMessageID();
+            for (Message m : user.getRouter().getDeliveredMessageCollection()){
+                int id = resolveMessageID(m);
+
+                if (id > maximumID)
+                    maximumID = id;
+            }
+            ((RelayRouterforInternetAccess)user.getRouter()).setCurrentSendingMessageID(maximumID);
+        }
+    }
+
+    /**
+     * record user's current sending message id
+     * @param maximumID
+     */
+    public void setCurrentSendingMessageID(int maximumID){
+        currentSendingMessageID = maximumID;
+    }
+
+    /**
+     * get user's current sending message id to ensure satellite
+     * can send message to user one by one
+     * @return
+     */
+    public int getCurrentSendingMessageID(){
+        return currentSendingMessageID;
+    }
+
+    /**
+     * Tries to send messages for the connections that are mentioned
+     * in the Tuples in the order they are in the list until one of
+     * the connections starts transferring or all tuples have been tried.
+     * @param tuples The tuples to try
+     * @return The tuple whose connection accepted the message or null if
+     * none of the connections accepted the message that was meant for them.
+     */
+    @Override
+    protected Tuple<Message, Connection> tryMessagesForConnected(
+            List<Tuple<Message, Connection>> tuples) {
+        if (tuples.size() == 0) {
+            return null;
+        }
+
+        for (Tuple<Message, Connection> t : tuples) {
+            Message m = t.getKey();
+
+            /*only send message one by one, avoid out of order*/
+            int id = resolveMessageID(m);
+            DTNHost user = m.getTo();
+            int maximumID = ((RelayRouterforInternetAccess)user.getRouter()).getCurrentSendingMessageID();
+            if (id != maximumID + 1 && id != 1){
+                //M1 should be always transmitted as the first message
+                continue;
+            }
+
+            Connection con = t.getValue();
+            if (startTransfer(m, con) == RCV_OK) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a list of message-connections tuples of the messages whose
+     * recipient is some host that we're connected to at the moment.
+     * @return a list of message-connections tuples
+     */
+    @Override
+    protected List<Tuple<Message, Connection>> getMessagesForConnected() {
+        if (getNrofMessages() == 0 || getConnections().size() == 0) {
+            /* no messages -> empty list */
+            return new ArrayList<Tuple<Message, Connection>>(0);
+        }
+
+        List<Tuple<Message, Connection>> forTuples =
+                new ArrayList<Tuple<Message, Connection>>();
+        for (Message m : getMessageCollection()) {
+            //TODO //if the message has been sent to the destination, don't try to send it again
+            DTNHost destination = m.getTo();
+            if (destination.isMessgaeReceived(m))
+                continue;
+
+            for (Connection con : getConnections()) {
+                DTNHost to = con.getOtherNode(getHost());
+                if (m.getTo() == to) {
+                    forTuples.add(new Tuple<Message, Connection>(m,con));
+                }
+            }
+        }
+
+        return forTuples;
+    }
+    private static int Testcount = 0;
     /**
      * calculate handover delay when handover happens
      */
     public void handoverDelay(){
         for (DTNHost user: findDedicatedHosts(DTNSim.USER)) {
             DTNHost accessNode = this.allocatedAccessSatelliteForEachUser.get(user);
-            if (accessNode == null)
+            if (accessNode == null) {
+                if (this.handoverDelay >= 0)
+                    this.handoverDelay = SimClock.getTime();
+                //System.out.println("test access node:  " +Testcount++);
                 return;
+            }
 
             RelayRouterforInternetAccess router;
             if (accessNode.getRouter() instanceof RelayRouterforInternetAccess)
                  router = ((RelayRouterforInternetAccess)accessNode.getRouter());
             else
                 return;
-            if (!router.getDedicatedMessages(user).isEmpty() && this.handoverDelay >= 0){
+
+            int maximumID = ((RelayRouterforInternetAccess)user.getRouter()).getCurrentSendingMessageID();
+            String nextMessage = "RadioM" + Integer.toString(maximumID + 1);
+            //if (!router.getDedicatedMessages(user).isEmpty() && this.handoverDelay >= 0){
+            if (router.getMessage(nextMessage) != null && this.handoverDelay >= 0){
                 this.accumulativeHandoverDelay = this.accumulativeHandoverDelay + SimClock.getTime() - this.handoverDelay;
                 this.handoverDelay = -1;//clear
             }
-            System.out.println(this.getHost()+"  "+router.messages);
+            System.out.println(this.getHost()+"  "+router.messages + "  " + nextMessage + "  " + router.getMessage(nextMessage));
             System.out.println("handover delay:  "+this.handoverDelay+" accumulative Delay:  "+this.accumulativeHandoverDelay+" time "+SimClock.getTime());
         }
     }
@@ -204,7 +436,14 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                     this.handoverCount.put(h, this.handoverCount.get(h) + 1);
                     this.lastAccessNode.put(h, this.allocatedAccessSatelliteForEachUser.get(h));//update access node
 
-                    ((RelayRouterforInternetAccess)this.lastAccessNode.get(h).getRouter()).clearMessages();
+                    /**
+                     * once handover happens, the buffer of old satellite will be eliminated
+                     *  but only for traditional scheme, for backup-enabled scheme, buffer
+                     *  shouldn't be eliminated
+                     */
+                    if (!transmissionMode.contains(DTNSim.ENABLE_BACKUPSATELLITE) && this.findBackupGroup(h).contains(this.getHost())) {
+                        ((RelayRouterforInternetAccess) this.lastAccessNode.get(h).getRouter()).clearMessages();
+                    }
                     handoverDelay = SimClock.getTime();
                 }
             }
@@ -215,6 +454,10 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             System.out.println("handover count:  "+this.handoverCount+" time "+SimClock.getTime());
         }
     }
+
+    /**
+     * clear messages collection
+     */
     public void clearMessages(){
         this.messages = new HashMap<String, Message>();
     }
@@ -240,7 +483,10 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
      * clear all elements in AccessUsers
      */
     public void clearAccessUsers(){
-        this.accessUsers.clear();
+        for (DTNHost h : findDedicatedHosts(DTNSim.SAT)) {
+            ((RelayRouterforInternetAccess)h.getRouter()).accessUsers.clear();
+        }
+        //this.accessUsers.clear();
     }
     /**
      * calculate the distance between two DTNHost
@@ -258,6 +504,11 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
      * centralized status collecting and updating
      * */
     protected void updateSlidingWindow(DTNHost satellite){
+        // warning:
+        // updateChannelModelForInterface() must be executed before updateSlidingWindow()
+        //String channelModel = s.getSetting(DTNSim.CHANNEL_MODEL);
+        //String channelModel = RICE;
+
         //TODO
         this.countInSlidingWindow++;
 
@@ -265,7 +516,7 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         for (DTNHost h : findDedicatedHosts(DTNSim.USER)){        // find terrestrial user list
             List<DTNHost> satellitesInBackupGroup = findBackupGroup(h);
             HashMap<DTNHost, Double> StatusInBackupGroup = this.SlidingWindowRecord.get(h);
-
+            //TODO channel status update
             Double currentCapacity = ((SatelliteWithChannelModelInterface)satellite.getInterface(firstInterface)).
                     getCurrentChannelStatus(h);
             if (currentCapacity == null) {
@@ -325,12 +576,52 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
 
     /**
      * Single satellite access scenario, handover process between terrestrial
+     * user and satellite, but enable pre-migration of user data
+     * @return
+     */
+    protected HashMap<DTNHost, Integer> updatePreMigrationHandover(){
+        HashMap<DTNHost, Integer> storedMessages = new HashMap<DTNHost, Integer>();
+        for (DTNHost user : findDedicatedHosts(DTNSim.USER)){
+            DTNHost oldAccess = null;
+            if (this.allocatedAccessSatelliteForEachUser.containsKey(user)) {
+                oldAccess = this.allocatedAccessSatelliteForEachUser.get(user);
+            }
+            updateNormalHandoverProcess();
+            DTNHost newAccess = this.allocatedAccessSatelliteForEachUser.get(user);
+            if (oldAccess != null){
+                if (oldAccess != newAccess){// start data migration
+                    //tryMessagesToBackupSatellites();
+                    tryMessageMigration(oldAccess, newAccess);
+
+                    //TODO
+                    double handoverTime = SimClock.getTime() + updateInterval/2;
+                    Tuple<DTNHost, Double> delayHandoverOrder = new Tuple<DTNHost, Double>(newAccess, handoverTime);
+                }
+            }
+
+            if (SimClock.getTime() < 1.1)
+                continue;
+            //find the max stored message id
+            int max = Integer.MIN_VALUE;
+            for (Message m : oldAccess.getMessageCollection()){
+                max = resolveMessageID(m) > max ?
+                        resolveMessageID(m) : max;
+            }
+            storedMessages.put(user, max);
+        }
+
+
+        return storedMessages;
+    }
+    /**
+     * Single satellite access scenario, handover process between terrestrial
      * user and satellite
      * @return
      */
     protected boolean updateNormalHandoverProcess(){
         ArrayList<Tuple<DTNHost, Double>> group = new ArrayList<Tuple<DTNHost, Double>>();
 
+        /** calculate each reachable satellite's weight (connection time or elevation angle) */
         for (DTNHost user: findDedicatedHosts(DTNSim.USER)){
             for (DTNHost satellite: findDedicatedHosts(DTNSim.SAT)){
                 Tuple<Boolean, Double> isReachable = isReachable(user, satellite);
@@ -338,17 +629,20 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                     group.add(new Tuple<DTNHost, Double>(satellite, isReachable.getValue()));
             }
             group = (ArrayList<Tuple<DTNHost, Double>>) sort(group);
-            System.out.println("backup group:  "+group+" time "+SimClock.getTime());
+            //System.out.println(" group:  "+group+" time "+SimClock.getTime());
+
             if (group.size() <= 0)
                 return false;
 
             int firstChoice = 0;
+            boolean maximumConnection = false;
 
-            Settings s1 = new Settings(DTNSim.USERSETTINGNAME_S);
-            String handoverMode = s1.getSetting(DTNSim.HANDOVER_CRITERION);
             switch (handoverMode){
                 case "maximumConnectionDuration": {
+                    //sort function: output list from minimum value to maximum value
                     firstChoice = group.size() - 1;
+                    maximumConnection = true;
+                    break;
                 }
                 default: {
                     firstChoice = 0;
@@ -356,6 +650,15 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             }
 
             if (this.allocatedBackupGroupForEachUser.containsKey(user)) {
+                if (maximumConnection){
+                    Coord A = user.getLocation();// user node
+                    Coord B = this.allocatedBackupGroupForEachUser.get(user).get(0).getKey().getLocation();// last access node
+                    double distance = A.distance(B);
+                    if (distance <= transmitRange) {
+                        continue;// for maximum connection scheme, access node doesn't need to update in each handover window if current satellite is accessible
+                    }
+                }
+                this.allocatedBackupGroupForEachUser.get(user).clear();
                 this.allocatedBackupGroupForEachUser.get(user).add(group.get(firstChoice));
             }
             else{
@@ -367,59 +670,93 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         }
         return true;
     }
+
     /**
      * Ground station takes charge of backup group calculation
      */
     protected void updateBackupGroup(){
-        //read the setting of number of satellites in each backup group
-        Settings s = new Settings(USERSETTINGNAME_S);
-        int nrofBackupSatellites = s.getInt(DTNSim.NROF_BACKUPSATELLITES);//upper limits of backup satellites
-
-        List<DTNHost> userHosts = findDedicatedHosts(DTNSim.USER);
-        List<DTNHost> satelliteHosts = findDedicatedHosts(DTNSim.SAT);
+        if (nrofRobustBackupSatellite > nrofBackupSatellites){
+            throw new SimError(" nrofRobustBackupSatellite exceeds nrofBackupSatellites!");
+        }
 
         //update satellite weight for each user as backup satellite
-        for (DTNHost user: userHosts){
-            ArrayList<Tuple<DTNHost, Double>> backupGroup = new ArrayList<Tuple<DTNHost, Double>>();
+        for (DTNHost user: findDedicatedHosts(DTNSim.USER)){
+            ArrayList<Tuple<DTNHost, Double>> backupGroupAngle = new ArrayList<Tuple<DTNHost, Double>>();
+            ArrayList<Tuple<DTNHost, Double>> backupGroupConnection = new ArrayList<Tuple<DTNHost, Double>>();
+            Tuple<DTNHost, Double> currentAccessNode = new Tuple<DTNHost, Double>(user, -1.0);
             //at first, find all reachable satellites
-            for (DTNHost satellite: satelliteHosts){
-                Tuple<Boolean, Double> isReachable = isBackupSatReachable(user, satellite);
-                if (isReachable.getKey())
-                    backupGroup.add(new Tuple<DTNHost, Double>(satellite, isReachable.getValue()));
+            for (DTNHost satellite: findDedicatedHosts(DTNSim.SAT)){
+                Tuple<Boolean, Double> isReachable = isBackupSatReachable(user, satellite, DTNSim.MIN_ELEVATIONANGLE);
+                if (isReachable.getKey()) {
+                    backupGroupAngle.add(new Tuple<DTNHost, Double>(satellite, isReachable.getValue()));
+                }
+                if (satellite == this.allocatedAccessSatelliteForEachUser.get(user)){
+                    currentAccessNode = new Tuple<DTNHost, Double>(satellite, isReachable.getValue());
+                }
             }
-            backupGroup = (ArrayList<Tuple<DTNHost, Double>>) sort(backupGroup);
+            backupGroupAngle = (ArrayList<Tuple<DTNHost, Double>>) sort(backupGroupAngle);
 
-            if (backupGroup.size() >= nrofBackupSatellites) {
-                int size = backupGroup.size();
-                for (int i = 0; i < size - nrofBackupSatellites; i++)
-                    //warning: the length of backupGroup list is changing
-                    backupGroup.remove(backupGroup.size() - 1);
+            if (this.allocatedBackupGroupForEachUser.get(user) != null){
+                this.allocatedBackupGroupForEachUser.get(user).clear();
+                this.allocatedBackupGroupForEachUser.get(user).add(currentAccessNode);//update backup group every time
+                this.allocatedBackupGroupForEachUser.get(user).addAll(remainTopElements(backupGroupAngle,
+                        nrofBackupSatellites - nrofRobustBackupSatellite - 1));// add 1 less for access node
+            }
+            else{
+                //remove redundant backup satellites in function: remainTopElements()
+                //only do this when initialization for each user
+                this.allocatedBackupGroupForEachUser.put(user,  new ArrayList<Tuple<DTNHost, Double>>(remainTopElements(backupGroupAngle,
+                        nrofBackupSatellites - nrofRobustBackupSatellite)));
             }
 
-            //if the satellites in the backup group become invalid
-            if (!(this.allocatedBackupGroupForEachUser.get(user) == null)){
-                //check the status of each satellite in backup group
-                List<DTNHost> needToReplaceSat = new ArrayList<DTNHost>();
-                for (Tuple<DTNHost, Double> t : this.allocatedBackupGroupForEachUser.get(user)){
-                    DTNHost satInBackupGroup = t.getKey();
-                    if (!isBackupSatReachable(user, satInBackupGroup).getKey())
-                        needToReplaceSat.add(satInBackupGroup);
+            if (nrofRobustBackupSatellite > 0) {
+                //at first, find all reachable satellites
+                for (DTNHost satellite: findDedicatedHosts(DTNSim.SAT)){
+                    Tuple<Boolean, Double> isReachable = isBackupSatReachable(user, satellite, DTNSim.MAX_CONNECTIONDURATION);
+                    if (isReachable.getKey()) {
+                        backupGroupConnection.add(new Tuple<DTNHost, Double>(satellite, isReachable.getValue()));
+                    }
+                }
+                backupGroupConnection = (ArrayList<Tuple<DTNHost, Double>>) sort(backupGroupConnection);
+                //remainTopElements(backupGroupConnection, nrofRobustBackupSatellite);
+
+                //possible error check
+                if (this.allocatedBackupGroupForEachUser.get(user) == null){
+                    throw new SimError("code flow error in RelayRouterforInternetAccess.java!");
                 }
 
-                for (int i = 0; i < needToReplaceSat.size(); i++){
-                    this.allocatedBackupGroupForEachUser.get(user).remove(needToReplaceSat.get(i));
-                    if (backupGroup.size() >= i + 1)
-                        this.allocatedBackupGroupForEachUser.get(user).add(backupGroup.get(i));
-                    else
-                        break;
+                // check first, avoid repetition
+                ArrayList<Tuple<DTNHost, Double>> needToAdd = new ArrayList<Tuple<DTNHost, Double>>();
+                for (int index = 0; index < backupGroupConnection.size() - 1; index++){
+                    DTNHost sat = backupGroupConnection.get(index).getKey();
+                    if (!this.allocatedBackupGroupForEachUser.get(user).contains(sat)) {
+                        needToAdd.add(new Tuple<DTNHost, Double>(sat, backupGroupConnection.get(index).getValue()));
+                        if (needToAdd.size() >= nrofRobustBackupSatellite){
+                            break;
+                        }
+                    }
                 }
-                continue;
+                // add robust backup satellite according connection time criterion
+                this.allocatedBackupGroupForEachUser.get(user).addAll(needToAdd);
             }
-            //only do this when initialization for each user
-            this.allocatedBackupGroupForEachUser.put(user, backupGroup);
         }
     }
 
+    /**
+     * remian top elements from a list (must be sort first)
+     * @param list
+     * @return
+     */
+    public List remainTopElements(List<Tuple<DTNHost, Double>> list, int nrofElements){
+        if (nrofElements > list.size())
+            throw new SimError("number of remain elements exceeds the number of list length");
+
+        List newList = new ArrayList<Tuple<DTNHost, Double>>();
+        for (int i = 0; i < nrofElements; i++){
+            newList.add(list.get(i));
+        }
+        return newList;
+    }
     /**
      * Ground station takes charge of backup group management,
      * and also allocate satellite's buffer resource for each user
@@ -439,8 +776,6 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
         Coord B = b.getLocation();
         double distance = A.distance(B);
 
-        Settings s= new Settings(DTNSim.INTERFACE);
-        double transmitRange = s.getDouble(DTNSim.TRANSMIT_RANGE);
         if (distance <= transmitRange)
             return true;
         else
@@ -453,17 +788,6 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
      * @return
      */
     protected Tuple<Boolean, Double> isReachable(DTNHost a, DTNHost b){
-        //read the setting of minimum elevation angle
-        Settings s1 = new Settings(DTNSim.USERSETTINGNAME_S);
-        double minElevationAngle = s1.getDouble(DTNSim.MIN_ELEVATIONANGLE);
-        String handoverMode = s1.getSetting(DTNSim.HANDOVER_CRITERION);
-
-        Settings s2= new Settings(DTNSim.INTERFACE);
-        double transmitRange = s2.getDouble(DTNSim.TRANSMIT_RANGE);
-
-        double earthRadius = 6371;//km
-        Settings s3 = new Settings(DTNSim.GROUP);
-        double LEO_radius = s3.getDouble(DTNSim.LEO_RADIUS);
 
         Coord A = a.getLocation();
         Coord B = b.getLocation();
@@ -497,6 +821,7 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
 
         switch (handoverMode){
             case "maximumConnectionDuration": {
+                //.out.println("connection duration reachable");
                 if (elevationAngle > minElevationAngle && distance <= transmitRange)
                     return isReachable_LongestConnectionDuration(a, b, new Tuple<Boolean, Double>(true, distance));
                 else
@@ -519,18 +844,7 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
      * @param b should be satellite outer the earth, which radius should be greater than satellite a
      * @return
      */
-    protected Tuple<Boolean, Double> isBackupSatReachable(DTNHost a, DTNHost b){
-        //read the setting of minimum elevation angle
-        Settings s1 = new Settings(DTNSim.USERSETTINGNAME_S);
-        double minElevationAngle = s1.getDouble(DTNSim.MIN_ELEVATIONANGLE);
-
-        Settings s2= new Settings(DTNSim.INTERFACE);
-        double transmitRange = s2.getDouble(DTNSim.TRANSMIT_RANGE);
-
-        double earthRadius = 6371;//km
-        Settings s3 = new Settings(DTNSim.GROUP);
-        double LEO_radius = s3.getDouble(DTNSim.LEO_RADIUS);
-
+    protected Tuple<Boolean, Double> isBackupSatReachable(DTNHost a, DTNHost b, String criterion){
         Coord A = a.getLocation();
         Coord B = b.getLocation();
         double distance = A.distance(B);
@@ -560,13 +874,32 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                 (Math.sqrt(1 - Math.pow(Math.cos(G), 2)*Math.pow((Math.cos(L)), 2)) ) );
         */
         double elevationAngle = calculateElevationAngle(distance, earthRadius, LEO_radius, A);
-        if (elevationAngle > minElevationAngle && distance <= transmitRange)
-            //if (distance <= transmitRange)
-            //return new Tuple<Boolean, Double>(true, elevationAngle);
-            return new Tuple<Boolean, Double>(true, distance);
-        else
-            //return  new Tuple<Boolean, Double>(false, elevationAngle);
-            return new Tuple<Boolean, Double>(false, distance);
+
+        switch (criterion){
+            case "maximumConnectionDuration": {
+                System.out.println("connection duration reachable");
+                if (elevationAngle > minElevationAngle && distance <= transmitRange)
+                    return isReachable_LongestConnectionDuration(a, b, new Tuple<Boolean, Double>(true, distance));
+                else
+                    return isReachable_LongestConnectionDuration(a, b, new Tuple<Boolean, Double>(false, distance));
+            }
+            default: {// minimumElevationAngle
+                if (elevationAngle > minElevationAngle && distance <= transmitRange)
+                    //if (distance <= transmitRange)
+                    //return new Tuple<Boolean, Double>(true, elevationAngle);
+                    return new Tuple<Boolean, Double>(true, distance);
+                else
+                    //return  new Tuple<Boolean, Double>(false, elevationAngle);
+                    return new Tuple<Boolean, Double>(false, distance);
+            }
+        }
+    }
+    /**
+     * update world size parameter
+     * @param worldSize
+     */
+    public void updateWorldSize(int worldSize[]){
+        this.worldSize = worldSize;
     }
     /**
      * calculate elevation angle for dedicated node
@@ -577,8 +910,6 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
      * @return
      */
     public double calculateElevationAngle(double distance, double earthRadius, double LEO_radius, Coord userLocation){
-        Settings s = new Settings("MovementModel");
-        int worldSize[] = s.getCsvInts("worldSize");
         Coord centerOfEarth = new Coord(worldSize[0] / 2, worldSize[0] / 2, worldSize[0] / 2);
 
         double userToEarchDistance = userLocation.distance(centerOfEarth);
@@ -602,49 +933,53 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
      * @return
      */
     protected Tuple<Boolean, Double> isReachable_LongestConnectionDuration(DTNHost a, DTNHost b, Tuple<Boolean, Double> tuple){
-        Settings s1 = new Settings(DTNSim.USERSETTINGNAME_S);
-        double minElevationAngle = s1.getDouble(DTNSim.MIN_ELEVATIONANGLE);
-        Settings s2= new Settings(DTNSim.INTERFACE);
-        double transmitRange = s2.getDouble(DTNSim.TRANSMIT_RANGE);
-
-        double earthRadius = 6371;//km
-        Settings s3 = new Settings(DTNSim.GROUP);
-        double LEO_radius = s3.getDouble(DTNSim.LEO_RADIUS);
-
-        Coord A = a.getLocation();
-        Coord B = b.getLocation();
-        double distance = A.distance(B);
-
-        double dx = A.getX() - B.getX();
-        double dy = A.getY() - B.getY();
-        double dz = A.getZ() - B.getZ();
-
         double connectionDuration = 0;
         if (tuple.getKey() == false)
             return new Tuple<Boolean, Double>(tuple.getKey(), connectionDuration);
 
-
         if (connectionDurationRecord.containsKey(b)){
-            connectionDuration = connectionDurationRecord.get(b) - SimClock.getIntTime();
+            /** avoid repeat calculation */
+            if (Math.abs(SimClock.getTime() - lastConnectionDurationUpdateTime) < connectionDurationUpdateInterval){
+                connectionDuration = connectionDurationRecord.get(b) - SimClock.getIntTime();
+            }
+            else{
+                connectionDuration = connectionDurationCalculation(connectionDuration, a, b);
+            }
         }
         else{
-            for (double t = 0; t < 1200; t = t + 1){
-                MovementModel movement = b.getMovementModel();
-                Coord location = new Coord(0,0);
-                if (movement instanceof SatelliteMovement)
-                    location.setLocation3D(((SatelliteMovement)movement).getSatelliteCoordinate(SimClock.getTime() + t));
-                distance = A.distance(location);
-                double elevationAngle = calculateElevationAngle(distance, earthRadius, LEO_radius, A);
-                if (!(elevationAngle > minElevationAngle && distance <= transmitRange)) {
-                    connectionDuration = t;
-                    break;
-                }
-            }
-
-            connectionDurationRecord.put(b, SimClock.getIntTime() + connectionDuration);
+            connectionDuration = connectionDurationCalculation(connectionDuration, a, b);
         }
+        connectionDurationRecord.put(b, SimClock.getIntTime() + connectionDuration);
         //System.out.println(a+"  "+b+"  maximumConnectionDuration: "+connectionDuration);
        return new Tuple<Boolean, Double>(tuple.getKey(), connectionDuration);
+    }
+    /**
+     * calculate each satellite's connection duration to terrestrial user
+     * @param connectionDuration
+     * @param a
+     * @param b
+     * @return
+     */
+    public double connectionDurationCalculation(double connectionDuration, DTNHost a, DTNHost b){
+        Coord A = a.getLocation();
+        Coord B = b.getLocation();
+        double distance = A.distance(B);
+
+        for (double t = 0; t < endTime; t = t + 1) {
+            connectionDuration = endTime;
+            MovementModel movement = b.getMovementModel();
+            Coord location = new Coord(0, 0);
+            if (movement instanceof SatelliteMovement)
+                location.setLocation3D(((SatelliteMovement) movement).getSatelliteCoordinate(SimClock.getTime() + t));
+            distance = A.distance(location);
+            double elevationAngle = calculateElevationAngle(distance, earthRadius, LEO_radius, A);
+            if (!(elevationAngle > minElevationAngle && distance <= transmitRange)) {
+                connectionDuration = t;
+                break;
+            }
+        }
+        lastConnectionDurationUpdateTime = SimClock.getTime();
+        return connectionDuration;
     }
     /**
      * update access satellite for each terrestrial user according to history channel information
@@ -654,11 +989,12 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             //List<DTNHost> satellitesInBackupGroup = findBackupGroup(h);
             HashMap<DTNHost, Double> StatusInBackupGroup = this.SlidingWindowRecord.get(h);
 
-            System.out.println(this.getHost()+" test_  "+this.SlidingWindowRecord+" time "+SimClock.getTime());
+            //System.out.println(this.getHost()+"   "+StatusInBackupGroup.size()+" Sliding window:  "+this.SlidingWindowRecord+" time "+SimClock.getTime());
 
             //initialization
             if (StatusInBackupGroup == null) {
-                Tuple<DTNHost, Double> initChoice = this.allocatedBackupGroupForEachUser.get(h).get(0);
+                int firstChoice = 0;
+                Tuple<DTNHost, Double> initChoice = this.allocatedBackupGroupForEachUser.get(h).get(firstChoice);
                 allocatedAccessSatelliteForEachUser.put(h, initChoice.getKey());
                 return;
             }
@@ -666,7 +1002,7 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             //only remains the hosts in the backup groups
             List<DTNHost> backupGroups = findBackupGroup(h);
             StatusInBackupGroup.keySet().retainAll(backupGroups);
-            System.out.println(this.getHost()+" test__  "+this.SlidingWindowRecord+" time "+SimClock.getTime());
+            //System.out.println(this.getHost()+"   "+StatusInBackupGroup.size()+" Sliding window--：  "+StatusInBackupGroup+" time "+SimClock.getTime());
 
             //format convert
             List<Tuple<DTNHost, Double>> AL = new ArrayList<Tuple<DTNHost, Double>>();
@@ -674,7 +1010,7 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                 AL.add(new Tuple<DTNHost, Double>(satellite, StatusInBackupGroup.get(satellite)));
             }
             //format convert
-            System.out.println(this.getHost()+" test__  "+AL+" time "+SimClock.getTime());
+            //System.out.println(this.getHost()+" test__  "+AL+" time "+SimClock.getTime());
             //find the best choice according to history channel status
             int first = AL.size() - 1;
             Tuple<DTNHost, Double> bestChoice = sort(AL).get(first);//sort():From smallest to largest
@@ -713,6 +1049,88 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
     }
 
     /**
+     * Sorts/shuffles the given list according to the current sending queue
+     * mode. The list can contain either Message or Tuple<Message, Connection>
+     * objects. Other objects cause error.
+     * @param list The list to sort or shuffle
+     * @return The sorted/shuffled list
+     */
+    @Override
+    @SuppressWarnings(value = "unchecked") /* ugly way to make this generic */
+    protected List sortByQueueMode(List list) {
+        switch (sendQueueMode) {
+            case Q_MODE_RANDOM:
+                Collections.shuffle(list, new Random(SimClock.getIntTime()));
+                break;
+            case Q_MODE_FIFO:
+                /** warning: */
+                /** modification method, FIFO according to message's name (e.g., M1, M2, M3...) */
+                Collections.sort(list,
+                        new Comparator() {
+                            /** Compares two tuples by their messages' name */
+                            public int compare(Object o1, Object o2) {
+                                double diff;
+                                Message m1, m2;
+
+                                if (o1 instanceof Tuple) {
+                                    m1 = ((Tuple<Message, Connection>)o1).getKey();
+                                    m2 = ((Tuple<Message, Connection>)o2).getKey();
+                                }
+                                else if (o1 instanceof Message) {
+                                    m1 = (Message)o1;
+                                    m2 = (Message)o2;
+                                }
+                                else {
+                                    throw new SimError("Invalid type of objects in " +
+                                            "the list");
+                                }
+
+                                diff = resolveMessageID(m1) - resolveMessageID(m2);
+
+                                if (diff == 0) {
+                                    return 0;
+                                }
+                                return (diff < 0 ? -1 : 1);
+                            }
+                        });
+                break;
+            /* add more queue modes here */
+            default:
+                throw new SimError("Unknown queue mode " + sendQueueMode);
+        }
+        return list;
+    }
+    /**
+     * Returns the oldest (by receive time) message in the message buffer
+     * (that is not being sent if excludeMsgBeingSent is true).
+     * @param excludeMsgBeingSent If true, excludes message(s) that are
+     * being sent from the oldest message check (i.e. if oldest message is
+     * being sent, the second oldest message is returned)
+     * @return The oldest message or null if no message could be returned
+     * (no messages in buffer or all messages in buffer are being sent and
+     * exludeMsgBeingSent is true)
+     */
+    @Override
+    protected Message getNextMessageToRemove(boolean excludeMsgBeingSent) {
+        Collection<Message> messages = this.getMessageCollection();
+        Message oldest = null;
+        for (Message m : messages) {
+
+            if (excludeMsgBeingSent && isSending(m.getId())) {
+                continue; // skip the message(s) that router is sending
+            }
+
+            if (oldest == null ) {
+                oldest = m;
+            }
+            else if (resolveMessageID(oldest) < resolveMessageID(m)) {
+                oldest = m;// remove message according to message sequence (i.e., message ID)
+            }
+        }
+
+        return oldest;
+    }
+    /**
      * find message collection to dedicated user
      * @param user
      * @return
@@ -741,12 +1159,33 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
     }
 
     /**
+     * migrate user's messages from old access satellite to new access satellite
+     * @param oldHost
+     * @param newHost
+     * @return migration status
+     */
+    protected int tryMessageMigration(DTNHost oldHost, DTNHost newHost){
+        //no need to migration
+        if (oldHost.getRouter().getMessageCollection().isEmpty())
+            return 1;
+
+        Connection con = findConnection(newHost, oldHost.getConnections());
+
+        ArrayList<Message> remainMesssages = new ArrayList<Message>(oldHost.getRouter().getMessageCollection());
+        Message m = tryAllMessages(con, remainMesssages);
+        //TODO
+        if (m != null)
+            return 2;
+        else
+            return 3;
+    }
+    /**
      * for ground station to use, try to send messages to backup group
      * of dedicated terrestrial user
      */
     protected void  tryMessagesToBackupSatellites() {
         for (DTNHost user : findDedicatedHosts(DTNSim.USER)){
-            List<Message> getMessages = getDedicatedMessages(user);//User ID
+            List<Message> getMessages = new ArrayList<Message>(getDedicatedMessages(user));//User ID
             if (getMessages.isEmpty())
                 continue;
 
@@ -757,6 +1196,20 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             List<Connection> toBackupGroupConnections =
                     getDedicatedConnectionsToNodes(backupGroup);
 
+            //if the message has been sent to the user, don't try to send it again
+            List<Message> noNeedToSend = new ArrayList<Message>();
+            for (Message m : getMessages){
+                if (user.isMessgaeReceived(m)) {
+                    noNeedToSend.add(m);
+                    this.removeFromMessages(m.getId());//user already received the message, then delete it from ground station
+                }
+                if (user.getRouter().isIncomingMessage(m.getId())){
+                    noNeedToSend.add(m);
+                }
+            }
+            getMessages.removeAll(noNeedToSend);
+
+            //System.out.println("size  "+getMessages.size()+" size__  "+noNeedToSend.size());
             //TODO
             for (Connection con : toBackupGroupConnections) {
                 Message started = tryAllMessages(con, sortByQueueMode(getMessages));
@@ -764,11 +1217,84 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                 //    return con;
                 //}
             }
+            //System.out.println("test sort:  "+sortByQueueMode(getMessages));
 
             //tryAllMessagesToAllConnections();
         }
     }
 
+    /**
+     *  Ground station try to send messages to new migrated access satellites
+     */
+    protected  void tryMessagesToMigratedSatellites(HashMap<DTNHost, Integer> storedMessages){
+        if (storedMessages.isEmpty())
+            return;
+
+        for (DTNHost user : findDedicatedHosts(DTNSim.USER)){
+            List<Message> getMessages = new ArrayList<Message>(getDedicatedMessages(user));//User ID
+            if (getMessages.isEmpty())
+                continue;
+
+            List<DTNHost> backupGroup = findBackupGroup(user);
+            if (backupGroup == null)
+                return;
+
+            List<Connection> toBackupGroupConnections =
+                    getDedicatedConnectionsToNodes(backupGroup);
+
+            //if the message has been sent to the user, don't try to send it again
+            List<Message> noNeedToSend = new ArrayList<Message>();
+            for (Message m : getMessages){
+                if (user.isMessgaeReceived(m) || resolveMessageID(m) < storedMessages.get(user)) {
+                    noNeedToSend.add(m);
+                    this.removeFromMessages(m.getId());//user already received the message, then delete it from ground station
+                }
+                if (user.getRouter().isIncomingMessage(m.getId())){
+                    noNeedToSend.add(m);
+                }
+            }
+            getMessages.removeAll(noNeedToSend);
+
+            System.out.println("migration size  "+getMessages.size()+" size__  "+noNeedToSend.size());
+
+            for (Connection con : toBackupGroupConnections) {
+                Message started = tryAllMessages(con, sortByQueueMode(getMessages));
+                //if (started != null) {
+                //    return con;
+                //}
+            }
+            System.out.println("test sort migration:  "+sortByQueueMode(getMessages));
+
+        }
+    }
+
+    /**
+     * Goes trough the messages until the other node accepts one
+     * for receiving (or doesn't accept any). If a transfer is started, the
+     * connection is included in the list of sending connections.
+     * @param con Connection trough which the messages are sent
+     * @param messages A list of messages to try
+     * @return The message whose transfer was started or null if no
+     * transfer was started.
+     */
+    @Override
+    protected Message tryAllMessages(Connection con, List<Message> messages) {
+        DTNHost backupSat = con.getOtherNode(this.getHost());
+        for (Message m : messages) {
+            /** if relay satellite's buffer is full, don't send message */
+            if (backupSat.getRouter().getFreeBufferSize() < m.getSize()) {
+                return null;
+            }
+            int retVal = startTransfer(m, con);
+            if (retVal == RCV_OK) {
+                return m;	// accepted a message, don't try others
+            }
+            else if (retVal > 0) {
+                return null; // should try later -> don't bother trying others
+            }
+        }
+        return null; // no message was accepted
+    }
     /**
      * Tries to forward stored messages that this router is carrying to all
      * connections this node has to terrestrial users. Messages are

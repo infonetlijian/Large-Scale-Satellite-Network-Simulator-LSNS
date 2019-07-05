@@ -600,7 +600,7 @@ public abstract class ActiveRouter extends MessageRouter {
 			String Id = con.getMessage().getId();
 			boolean Interrupt = con.RandomInterrupt();
 			if(Interrupt){
-				/** ÈÔÈ»¾ßÓĞÖØ´«´ÎÊı£¬ÔòÖØ´«´ÎÊı¼õ1£¬·ñÔòÁ´Â·ÖĞ¶Ï²¢¶ªÆúÏûÏ¢ */
+				/** ä»ç„¶å…·æœ‰é‡ä¼ æ¬¡æ•°ï¼Œåˆ™é‡ä¼ æ¬¡æ•°å‡1ï¼Œå¦åˆ™é“¾è·¯ä¸­æ–­å¹¶ä¸¢å¼ƒæ¶ˆæ¯ */
 				int time = (int)this.messages.get(Id).getProperty(RETRANS_TIME);
 				if (time <= 0) {
 					this.deleteMessage(Id, false);
