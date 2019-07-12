@@ -58,6 +58,7 @@ public class DTNSim {
 	public static final String ENABLE_BACKUPSATELLITE = "enableBackupSatellite";
     public static final String PREMIGRATION_HANDOVER = "preMigrationHandover";
     public static final String NORMAL_HANDOVER = "normalHandover";
+    public static final String SINR_HANDOVER = "SINRHandover";
 	public static final String TRANSMISSION_MODE = "transmissionMode";
 	public static final String NROF_BACKUPSATELLITES = "nrofBackupSatellites";
 	public static final String NROF_ROBUSTBACKUPSATELLITE = "nrofRobustBackupSatellite";
@@ -75,6 +76,12 @@ public class DTNSim {
 	public static final String MIN_ELEVATIONANGLE = "minimumElevationAngle";
     public static final String MAX_CONNECTIONDURATION = "maximumConnectionDuration";
     public static final String SPEED_GSLINK = "constantSpeedOfGroundStationLink";
+    public static final String SHADOWING_MODE = "shadowingMode";
+    public static final String SHADOWING_GLOBAL_LINK = "globalLink";
+    public static final String SHADOWING_PARTIAL_LINK = "partialLink";
+    public static final String SHADOWING_TRANSFERRING_LINK = "transferringLink";
+    public static final String NROF_SHADOWINGLINK= "nrofShadowingLink";
+    public static final String HANDOVER_SNR_THRESHOLD = "SNR_threshold";
 
 	/** input: MessageCreateEvent */
 	public static final String MESSAGECREATEMODE = "messageCreateMode";

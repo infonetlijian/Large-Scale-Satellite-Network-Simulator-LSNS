@@ -1,6 +1,7 @@
 package interfaces;
 
 import core.*;
+import util.Tuple;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -73,10 +74,10 @@ public class channelModel {
      * should be updated once by DTNHost router in each update function
      * @return the current channel capacity (aka speed, bit/s)
      */
-    public double updateLinkState(DTNHost from, DTNHost to, String channelModel){
+    public Tuple<Double, Double> updateLinkState(DTNHost from, DTNHost to, String channelModel){
         double distance = calculateDistance(from, to);
         double fadingFactor = channelState(channelModel, distance);
-        double currentSpeed = channelCapacity(fadingFactor, bandwidth);
+        Tuple<Double, Double> currentSpeed = channelCapacity(fadingFactor, bandwidth);
 
         return currentSpeed;//bit/s
     }
@@ -233,7 +234,7 @@ public class channelModel {
 //        double rand = channelRandom.nextDouble();
         double mean = -15.6;//dB
         double factor = dBcoverter(mean, true);
-        System.out.println("shadowing factor:  "+factor);
+        //System.out.println("shadowing factor:  "+factor);
         return factor;
     }
 
@@ -242,7 +243,7 @@ public class channelModel {
      * @param input
      * @return
      */
-    public double dBcoverter(double input, boolean isInputdBvalue){
+    public static double dBcoverter(double input, boolean isInputdBvalue){
         if (isInputdBvalue)
             return Math.pow(10, input/10);
         else
@@ -294,14 +295,14 @@ public class channelModel {
     /**
      * Calculate channel capacity according to Shannon equation
      */
-    public double channelCapacity(double fadingFactor, double bandwidth){
+    public Tuple<Double, Double> channelCapacity(double fadingFactor, double bandwidth){
         double transmitPower_mW = Math.exp(this.transmitPower/10);
         //double transmitPower_mW = dBcoverter(transmitPower, true);
         double noise_mW = bandwidth * Math.exp(spectralDensityNoisePower/10);
         //double noise_mW = bandwidth * dBcoverter(spectralDensityNoisePower, true);
 
         double SNR = transmitPower_mW * fadingFactor/noise_mW;
-        double capacity = bandwidth * Math.log(1 + SNR);//Shannon Equation
+        Tuple<Double, Double> capacity = new Tuple<Double, Double>(bandwidth * Math.log(1 + SNR), SNR);//Shannon Equation
         //System.out.println("power test: "+transmitPower_mW + "  "+transmitPower + "  noise:  "+ noise_mW + "  SNR: "+SNR+"  capacity: "+capacity);
         return capacity;
     }

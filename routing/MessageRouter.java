@@ -340,8 +340,8 @@ public abstract class MessageRouter {
 					"buffer of " + this.host);
 		}
 		//用于测试的代码
-		System.out.println("当前节点："+"  "+this.getHost()+"   "+"消息剩余重传次数："+incoming.getProperty(RETRANS_TIME)+ "  "
-			+"消息ID："+"  "+incoming.getId()+" "+"源节点："+incoming.getFrom()+"  "+"目的节点："+incoming.getTo() +"  消息大小："+incoming.getSize());
+		//System.out.println("当前节点："+"  "+this.getHost()+"   "+"消息剩余重传次数："+incoming.getProperty(RETRANS_TIME)+ "  "
+		//	+"消息ID："+"  "+incoming.getId()+" "+"源节点："+incoming.getFrom()+"  "+"目的节点："+incoming.getTo() +"  消息大小："+incoming.getSize());
 		
 		incoming.setReceiveTime(SimClock.getTime());					//设置消息接收时间		
 				
