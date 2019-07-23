@@ -322,7 +322,8 @@ public class VBRConnectionWithChannelModel extends Connection {
 //            totalSpeed = currentspeed + totalSpeed;
 //            totalCount++;
 //            averageSpeed = totalSpeed/totalCount;
-//            System.out.println("shadowing: "+currentspeed+"  "+SimClock.getTime()+ " con: " +this+"  speed: "+averageSpeed+" count: "+totalCount );
+//            double SNR = interfaces.channelModel.dBcoverter(averageSpeed, false);
+//            System.out.println("shadowing: "+currentspeed+"  "+SimClock.getTime()+ " con: " +this+"  speed: "+averageSpeed+" count: "+totalCount + "  SNR: "+SNR);
 //        }
     }
 

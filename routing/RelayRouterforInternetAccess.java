@@ -1081,12 +1081,14 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             //only for SINR handover scheme, only handover if SNR under the threshold
             if (transmissionMode.contains(DTNSim.SINR_HANDOVER)){
                 DTNHost lastAccessSatellite = this.allocatedAccessSatelliteForEachUser.get(h);
-                if (StatusInBackupGroup.get(lastAccessSatellite) == null)
-                    throw new SimError("SNR record information error");
-                //convert transmission rate to SNR (unit : dB)
-                double SNR = channelModel.dBcoverter(StatusInBackupGroup.get(lastAccessSatellite), false);
-                if (SNR > SNR_threshold){
-                    return;
+                if (lastAccessSatellite != null){
+                    if (StatusInBackupGroup.get(lastAccessSatellite) == null)
+                        throw new SimError("SNR record information error");
+                    //convert transmission rate to SNR (unit : dB)
+                    double SNR = channelModel.dBcoverter(StatusInBackupGroup.get(lastAccessSatellite), false);
+                    if (SNR > SNR_threshold){
+                        return;
+                    }
                 }
             }
 
