@@ -15,22 +15,22 @@ userSetting.hostsMode = normal
 
 # messageCreateMode (normal or batch) used in MessageCreateEvent.java
 userSetting.messageCreateMode = batch
-userSetting.batchCreateNumber = 1
+userSetting.batchCreateNumber = 6
 
-#·Ö´ØÂ·ÓÉÏà¹Ø²ÎÊı
+#åˆ†ç°‡è·¯ç”±ç›¸å…³å‚æ•°
 #clusterCheckInterval unit:seconds
 Group.clusterCheckInterval = 60
 #bytes
 Group.comfirmMessageSize = 1
-#·Ö´ØÂ·ÓÉÏà¹Ø²ÎÊı
+#åˆ†ç°‡è·¯ç”±ç›¸å…³å‚æ•°
 
-#»º´æÏà¹Ø²ÎÊı
+#ç¼“å­˜ç›¸å…³å‚æ•°
 userSetting.EnableCache = false
 userSetting.RandomDropMessage = false
 Group.nrofFile = 60
 
 
-## Á´Â·Ä£¿é²ÎÊı
+## é“¾è·¯æ¨¡å—å‚æ•°
 # one satellite node can bind multiple interfaces
 Group.nrofInterfaces = 1
 Group.interface1 = Interface1
@@ -39,18 +39,8 @@ Group.interface2 = Interface2
 #Interface1.type = SimpleSatelliteInterface
 Interface1.type = SatelliteWithChannelModelInterface
 
-#Transmitting Power Unit: dBm W, used in SatellitetoGroundChannelModel.java
-Interface.TransmittingPower = 48
-#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
-Interface.TransmittingFrequency = 20000M
-#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
-Interface.Bandwidth = 10M
-# used in RelayRouterforInternetAccess.java
-# Rayleigh
-Interface.channelModel = Rice
-
 Interface1.linkDelayRange = 0,0
-Interface1.transmitSpeed = 1M
+Interface1.transmitSpeed = 10M
 Interface1.transmitRange = 6000
 Interface1.nrofRadioInterface = 1
 Interface2.type = SatelliteLaserInterface
@@ -58,73 +48,107 @@ Interface2.linkDelayRange = 1,5
 Interface2.transmitSpeed = 200M
 Interface2.transmitRange = 30000
 
-## ÏûÏ¢²ÎÊıÉú³É
+## æ¶ˆæ¯å‚æ•°ç”Ÿæˆ
 # How many event generators
 Events.nrof = 1
 # Class of the first event generator
 #Events1.class = MessageEventGenerator
-
+#Events1.class = MessageCreateEvent
 Events1.class = ExtendedMessageEventGenerator
 #used in ExtendedMessageEventGenerator.java
 Events1.SpecificMessageGenerator = true
-
-
 Events2.class = MessageEventGenerator
-#Events1.class = MessageCreateEvent
+
 # (following settings are specific for the MessageEventGenerator class)
 # Creation interval in seconds (one new message every 25 to 35 seconds)
 #Events1.interval = 1,100
 Events1.interval = 1,1
 Events2.interval = 1,10
 # Message sizes (500kB - 1MB)
-Events1.size = 1M,1M
+Events1.size = 256k,2M
 #Events1.size = 64k,64k
 Events2.size = 2M,5M
 # range of message source/destination addresses
-#Events1.hosts = [0,9;0,19;0,29;0,39;0,49]ĞŞ¸Ä£¬×¢ÒâhostsºÍtohosts°üÀ¨ÏÂ½çµ«²»°üÀ¨ÉÏ½ç£¬¼´[0, 9)
-Events1.hosts = [129,129]
-Events1.tohosts = [128,128]
+#Events1.hosts = [0,9;0,19;0,29;0,39;0,49]ä¿®æ”¹ï¼Œæ³¨æ„hostså’ŒtohostsåŒ…æ‹¬ä¸‹ç•Œä½†ä¸åŒ…æ‹¬ä¸Šç•Œï¼Œå³[0, 9)
+Events1.hosts = [193,193]
+Events1.tohosts = [192,192]
 Events2.hosts = [0,128]
 # Message ID prefix
 Events1.prefix = RadioM
 Events2.prefix = LaserM
 
-# ÉèÖÃãĞÖµ£¬´óÓÚ´ËãĞÖµÍ¨¹ı¼¤¹âÁ´Â·×ß£¬Ğ¡ÓÚ´ËãĞÖµµÄ´ÓÎ¢²¨Á´Â·×ß
+# è®¾ç½®é˜ˆå€¼ï¼Œå¤§äºæ­¤é˜ˆå€¼é€šè¿‡æ¿€å…‰é“¾è·¯èµ°ï¼Œå°äºæ­¤é˜ˆå€¼çš„ä»å¾®æ³¢é“¾è·¯èµ°
 Interface.MessageThreshold = 1M
-# ÊÇ·ñÑ¡Ôñ¿ªÆôÖĞ¶Ï
+# æ˜¯å¦é€‰æ‹©å¼€å¯ä¸­æ–­
 Interface.enableInterrupt = false
 Interface.probabilityOfInterrupt = 0.00
 Interface.reTransmitTime = 3
-# ÊÇ·ñÔÊĞí¶¯Ì¬·Ö´Ø
+# æ˜¯å¦å…è®¸åŠ¨æ€åˆ†ç°‡
 Interface.DynamicClustering = false
-# ÊÇ·ñÑ¡ÓÃ×îÓÅ»¯Â·ÓÉ
+# æ˜¯å¦é€‰ç”¨æœ€ä¼˜åŒ–è·¯ç”±
 DynamicMultiLayerSatelliteRouter.Optimized = false
-# ÊÇ·ñ¿ªÆôÔ´Â·ÓÉ·½Ê½
-Group.msgPathLabel = true
+# æ˜¯å¦å¼€å¯æºè·¯ç”±æ–¹å¼
+Group.msgPathLabel = false
 
-#ÎÀĞÇ½ÓÈëÌí¼ÓµÄÉèÖÃÑ¡Ïî
-userSetting.enableBackupSatellite = true
+#ä»¥ä¸‹ä¸ºé“¾è·¯æ¨¡å‹è®¾ç½®ç›¸å…³å‚æ•°
+#Transmitting Power Unit: dBm W, used in SatellitetoGroundChannelModel.java
+userSetting.TransmittingPower = 46
+#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
+userSetting.TransmittingFrequency = 20000M
+#Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
+userSetting.Bandwidth = 10M
+userSetting.constantSpeedOfGroundStationLink = 20M
+# used in RelayRouterforInternetAccess.java
+# Rayleigh, Rice, and Shadowing (i.e., Shadowing Rice) in channelModel.java
+#userSetting.channelModel = Rice
+userSetting.channelModel = Shadowing
+#userSetting.shadowingMode = globalLink
+#userSetting.shadowingMode = transferringLink
+userSetting.shadowingMode = partialLink
+userSetting.nrofShadowingLink = 2
+#shadowing duration unit: second
+userSetting.shadowingDuration = 1
+userSetting.shadowingProbability = 0.04
+userSetting.energyRatio_Rice = 10
+#noise density, unit: dB
+userSetting.spectralDensityNoisePower = -164
+#unit: m
+userSetting.transmitAntennaDiameter = 3
+userSetting.receiverAntennaDiameter = 0.5
+
+#å«æ˜Ÿæ¥å…¥æ·»åŠ çš„è®¾ç½®é€‰é¡¹
+#userSetting.transmissionMode = enableBackupSatellite
+#userSetting.transmissionMode = preMigrationHandover
+#userSetting.transmissionMode = normalHandover
+userSetting.transmissionMode = SINRHandover
+unit: dB
+userSetting.SNR_threshold = 59
 # upper limits of backup satellites, used in RelayRouterforInternetAccess.java
-userSetting.nrofBackupSatellites = 4
+#æ³¨æ„ï¼Œè¿™é‡ŒæŒ‡åŠ ä¸Šå½“å‰æ¥å…¥èŠ‚ç‚¹çš„æ€»å¤‡ä»½èŠ‚ç‚¹æ•°ä¸ºNä¸ªï¼Œè€Œä¸æ˜¯N+1ä¸ª
+userSetting.nrofBackupSatellites = 2
+userSetting.nrofRobustBackupSatellite = 0
+#è®¾ç½®åˆ‡æ¢çª—å£æ—¶é—´--handover window--userSetting.accessSatellitesUpdateInterval
+userSetting.accessSatellitesUpdateInterval = 0.2
 # minimum elevation angle unit: degree
-userSetting.minElevationAngle = 50.4
+userSetting.minimumElevationAngle = 50.4
 # change satellite handover criterion (minimumElevationAngle / maximumConnectionDuration), used in RelayRouterforInternetAccess.java
 #userSetting.handoverCriterion = minimumElevationAngle
-#userSetting.handoverCriterion = maximumConnectionDuration
-Group.filebuffersize = 1000M
-#ÓÃ»§
+userSetting.handoverCriterion = maximumConnectionDuration
+#Group.filebuffersize = 1000M
+
+#ç”¨æˆ·
 Group2.nrofHosts = 1
 Group2.groupID = TerrestrialUser
 Group2.nrofInterfaces = 1
 Group2.interface1 = Interface1
 Interface1.type = SatelliteWithChannelModelInterface
 Interface1.linkDelayRange = 0
-#Interface1.transmitRange = 30000
 Interface1.transmitSpeed = 2.5M
 Group2.movementModel = StationaryMovement3D
 Group2.nodeLocation = [46982,48733,55467]
 #[46982,48733,55467]
-#µØÃæÕ¾
+Group2.bufferSize = 2000M
+#åœ°é¢ç«™
 Group3.groupID = GroundStation
 Group3.nrofHosts = 1
 Group3.nrofInterfaces = 1
@@ -134,19 +158,21 @@ Interface1.type = SatelliteWithChannelModelInterface
 Interface1.linkDelayRange = 0
 #Interface1.transmitRange = 30000
 Interface1.transmitSpeed = 10M
+#å‡å®šåœ°é¢ç«™çš„bufferè¶³å¤Ÿå¤§
+Group3.bufferSize = 2000M
 Group3.movementModel = StationaryMovement3D
 Group3.nodeLocation = [46000,48000,55000]
 
-# Ì«ÑôÍ¬²½¹ìµÀÇã½Ç²Î¿¼ODINÎÀĞÇ¹ìµÀÇã½ÇÎª97.8¶È
-# LEOÎÀĞÇ½Úµã²ÎÊı
-Group.nrofCommunicationNodesInEachPlane = 16
-Group.nrofLEO = 128
-Group.nrofLEOPlanes = 8
-Group.LEO_OrbitPlaneAngle = 97.8
+# å¤ªé˜³åŒæ­¥è½¨é“å€¾è§’å‚è€ƒODINå«æ˜Ÿè½¨é“å€¾è§’ä¸º97.8åº¦
+# LEOå«æ˜ŸèŠ‚ç‚¹å‚æ•°
+Group.nrofCommunicationNodesInEachPlane = 12
+Group.nrofLEO = 192
+Group.nrofLEOPlanes = 16
+Group.LEO_OrbitPlaneAngle = 53
 Group.LEO_Eccentricity = 0
 Group.LEO_Radius = 550
 
-# MEOÎÀĞÇ½Úµã²ÎÊı
+# MEOå«æ˜ŸèŠ‚ç‚¹å‚æ•°
 Group.EnableMEO = false
 Group.MEO_OrbitPlaneAngle = 97.8
 Group.MEO_Radius = 12000
@@ -154,7 +180,7 @@ Group.nrofMEO = 20
 Group.nrofMEOPlane = 5
 Group.MEO_Eccentricity = 0
 
-# GEOÎÀĞÇ½Úµã²ÎÊı
+# GEOå«æ˜ŸèŠ‚ç‚¹å‚æ•°
 Group.EnableGEO = false
 Group.GEO_OrbitPlaneAngle = 0
 Group.GEO_Radius = 35786
@@ -162,8 +188,8 @@ Group.nrofGEO = 6
 Group.nrofGEOPlane = 1
 Group.GEO_Eccentricity = 0
 
-# ×ÜµÄÎÀĞÇ½ÚµãÊıÄ¿
-Group.nrofHosts = 128
+# æ€»çš„å«æ˜ŸèŠ‚ç‚¹æ•°ç›®
+Group.nrofHosts = 192
 
 # Define 6 different node groups
 Scenario.nrofHostGroups = 3
@@ -173,7 +199,7 @@ Scenario.name = satellite network simulation
 Scenario.simulateConnections = true
 Scenario.updateInterval = 0.1
 # 43200s == 12h
-Scenario.endTime = 120
+Scenario.endTime = 1200
 
 
 ## Interface-specific settings:
@@ -188,8 +214,8 @@ Scenario.endTime = 120
 
 # Transmit speed of 2 Mbps (bit/s) = 250kBps (Byte/s), transmit speed unit in ONE is Byte
 Interface.transmitSpeed = 1M
-#×¢Òâ£ºONEÖĞ¾àÀëµ¥Î»ÊÇmeters
-#ÓÉÓÚJATÖĞ¾àÀëµ¥Î»Îªkm£¬Òò´ËÎÒÃÇ½«ONEÖĞµÄ¾àÀëµ¥Î»Í³Ò»ÊÓÎªkm£¬ÕâÑùÖ»»áÔÚ×Ô´øµÄÍ¼ĞÎ½çÃæµ¥Î»ÉÏ²úÉúÎó½â£¬µ«ÄÚ²¿³ÌĞòµÄÂß¼­ÉÏÃ»ÓĞÎÊÌâ
+#æ³¨æ„ï¼šONEä¸­è·ç¦»å•ä½æ˜¯meters
+#ç”±äºJATä¸­è·ç¦»å•ä½ä¸ºkmï¼Œå› æ­¤æˆ‘ä»¬å°†ONEä¸­çš„è·ç¦»å•ä½ç»Ÿä¸€è§†ä¸ºkmï¼Œè¿™æ ·åªä¼šåœ¨è‡ªå¸¦çš„å›¾å½¢ç•Œé¢å•ä½ä¸Šäº§ç”Ÿè¯¯è§£ï¼Œä½†å†…éƒ¨ç¨‹åºçš„é€»è¾‘ä¸Šæ²¡æœ‰é—®é¢˜
 Interface.transmitRange = 4000
 
 
@@ -215,23 +241,23 @@ Interface.transmitRange = 4000
 
 
 # Common settings for all groups
-#Group.movementModel = PredictableMovement×Ô¼º´´½¨µÄĞÂÔË¶¯Ä£ĞÍ£¬ÀïÃæº¯ÊıÔİÊ±¾ùÃ»ÓĞµ÷ÓÃ
+#Group.movementModel = PredictableMovementè‡ªå·±åˆ›å»ºçš„æ–°è¿åŠ¨æ¨¡å‹ï¼Œé‡Œé¢å‡½æ•°æš‚æ—¶å‡æ²¡æœ‰è°ƒç”¨
 Group.movementModel =  SatelliteMovement
 #Group.movementModel =  StationaryMovement
 #Group.nodeLocation=[0,3000; 0,2000]
 
-#ÊÇ·ñÆôÓÃ¶àÏß³Ì
+#æ˜¯å¦å¯ç”¨å¤šçº¿ç¨‹
 userSetting.multiThread = false
 
-#½Úµã¼äÁ´Â·¸üĞÂÊ±£¬¼ÆËãÄ£Ê½Ñ¡Ôñ
+#èŠ‚ç‚¹é—´é“¾è·¯æ›´æ–°æ—¶ï¼Œè®¡ç®—æ¨¡å¼é€‰æ‹©
 #MovementModel.judgeNearInterfaceMode = Fast-Grid
 MovementModel.judgeNearInterfaceMode = Ergodic
 
 #1 random, 2, FIFO
 Group.sendQueue = 2
 
-#comfirmTtlÓë¸üĞÂ¼ä¸ôÊ±¼äMEOCheckInterval£¬2ÕßÉèÎª10·ÖÖ®Ò»µÄ¹ØÏµ
-#ÔÚmessageº¯ÊıÖĞTTL¼ÆËãÊÇÒÔÒ»·ÖÖÓÎªµ¥Î»
+#comfirmTtlä¸æ›´æ–°é—´éš”æ—¶é—´MEOCheckIntervalï¼Œ2è€…è®¾ä¸º10åˆ†ä¹‹ä¸€çš„å…³ç³»
+#åœ¨messageå‡½æ•°ä¸­TTLè®¡ç®—æ˜¯ä»¥ä¸€åˆ†é’Ÿä¸ºå•ä½
 Group.comfirmTtl = 1
 Group.MEOCheckInterval = 60
 
@@ -240,12 +266,12 @@ Group.HelloInterval = 2
 Group.HelloTTL = 1
 Group.HelloMessageSize = 1
 
-#WalkerStar-¼«¹ìµÀ
+#WalkerStar-æè½¨é“
 #Group.Constellation = WalkerStar
-#WalkerDelta-ÇãĞ±¹ìµÀ
+#WalkerDelta-å€¾æ–œè½¨é“
 Group.Constellation = WalkerDelta
 
-#routerÂ·ÓÉ×Ô¼º´´½¨
+#routerè·¯ç”±è‡ªå·±åˆ›å»º
 #Group.router = FirstContactRouter
 #Group.router = DirectDeliveryRouter
 #Group.router = EpidemicRouter
@@ -262,9 +288,9 @@ Group.Constellation = WalkerDelta
 Group.router = RelayRouterforInternetAccess
 
 
-#·Ö´ØÂ·ÓÉ
+#åˆ†ç°‡è·¯ç”±
 #Group.router = ClusteringRouter
-#¶ÔÓÚÍø¸ñÂ·ÓÉµÄ¼ÆËãÄ£Ê½
+#å¯¹äºç½‘æ ¼è·¯ç”±çš„è®¡ç®—æ¨¡å¼
 #Group.router = NetGridRouter
 #Group.gridUpdateOption = preOrbitCalculation
 #Group.gridUpdateOption = onlineOrbitCalculation
@@ -280,12 +306,12 @@ Group.layer = 1
 #Group.router.CGR.linkDuration = 2
 #Group.router.CGR.type = NoPreContactPlanDesign
 
-#LinkDuration³ËÒÔupdateIntervalÎªÕæÊµÁ´Â·³ÖĞøÊ±¼ä
+#LinkDurationä¹˜ä»¥updateIntervalä¸ºçœŸå®é“¾è·¯æŒç»­æ—¶é—´
 Group.router.CGRLinkDurationTimesOfUpdateInterval = 10
 #Group.router = DijsktraRouter
 
   
-Group.bufferSize = 1000M
+Group.bufferSize = 16M
 Group.waitTime = 0, 120
 
 # Walking speeds
@@ -333,7 +359,7 @@ SprayAndWaitRouter.binaryMode = true
 
 ## Optimization settings -- these affect the speed of the simulation
 ## see World class for details.
-#ÔÚworld.javaÖĞµÄinitSettingsº¯ÊıÖĞ¶ÁÈ¡
+#åœ¨world.javaä¸­çš„initSettingså‡½æ•°ä¸­è¯»å–
 Optimization.cellSizeMult = 5
 Optimization.randomizeUpdateOrder = true
 
