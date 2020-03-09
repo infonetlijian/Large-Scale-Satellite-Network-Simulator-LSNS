@@ -46,7 +46,7 @@ public class OneSimUI extends DTNSimTextUI{
 	 * Initializes the simulator model.
 	 */
 	private void NewWindow() {
-		/**³õÊ¼»¯Í¼ĞÎ½çÃæ*/
+		/**åˆå§‹åŒ–å›¾å½¢ç•Œé¢*/
 		//this.eventLog = new EventLog(this);
 		//this.hosts = this.scen.getHosts();
 		this.infoPanel = new InfoPanel(this);
@@ -67,7 +67,7 @@ public class OneSimUI extends DTNSimTextUI{
 		startGUI();
 		
 		while(true){
-			while(main.getPaused() == true){			// ½çÃæµÈ´ıÈ·¶¨ÅäÖÃ²ÎÊı
+			while(main.getPaused() == true){			// ç•Œé¢ç­‰å¾…ç¡®å®šé…ç½®å‚æ•°
 				try {
 					 synchronized (this){
 						wait(10);
@@ -77,49 +77,49 @@ public class OneSimUI extends DTNSimTextUI{
 					e.printStackTrace();
 				}
 			}
-			/**ÖØÖÃ³õÊ¼»¯ÅäÖÃ£¬Çå³ıÖ®Ç°µÄ³õÊ¼»¯ÊµÌå£¬±ÜÃâºóĞø³õÊ¼»¯ÎŞĞ§**/
-			/**½øĞĞ³õÊ¼»¯**/
-			WaitingWindow t = this.Loading();			// ÓÃÓÚ¼ÓÔØÊ±¼ä
+			/**é‡ç½®åˆå§‹åŒ–é…ç½®ï¼Œæ¸…é™¤ä¹‹å‰çš„åˆå§‹åŒ–å®ä½“ï¼Œé¿å…åç»­åˆå§‹åŒ–æ— æ•ˆ**/
+			/**è¿›è¡Œåˆå§‹åŒ–**/
+			WaitingWindow t = this.Loading();			// ç”¨äºåŠ è½½æ—¶é—´
 			super.initModel();
 			setUI();		
 			t.dispose();
 			
 			runSim();
-			main.setPaused(false);//Ò»´Î·ÂÕæÅÜÍêÖ®ºóÈÃÏµÍ³´¦ÓÚÔİÍ£×´Ì¬£¬²»»áÑ­»·¿ªÊ¼ÏÂÒ»ÂÖ·ÂÕæ
-			main.parameter.setEnabled(true);//ÖØĞÂÔÊĞí±à¼­ÅäÖÃ½çÃæ
+			main.setPaused(false);//ä¸€æ¬¡ä»¿çœŸè·‘å®Œä¹‹åè®©ç³»ç»Ÿå¤„äºæš‚åœçŠ¶æ€ï¼Œä¸ä¼šå¾ªç¯å¼€å§‹ä¸‹ä¸€è½®ä»¿çœŸ
+			main.parameter.setEnabled(true);//é‡æ–°å…è®¸ç¼–è¾‘é…ç½®ç•Œé¢
 		}
 	}
 	/**
-	 * ÔÚUIÈ·¶¨ÅäÖÃ²ÎÊıÇÒÍê³É³õÊ¼»¯Ö®ºó£¬Ë¢ĞÂUIÏÔÊ¾£¬°üÀ¨ÊÂ¼ş´°¿Ú£¬½ÚµãÁĞ±íÒÔ¼°3DÍ¼ĞÎÏÔÊ¾
+	 * åœ¨UIç¡®å®šé…ç½®å‚æ•°ä¸”å®Œæˆåˆå§‹åŒ–ä¹‹åï¼Œåˆ·æ–°UIæ˜¾ç¤ºï¼ŒåŒ…æ‹¬äº‹ä»¶çª—å£ï¼ŒèŠ‚ç‚¹åˆ—è¡¨ä»¥åŠ3Då›¾å½¢æ˜¾ç¤º
 	 */
 	private void setUI(){
-		main.setNodeList(this.scen.getHosts());//Ë¢ĞÂ½ÚµãÁĞ±íÏÔÊ¾
+		main.setNodeList(this.scen.getHosts());//åˆ·æ–°èŠ‚ç‚¹åˆ—è¡¨æ˜¾ç¤º
 		resetEvenetLog();
 		reset3DWindow();
-		main.resetSimCancelled();	//ÖØÖÃSimCancelledµÄÖµ
+		main.resetSimCancelled();	//é‡ç½®SimCancelledçš„å€¼
 		main.parameter.setEnabled(false);
 	}
 	/**
-	 * Ë¢ĞÂUIÖĞµÄÊÂ¼ş´°¿Ú
+	 * åˆ·æ–°UIä¸­çš„äº‹ä»¶çª—å£
 	 */
 	private void resetEvenetLog(){
-		this.eventLog = new EventLog(this);//Ìí¼ÓÊ±¼ä´°¿Ú
-	    eventLog.setBorder(new TitledBorder("ÊÂ¼ş´°¿Ú"));
+		this.eventLog = new EventLog(this);//æ·»åŠ æ—¶é—´çª—å£
+	    eventLog.setBorder(new TitledBorder("äº‹ä»¶çª—å£"));
 	    main.resetEventLog(eventLog);
 		scen.addMessageListener(eventLog);
 		scen.addConnectionListener(eventLog);
 	}
 	/**
-	 * Ë¢ĞÂUIÖĞµÄ3DÍ¼ĞÎ´°¿Ú
+	 * åˆ·æ–°UIä¸­çš„3Då›¾å½¢çª—å£
 	 */
 	private void reset3DWindow(){
 		//this.hosts = this.scen.getHosts();
-		main.set3DWindow();//ÔÚ³õÊ¼»¯Ö®ºóÔÙµ÷ÓÃ3D´°¿Ú
+		main.set3DWindow();//åœ¨åˆå§‹åŒ–ä¹‹åå†è°ƒç”¨3Dçª—å£
 	    main.items[2].setEnabled(true);
-	    main.items[6].setEnabled(true);//·ÂÕæ¿ªÊ¼Ê±£¬ÉèÖÃ3DºÍ2D´°¿ÚÏÔÊ¾°´Å¥Îª¿ÉÓÃ
+	    main.items[6].setEnabled(true);//ä»¿çœŸå¼€å§‹æ—¶ï¼Œè®¾ç½®3Då’Œ2Dçª—å£æ˜¾ç¤ºæŒ‰é’®ä¸ºå¯ç”¨
 	}
 	/**
-	 * ¿ªÆôGUI½çÃæ
+	 * å¼€å¯GUIç•Œé¢
 	 */
 	private void startGUI() {
 		try {
@@ -151,7 +151,7 @@ public class OneSimUI extends DTNSimTextUI{
 	public void runSim(){
 		Settings s = new Settings(SCENARIO_NS);
 			
-		while(main.getPaused() == true){			// ½çÃæµÈ´ıÈ·¶¨ÅäÖÃ²ÎÊı
+		while(main.getPaused() == true){			// ç•Œé¢ç­‰å¾…ç¡®å®šé…ç½®å‚æ•°
 			try {
 				 synchronized (this){
 					wait(10);
@@ -165,10 +165,10 @@ public class OneSimUI extends DTNSimTextUI{
 		double simTime = SimClock.getTime();
 		double endTime = scen.getEndTime();
 		
-		// ----------------------- ÓÃÓÚ²âÊÔ²ÎÊı --------------------------------//
-		System.out.println("·ÂÕæÊ±¼ä"+"  "+endTime);
-		System.out.println("¸üĞÂÊ±¼ä£º"+"  "+scen.getUpdateInterval());
-		// ----------------------- ÓÃÓÚ²âÊÔ²ÎÊı --------------------------------//
+		// ----------------------- ç”¨äºæµ‹è¯•å‚æ•° --------------------------------//
+		System.out.println("ä»¿çœŸæ—¶é—´"+"  "+endTime);
+		System.out.println("æ›´æ–°æ—¶é—´ï¼š"+"  "+scen.getUpdateInterval());
+		// ----------------------- ç”¨äºæµ‹è¯•å‚æ•° --------------------------------//
 		
 		
 		startTime = System.currentTimeMillis();
@@ -189,7 +189,7 @@ public class OneSimUI extends DTNSimTextUI{
 			else{
 				try {
 					world.update();
-					this.updateTime();   					//ÓÃÓÚ¸üĞÂ·ÂÕæÊ±¼ä
+					this.updateTime();   					//ç”¨äºæ›´æ–°ä»¿çœŸæ—¶é—´
 				} catch (AssertionError e) {
 					e.printStackTrace();
 					done();
@@ -231,15 +231,15 @@ public class OneSimUI extends DTNSimTextUI{
 	}
 	
 	/**
-	 * µ±´Ó½çÃæÖØĞÂÅäÖÃ²ÎÊıÖ®ºó£¬½«²ÎÊıÖØĞÂĞ´Èëµ½scenÖĞ£¬¸üĞÂÏàÓ¦²ÎÊı£¬²»·Á°­Ô­ÓĞ³ÌĞò¶ÁÈ¡¡£
+	 * å½“ä»ç•Œé¢é‡æ–°é…ç½®å‚æ•°ä¹‹åï¼Œå°†å‚æ•°é‡æ–°å†™å…¥åˆ°scenä¸­ï¼Œæ›´æ–°ç›¸åº”å‚æ•°ï¼Œä¸å¦¨ç¢åŸæœ‰ç¨‹åºè¯»å–ã€‚
 	 */
 	private void setParameter(){
 		Settings s = new Settings(SCENARIO_NS);
-		double interval =  s.getDouble(UP_INT_S);	//	¸üĞÂÊ±¼ä
+		double interval =  s.getDouble(UP_INT_S);	//	æ›´æ–°æ—¶é—´
 		scen.setUpdateInterval(interval);
 		System.out.println(interval);
 		
-		double endTime = s.getDouble(END_TIME_S);	//	½áÊøÊ±¼ä
+		double endTime = s.getDouble(END_TIME_S);	//	ç»“æŸæ—¶é—´
 		scen.setEndTime(endTime);
 	}
 	
@@ -260,7 +260,7 @@ public class OneSimUI extends DTNSimTextUI{
     	return this.infoPanel;
     }
     /**
-     * ¸üĞÂ·ÂÕæÊ±¼ä
+     * æ›´æ–°ä»¿çœŸæ—¶é—´
      */
     private void updateTime() {
     	double simTime = SimClock.getTime();
@@ -268,7 +268,7 @@ public class OneSimUI extends DTNSimTextUI{
     	main.setSimTime(simTime); //update time to control panel
     }
     /**
-     * ¼ÓÔØ×ÊÔ´
+     * åŠ è½½èµ„æº
      */
     private WaitingWindow Loading(){
 		WaitingWindow t = new WaitingWindow();

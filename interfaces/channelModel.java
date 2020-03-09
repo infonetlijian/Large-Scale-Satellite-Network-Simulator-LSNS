@@ -30,7 +30,7 @@ public class channelModel {
     /** receiver antenna of diameter, unit: m */
     private double receiverAntennaDiameter = 1;
     /** standard deviation used in each channel model **/
-    private  double standardDeviation = 1.0;
+    private double standardDeviation = 1.0;
     /** energy ratio (K) in Rice channel model **/
     private double energyRatio_K = 1;
     /** probability when shadowing happens **/
@@ -76,9 +76,15 @@ public class channelModel {
      */
     public Tuple<Double, Double> updateLinkState(DTNHost from, DTNHost to, String channelModel){
         double distance = calculateDistance(from, to);
+        if (distance < 550) {//transmitRange
+            String type1 = from.toString();
+            String type2 = to.toString();
+            if (type1.contains(DTNSim.USER) | type2.contains(DTNSim.USER))
+                throw new SimError("distance too short  " + from + to);
+        }
         double fadingFactor = channelState(channelModel, distance);
         Tuple<Double, Double> currentSpeed = channelCapacity(fadingFactor, bandwidth);
-
+        //System.out.println("Distance:  "+distance+"  channel:  "+fadingFactor+" speed: "+currentSpeed);
         return currentSpeed;//bit/s
     }
 
@@ -207,7 +213,8 @@ public class channelModel {
         //distance // km
         //transmitFrequency//Hz
         double lamda = speedOfLight/transmitFrequency;
-        double path_loss = Math.pow(Math.PI /(4 * distance * lamda), 2);// free space path loss
+        //double path_loss = Math.pow(lamda /(4 * distance * Math.PI), 2);// free space path loss, Friis equation
+        double path_loss = SatelliteDirectChannelToEarth(distance);
         //double path_loss = Math.pow(lamda/(4 * Math.PI * distance), 2);// free space path loss
 
         double ratio = path_loss / 1;
@@ -260,8 +267,9 @@ public class channelModel {
         double coff = 1;
 
         double waveLength = speedOfLight/transmitFrequency;
-        coff = (Math.PI/4)*((transmitAntennaDiameter * receiverAntennaDiameter)/(waveLength * distance));
-        coff = Math.pow(coff, 2);
+        coff = (waveLength)/(4 * Math.PI * distance);
+        //coff = (Math.PI/4)*((transmitAntennaDiameter * receiverAntennaDiameter)/(waveLength * distance));
+        coff = transmitAntennaDiameter * receiverAntennaDiameter * Math.pow(coff, 2);
         return coff;
 
         // reference 2: article- Power Budgets for CubeSat Radios to Support Ground Communications and Inter-Satellite Links
@@ -296,14 +304,15 @@ public class channelModel {
      * Calculate channel capacity according to Shannon equation
      */
     public Tuple<Double, Double> channelCapacity(double fadingFactor, double bandwidth){
-        double transmitPower_mW = Math.exp(this.transmitPower/10);
+        double transmitPower_mW = Math.pow(10, this.transmitPower/10) * 0.001;//dBm converter equation = ( 10^(dBm/10) )*0.001
         //double transmitPower_mW = dBcoverter(transmitPower, true);
-        double noise_mW = bandwidth * Math.exp(spectralDensityNoisePower/10);
+        double noise_mW = bandwidth * Math.pow(10, spectralDensityNoisePower/10) * 0.001;
         //double noise_mW = bandwidth * dBcoverter(spectralDensityNoisePower, true);
 
         double SNR = transmitPower_mW * fadingFactor/noise_mW;
         Tuple<Double, Double> capacity = new Tuple<Double, Double>(bandwidth * Math.log(1 + SNR), SNR);//Shannon Equation
-        //System.out.println("power test: "+transmitPower_mW + "  "+transmitPower + "  noise:  "+ noise_mW + "  SNR: "+SNR+"  capacity: "+capacity);
+        //System.out.println("power test: "+transmitPower_mW + "  "+transmitPower + "  noise:  "+ noise_mW + "  SNR: "+SNR+" SNR_dB:  "+dBcoverter(SNR, false)
+        //        +"  capacity: "+capacity+" fadingFactor: "+fadingFactor);
         return capacity;
     }
 

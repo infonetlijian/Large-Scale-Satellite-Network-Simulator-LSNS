@@ -85,7 +85,7 @@ public class Settings {
 	 * @param namespace Namespace to use
 	 */
 	public Settings(String namespace) {
-		props = null;//Ã¿´Î¶¼½«È«¾ÖÈ«¾Ö²ÎÊıpropsÇå¿Õ£¬´Ó¶øÈÃ³ÌĞòÃ¿´ÎÔÚµ÷ÓÃnew Settings()Ê±£¬¶¼»áÖØĞÂ¶ÁÈ¡Ò»±éÅäÖÃÎÄ¼ş
+		props = null;//æ¯æ¬¡éƒ½å°†å…¨å±€å…¨å±€å‚æ•°propsæ¸…ç©ºï¼Œä»è€Œè®©ç¨‹åºæ¯æ¬¡åœ¨è°ƒç”¨new Settings()æ—¶ï¼Œéƒ½ä¼šé‡æ–°è¯»å–ä¸€éé…ç½®æ–‡ä»¶
 		this.oldNamespaces = new Stack<String>();
 		this.secondaryNamespaces = new Stack<String>();
 		setNameSpace(namespace);
@@ -290,9 +290,7 @@ public class Settings {
 		try {
 			if (new File(DEF_SETTINGS_FILE).exists()) {
 				Properties defProperties = new Properties();
-				InputStream in = Settings.class.getClass().getResourceAsStream("/default_settings.txt");
-				defProperties.load(in);
-				//defProperties.load(new FileInputStream(DEF_SETTINGS_FILE));
+				defProperties.load(new FileInputStream(DEF_SETTINGS_FILE));
 				props = new Properties(defProperties);
 			}
 			else {
@@ -923,7 +921,7 @@ public class Settings {
 	}
 	
 	/**
-	 * ÏòÅäÖÃÎÄ¼şÖĞĞ´ÈëÖ¸¶¨µÄÊôĞÔºÍ¶ÔÓ¦µÄÖµ
+	 * å‘é…ç½®æ–‡ä»¶ä¸­å†™å…¥æŒ‡å®šçš„å±æ€§å’Œå¯¹åº”çš„å€¼
 	 * @param name
 	 * @param value
 	 */
@@ -933,7 +931,7 @@ public class Settings {
 	}
 	
 	/**
-	 * ĞÂ¹¹ÔìµÄÀà£¬ÓÃÓÚ¶ÁÈ¡ºÍĞŞ¸ÄÎÄ±¾ÎÄ¼ş
+	 * æ–°æ„é€ çš„ç±»ï¼Œç”¨äºè¯»å–å’Œä¿®æ”¹æ–‡æœ¬æ–‡ä»¶
 	 */
 	public class changeTextFile {
 		private FileOutputStream outputStream;
@@ -945,25 +943,25 @@ public class Settings {
 		private File file;
 		
 		/**
-		 * Ö¸¶¨ÎÄ¼şÂ·¾¶£¬Í¬Ê±µ÷ÓÃÎÄ±¾¶ÁÈ¡º¯Êı
+		 * æŒ‡å®šæ–‡ä»¶è·¯å¾„ï¼ŒåŒæ—¶è°ƒç”¨æ–‡æœ¬è¯»å–å‡½æ•°
 		 */
 		public changeTextFile(){
 			try{
-				String str = Settings.class.getClass().getResource("/default_settings.txt").getPath();//¶ÁÈ¡classpath¸ùÄ¿Â¼ÏÂµÄtxtÎÄ¼şÂ·¾¶
+				String str = Settings.class.getClass().getResource("/default_settings.txt").getPath();//è¯»å–classpathæ ¹ç›®å½•ä¸‹çš„txtæ–‡ä»¶è·¯å¾„
 				URLDecoder decoder = new URLDecoder();
-				String path = decoder.decode(str,"utf-8");//Â·¾¶µÄ±àÂë¸ñÊ½×ª»»£¬ÒÔ±ãÖ§³ÖÂ·¾¶ÖĞº¬ÓĞ¿Õ¸ñ»òÕßÖĞÎÄ
+				String path = decoder.decode(str,"utf-8");//è·¯å¾„çš„ç¼–ç æ ¼å¼è½¬æ¢ï¼Œä»¥ä¾¿æ”¯æŒè·¯å¾„ä¸­å«æœ‰ç©ºæ ¼æˆ–è€…ä¸­æ–‡
 				file = new File(path);
 				
-				/**ÏÈ¶ÁÈ¡Ö¸¶¨ÎÄ±¾ÎÄ¼şµÄËùÓĞĞĞ**/
+				/**å…ˆè¯»å–æŒ‡å®šæ–‡æœ¬æ–‡ä»¶çš„æ‰€æœ‰è¡Œ**/
 				read();
-				/**ÏÈ¶ÁÈ¡Ö¸¶¨ÎÄ±¾ÎÄ¼şµÄËùÓĞĞĞ**/
+				/**å…ˆè¯»å–æŒ‡å®šæ–‡æœ¬æ–‡ä»¶çš„æ‰€æœ‰è¡Œ**/
 			}
 			catch(IOException e){
 				e.printStackTrace();
 			}
 		}
 		/**
-		 * ¶ÁÈ¡Ö¸¶¨ÎÄ±¾µÄËùÓĞĞĞÄÚÈİµ½contentÁĞ±íÏÂ(ÒÔĞĞ·½Ê½¶ÁÈ¡)
+		 * è¯»å–æŒ‡å®šæ–‡æœ¬çš„æ‰€æœ‰è¡Œå†…å®¹åˆ°contentåˆ—è¡¨ä¸‹(ä»¥è¡Œæ–¹å¼è¯»å–)
 		 */
 		public void read(){
 			try{
@@ -982,7 +980,7 @@ public class Settings {
 			}
 		}
 		/**
-		 * ¸´Ğ´Ö®Ç°¶ÁÈ¡µÄËùÓĞÎÄ±¾ÄÚÈİ£¬ÔÚĞ´µÄ¹ı³ÌÖĞ¼ì²éÊÇ·ñÊÇÖ¸¶¨²ÎÊı£¬Èç¹ûÊÇ£¬Ôò½øĞĞÏàÓ¦ÖµµÄĞŞ¸Ä
+		 * å¤å†™ä¹‹å‰è¯»å–çš„æ‰€æœ‰æ–‡æœ¬å†…å®¹ï¼Œåœ¨å†™çš„è¿‡ç¨‹ä¸­æ£€æŸ¥æ˜¯å¦æ˜¯æŒ‡å®šå‚æ•°ï¼Œå¦‚æœæ˜¯ï¼Œåˆ™è¿›è¡Œç›¸åº”å€¼çš„ä¿®æ”¹
 		 * @param name
 		 * @param value
 		 */

@@ -29,6 +29,7 @@ import Cache.CacheRouter;
 public class DTNHost implements Comparable<DTNHost> {
 	private static int nextAddress = 0;
 	private int address;
+	private Integer hostAddress;
 
 	private Coord location; 	// where is the host
 	private Coord destination;	// where is it going
@@ -49,7 +50,7 @@ public class DTNHost implements Comparable<DTNHost> {
 	 * properties in Message.java */
 	private Map<String, Object> properties;
 
-	/**´æ´¢ÓÉÔË¶¯Ä£ĞÍµÃµ½µÄ200¸öÈıÎ¬×ø±êºÍ200¸ö¾­Î³¶È×ø±ê£¬Í¼ĞÎ½çÃæ»­Í¼*/
+	/**å­˜å‚¨ç”±è¿åŠ¨æ¨¡å‹å¾—åˆ°çš„200ä¸ªä¸‰ç»´åæ ‡å’Œ200ä¸ªç»çº¬åº¦åæ ‡ï¼Œå›¾å½¢ç•Œé¢ç”»å›¾*/
 	int steps = 200;
 	int step = 0;
 	double max = 0;
@@ -58,13 +59,13 @@ public class DTNHost implements Comparable<DTNHost> {
 	
 	private double[][] BL = new double[steps][2];
 	double[][] two_dem_points = new double[1][2];
-	/**´æ´¢ÓÉÔË¶¯Ä£ĞÍµÃµ½µÄ200¸öÈıÎ¬×ø±êºÍ200¸ö¾­Î³¶È×ø±ê£¬Í¼ĞÎ½çÃæ»­Í¼*/
+	/**å­˜å‚¨ç”±è¿åŠ¨æ¨¡å‹å¾—åˆ°çš„200ä¸ªä¸‰ç»´åæ ‡å’Œ200ä¸ªç»çº¬åº¦åæ ‡ï¼Œå›¾å½¢ç•Œé¢ç”»å›¾*/
 	
-	/**¼ÇÂ¼ÎÀĞÇ½ÚµãµÄĞòºÅ*/
+	/**è®°å½•å«æ˜ŸèŠ‚ç‚¹çš„åºå·*/
 	private int order_;
-	/**ĞŞ¸Äº¯Êı²¿·Ö**/
+	/**ä¿®æ”¹å‡½æ•°éƒ¨åˆ†**/
 	private  double []parameters= new double[6];
-	private Neighbors nei;		//ĞÂÔö;
+	private Neighbors nei;		//æ–°å¢;
 	//private GridNeighbors GN;
 	
 	/** namespace for host group settings ({@value})*/
@@ -72,34 +73,34 @@ public class DTNHost implements Comparable<DTNHost> {
 	/** number of hosts in the group -setting id ({@value})*/
 	public static final String NROF_HOSTS_S = "nrofHosts";
 	
-	private List<DTNHost> hosts = new ArrayList<DTNHost>();				//È«¾ÖÎÀĞÇ½ÚµãÁĞ±í
-	private List<DTNHost> hostsinCluster = new ArrayList<DTNHost>();	//Í¬Ò»¸ö´ØÄÚµÄ½ÚµãÁĞ±í
-	private List<DTNHost> hostsinMEO = new ArrayList<DTNHost>();		//¹ÜÀíÎÀĞÇµÄ½ÚµãÁĞ±í
+	private List<DTNHost> hosts = new ArrayList<DTNHost>();				//å…¨å±€å«æ˜ŸèŠ‚ç‚¹åˆ—è¡¨
+	private List<DTNHost> hostsinCluster = new ArrayList<DTNHost>();	//åŒä¸€ä¸ªç°‡å†…çš„èŠ‚ç‚¹åˆ—è¡¨
+	private List<DTNHost> hostsinMEO = new ArrayList<DTNHost>();		//ç®¡ç†å«æ˜Ÿçš„èŠ‚ç‚¹åˆ—è¡¨
 	
-	private int totalSatellites;		//×Ü½ÚµãÊı
-	private int totalPlane;				//×ÜÆ½ÃæÊı
-	private int nrofPlane;				//ÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ
-	private int nrofSatelliteINPlane;	//ÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
-	private int ClusterNumber;			//´ú±í±¾½ÚµãËù¹éÊôµÄ´ØĞòºÅ
+	private int totalSatellites;		//æ€»èŠ‚ç‚¹æ•°
+	private int totalPlane;				//æ€»å¹³é¢æ•°
+	private int nrofPlane;				//å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·
+	private int nrofSatelliteINPlane;	//å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
+	private int ClusterNumber;			//ä»£è¡¨æœ¬èŠ‚ç‚¹æ‰€å½’å±çš„ç°‡åºå·
 	
 	private HashMap<Integer, List<DTNHost>> ClusterList = new HashMap<Integer, List<DTNHost>>();
-	/**ĞŞ¸Ä²ÎÊı²¿·Ö**/
+	/**ä¿®æ”¹å‚æ•°éƒ¨åˆ†**/
 	
-	/**------------------------------   ¶Ô DTNHost Ìí¼ÓµÄ±äÁ¿       --------------------------------*/
+	/**------------------------------   å¯¹ DTNHost æ·»åŠ çš„å˜é‡       --------------------------------*/
 
-	/** fileÖĞ¾ßÌåĞ¯´øµÄÄÚÈİ */
+	/** fileä¸­å…·ä½“æºå¸¦çš„å†…å®¹ */
 	private HashMap<String,Integer> files;	
-	/** ×öÒ»¸öFileBuffer ¶ÔÊı¾İ½øĞĞ´æ´¢ */
+	/** åšä¸€ä¸ªFileBuffer å¯¹æ•°æ®è¿›è¡Œå­˜å‚¨ */
 	private HashMap<String,File> FileBuffer;
-	/** ×öÒ»¸öChunkBuffer ¶ÔÊı¾İ½øĞĞ»º´æ */
+	/** åšä¸€ä¸ªChunkBuffer å¯¹æ•°æ®è¿›è¡Œç¼“å­˜ */
 	private HashMap<String, HashMap<String,File>> ChunkBuffer = new HashMap<String, HashMap<String,File>>();
-	/** °ó¶¨»º´æÂ·ÓÉ */
+	/** ç»‘å®šç¼“å­˜è·¯ç”± */
 	private CacheRouter cacherouter;
 	/** routing parameter */
 	public static boolean multiThread;
 	
 	
-	/**------------------------------   ¶Ô  DTNHost Ìí¼ÓµÄ±äÁ¿       --------------------------------*/
+	/**------------------------------   å¯¹  DTNHost æ·»åŠ çš„å˜é‡       --------------------------------*/
 	
 	static {
 		DTNSim.registerForReset(DTNHost.class.getCanonicalName());
@@ -401,9 +402,9 @@ public class DTNHost implements Comparable<DTNHost> {
 			if (multiThread)
 				multiThreadInterfaceUpdate();
 			for (NetworkInterface i : net) {
-//				System.out.println("µ±Ç°½ÚµãÎª£º" + this.address
-//						+ "  DTNHsot.java ÍøÂç½Ó¿ÚÊıÄ¿£º" + net.size() + "  ÍøÂç½Ó¿ÚÀàĞÍ£º"
-//						+ i.getInterfaceType() + "  ÍøÂç½Ó¿Ú£º" + i);
+//				System.out.println("å½“å‰èŠ‚ç‚¹ä¸ºï¼š" + this.address
+//						+ "  DTNHsot.java ç½‘ç»œæ¥å£æ•°ç›®ï¼š" + net.size() + "  ç½‘ç»œæ¥å£ç±»å‹ï¼š"
+//						+ i.getInterfaceType() + "  ç½‘ç»œæ¥å£ï¼š" + i);
 				i.update();
 			}
 		}
@@ -698,8 +699,8 @@ public class DTNHost implements Comparable<DTNHost> {
 		this.properties.remove(key);
 
 	}
-	/**------------------------------   ¶Ô  DTNHost Ìí¼ÓµÄº¯Êı·½·¨       --------------------------------*/	
-	/**½«ÈıÎ¬×ø±ê×ª»»Îª¶şÎ¬×ø±ê*/
+	/**------------------------------   å¯¹  DTNHost æ·»åŠ çš„å‡½æ•°æ–¹æ³•       --------------------------------*/	
+	/**å°†ä¸‰ç»´åæ ‡è½¬æ¢ä¸ºäºŒç»´åæ ‡*/
 	public double[][] convert3DTo2D(double X, double Y, double Z) {
 		double[][] bl = new double[1][2]; 
 		if(X>0) {
@@ -716,9 +717,9 @@ public class DTNHost implements Comparable<DTNHost> {
 		
 		return bl;
 	}
-	/**½«ÈıÎ¬×ø±ê×ª»»Îª¶şÎ¬×ø±ê*/
+	/**å°†ä¸‰ç»´åæ ‡è½¬æ¢ä¸ºäºŒç»´åæ ‡*/
 	
-	/**µÃµ½ÔË¶¯Ä£ĞÍ²úÉúµÄ200µÄÈıÎ¬×ø±êº¯Êı£¬ÊµÏÖÁËPrintable*/
+	/**å¾—åˆ°è¿åŠ¨æ¨¡å‹äº§ç”Ÿçš„200çš„ä¸‰ç»´åæ ‡å‡½æ•°ï¼Œå®ç°äº†Printable*/
 	public void print(double t, double[] y) {
 
 		// add data point to the plot
@@ -737,19 +738,19 @@ public class DTNHost implements Comparable<DTNHost> {
 			step++;
 		}
 	}
-	/**µÃµ½ÔË¶¯Ä£ĞÍ²úÉúµÄ200µÄÈıÎ¬×ø±êº¯Êı£¬ÊµÏÖÁËPrintable*/
+	/**å¾—åˆ°è¿åŠ¨æ¨¡å‹äº§ç”Ÿçš„200çš„ä¸‰ç»´åæ ‡å‡½æ•°ï¼Œå®ç°äº†Printable*/
 	
-	/**µÃµ½ÔË¶¯Ä£ĞÍ²úÉúµÄ200µÄÈıÎ¬×ø±êº¯Êı£¬ÊµÏÖÁËPrintable*/
+	/**å¾—åˆ°è¿åŠ¨æ¨¡å‹äº§ç”Ÿçš„200çš„ä¸‰ç»´åæ ‡å‡½æ•°ï¼Œå®ç°äº†Printable*/
 	public void print1(double t, double[] y) {
 		
 	}
-	/**µÃµ½ÔË¶¯Ä£ĞÍ²úÉúµÄ200µÄÈıÎ¬×ø±êº¯Êı£¬ÊµÏÖÁËPrintable*/
+	/**å¾—åˆ°è¿åŠ¨æ¨¡å‹äº§ç”Ÿçš„200çš„ä¸‰ç»´åæ ‡å‡½æ•°ï¼Œå®ç°äº†Printable*/
 	
-	/**µÃµ½ÔË¶¯Ä£ĞÍ²úÉúµÄ200µÄÈıÎ¬×ø±êº¯Êı£¬ÊµÏÖÁËPrintable*/
+	/**å¾—åˆ°è¿åŠ¨æ¨¡å‹äº§ç”Ÿçš„200çš„ä¸‰ç»´åæ ‡å‡½æ•°ï¼Œå®ç°äº†Printable*/
 	public void print2(double t, double[] y) {
 		
 	}
-	/**µÃµ½ÔË¶¯Ä£ĞÍ²úÉúµÄ200µÄÈıÎ¬×ø±êº¯Êı£¬ÊµÏÖÁËPrintable*/
+	/**å¾—åˆ°è¿åŠ¨æ¨¡å‹äº§ç”Ÿçš„200çš„ä¸‰ç»´åæ ‡å‡½æ•°ï¼Œå®ç°äº†Printable*/
 	
 	public double getMAX() {
 		return this.max;
@@ -775,9 +776,9 @@ public class DTNHost implements Comparable<DTNHost> {
 		return this.order_;
 	}
 
-	/**------------------------------   ¶Ô  DTNHost Ìí¼ÓµÄº¯Êı·½·¨       --------------------------------*/	
+	/**------------------------------   å¯¹  DTNHost æ·»åŠ çš„å‡½æ•°æ–¹æ³•       --------------------------------*/	
 	
-	/**ĞŞ¸Äº¯Êı²¿·Ö**/
+	/**ä¿®æ”¹å‡½æ•°éƒ¨åˆ†**/
 	/**
 	 * Moves the node towards the next waypoint or waits if it is
 	 * not time to move yet
@@ -865,16 +866,16 @@ public class DTNHost implements Comparable<DTNHost> {
 			this.parameters[i] = parameters[i];
 		}
 		
-		this.nei = new Neighbors(this);//ĞÂÔö		
+		this.nei = new Neighbors(this);//æ–°å¢		
 		
-		/*ĞÂÔö²ÎÊı*/
-		this.totalSatellites = totalSatellites;//×Ü½ÚµãÊı
-		this.totalPlane = totalPlane;//¹ìµÀÆ½ÃæÊı
-		this.nrofPlane = nrofPlane;//ÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ
-		this.nrofSatelliteINPlane = nrofSatelliteInPlane;//ÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
+		/*æ–°å¢å‚æ•°*/
+		this.totalSatellites = totalSatellites;//æ€»èŠ‚ç‚¹æ•°
+		this.totalPlane = totalPlane;//è½¨é“å¹³é¢æ•°
+		this.nrofPlane = nrofPlane;//å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·
+		this.nrofSatelliteINPlane = nrofSatelliteInPlane;//å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
 		
 		((SatelliteMovement)this.movement).setOrbitParameters(parameters);
-		this.location.my_Test(0.0,0.0,this.parameters);//ĞŞ¸Ä½ÚµãµÄ³õÊ¼»¯Î»ÖÃº¯Êı,»ñÈ¡t=0Ê±¿ÌµÄÎ»ÖÃ
+		this.location.my_Test(0.0,0.0,this.parameters);//ä¿®æ”¹èŠ‚ç‚¹çš„åˆå§‹åŒ–ä½ç½®å‡½æ•°,è·å–t=0æ—¶åˆ»çš„ä½ç½®
 	}
 	/**
 	 * test the orbit parameters
@@ -884,58 +885,58 @@ public class DTNHost implements Comparable<DTNHost> {
 		for (int i = 0; i < 6; i++){
 			this.parameters[i] = parameters[i];
 		}
-		this.location.my_Test(0.0,0.0,this.parameters);//ĞŞ¸Ä½ÚµãµÄ³õÊ¼»¯Î»ÖÃº¯Êı,»ñÈ¡t=0Ê±¿ÌµÄÎ»ÖÃ
+		this.location.my_Test(0.0,0.0,this.parameters);//ä¿®æ”¹èŠ‚ç‚¹çš„åˆå§‹åŒ–ä½ç½®å‡½æ•°,è·å–t=0æ—¶åˆ»çš„ä½ç½®
 	}
 	
 	/**
-	 * ³õÊ¼»¯Ê±£¬¸Ä±ä±¾½ÚµãËùÔÚµÄ´ØĞòºÅ
+	 * åˆå§‹åŒ–æ—¶ï¼Œæ”¹å˜æœ¬èŠ‚ç‚¹æ‰€åœ¨çš„ç°‡åºå·
 	 * @param num
 	 */
 	public void changeClusterNumber(int num){
 		this.ClusterNumber = num;
 	}
 	/**
-	 * ¶ÁÈ¡±¾½ÚµãËùÔÚµÄ´ØĞòºÅ
+	 * è¯»å–æœ¬èŠ‚ç‚¹æ‰€åœ¨çš„ç°‡åºå·
 	 * @return
 	 */
 	public int getClusterNumber(){
 		return this.ClusterNumber;
 	}
 	/**
-	 * ·µ»ØÈ«¾Ö¸÷¸ö´ØÄÚ¶ÔÓ¦µÄ½ÚµãÁĞ±í
+	 * è¿”å›å…¨å±€å„ä¸ªç°‡å†…å¯¹åº”çš„èŠ‚ç‚¹åˆ—è¡¨
 	 * @return
 	 */
 	public HashMap<Integer, List<DTNHost>> getClusterList(){
 		return this.ClusterList;
 	}
 	/**
-	 * ·µ»Ø±¾´ØÄÚµÄ½ÚµãÁĞ±í
+	 * è¿”å›æœ¬ç°‡å†…çš„èŠ‚ç‚¹åˆ—è¡¨
 	 * @return
 	 */
 	public List<DTNHost> getHostsinthisCluster(){
 		return this.hostsinCluster;
 	}
 	/**
-	 * ·µ»ØMEO¹ÜÀíÎÀĞÇ½ÚµãµÄÁĞ±í
+	 * è¿”å›MEOç®¡ç†å«æ˜ŸèŠ‚ç‚¹çš„åˆ—è¡¨
 	 * @return
 	 */
 	public List<DTNHost> getMEOList(){
 		return this.hostsinMEO;
 	}
 	/**
-	 * ·µ»ØÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ²ÎÊı
+	 * è¿”å›å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·å‚æ•°
 	 */
 	public int getNrofPlane(){
 		return this.nrofPlane;
 	}
 	/**
-	 * ·µ»ØÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
+	 * è¿”å›å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
 	 */
 	public int getNrofSatelliteINPlane(){
 		return this.nrofSatelliteINPlane;
 	}
 	/**
-	 * ÓÃÓÚNeighbors½øĞĞÁÚ¾Ó½ÚµãÉú´æÊ±¼äÊ±ÓÃ
+	 * ç”¨äºNeighborsè¿›è¡Œé‚»å±…èŠ‚ç‚¹ç”Ÿå­˜æ—¶é—´æ—¶ç”¨
 	 * @param time
 	 * @return
 	 */
@@ -958,7 +959,7 @@ public class DTNHost implements Comparable<DTNHost> {
 		return period;
 	}
 	/**
-	 * ĞÂÔöº¯Êı£¬·µ»ØĞÂÔöµÄÁÚ¾ÓÊı¾İ¿â
+	 * æ–°å¢å‡½æ•°ï¼Œè¿”å›æ–°å¢çš„é‚»å±…æ•°æ®åº“
 	 * @return
 	 */
 	public Neighbors getNeighbors(){
@@ -966,7 +967,7 @@ public class DTNHost implements Comparable<DTNHost> {
 	}
 
 	/**
-	 * ĞÂÔöº¯Êı£¬·µ»ØĞÂÔöµÄÎÀĞÇ¹ìµÀ²ÎÊı
+	 * æ–°å¢å‡½æ•°ï¼Œè¿”å›æ–°å¢çš„å«æ˜Ÿè½¨é“å‚æ•°
 	 * @return
 	 */
 	public double[] getParameters(){
@@ -976,7 +977,7 @@ public class DTNHost implements Comparable<DTNHost> {
 		this.ClusterList = hostsinEachPlane;
 	}
 	/**
-	 * ¸Ä±äÈ«¾Ö½ÚµãÁĞ±í
+	 * æ”¹å˜å…¨å±€èŠ‚ç‚¹åˆ—è¡¨
 	 * @param hosts
 	 */
 	public void changeHostsList(List<DTNHost> hosts){
@@ -988,47 +989,47 @@ public class DTNHost implements Comparable<DTNHost> {
 		this.hosts = allHosts;
 	}
 	/**
-	 * ¸Ä±ä±¾´ØÄÚ½ÚµãÁĞ±í£¬³õÊ¼»¯ÓÃ
+	 * æ”¹å˜æœ¬ç°‡å†…èŠ‚ç‚¹åˆ—è¡¨ï¼Œåˆå§‹åŒ–ç”¨
 	 * @param hostsinCluster
 	 */
 	public void changeHostsinCluster(List<DTNHost> hostsinCluster){
 		this.hostsinCluster = hostsinCluster;
 	}
 	/**
-	 * ¸Ä±äMEO¹ÜÀí½ÚµãÁĞ±í£¬³õÊ¼»¯ÓÃ
+	 * æ”¹å˜MEOç®¡ç†èŠ‚ç‚¹åˆ—è¡¨ï¼Œåˆå§‹åŒ–ç”¨
 	 * @param hostsinMEO
 	 */
 	public void changeHostsinMEO(List<DTNHost> hostsinMEO){
 		this.hostsinMEO = hostsinMEO;
 	}
 	/**
-	 * ¸üĞÂ±¾½ÚµãÖ¸¶¨Ê±¼äµÄÎ»ÖÃ×ø±ê
+	 * æ›´æ–°æœ¬èŠ‚ç‚¹æŒ‡å®šæ—¶é—´çš„ä½ç½®åæ ‡
 	 * @param timeNow
 	 */
 	public void updateLocation(double timeNow){
-		this.location.my_Test(0.0,timeNow,this.parameters);//ĞŞ¸Ä½ÚµãµÄÎ»ÖÃ,»ñÈ¡timeNowÊ±¿ÌµÄÎ»ÖÃ
+		this.location.my_Test(0.0,timeNow,this.parameters);//ä¿®æ”¹èŠ‚ç‚¹çš„ä½ç½®,è·å–timeNowæ—¶åˆ»çš„ä½ç½®
 	}
 	/**
-	 * Í¨¹ı´Ëº¯ÊıÈÃ×ÓÂ·ÓÉĞ­Òé¿ÉÒÔÓĞÄÜÁ¦²éÕÒÈ«¾Ö½ÚµãÁĞ±í
-	 * @return ·µ»ØÈ«¾Ö½ÚµãÁĞ±í
+	 * é€šè¿‡æ­¤å‡½æ•°è®©å­è·¯ç”±åè®®å¯ä»¥æœ‰èƒ½åŠ›æŸ¥æ‰¾å…¨å±€èŠ‚ç‚¹åˆ—è¡¨
+	 * @return è¿”å›å…¨å±€èŠ‚ç‚¹åˆ—è¡¨
 	 */
 	public List<DTNHost> getHostsList(){
 		return this.hosts;
 	}
 	/**
-	 * µ±Ñ¡ÓÃgridRouterÊ±£¬ĞèÒª½øĞĞ³õÊ¼»¯²Ù×÷£¬¼´ÌáÇ°¼ÆËãËùÓĞ¹ìµÀĞÅÏ¢
+	 * å½“é€‰ç”¨gridRouteræ—¶ï¼Œéœ€è¦è¿›è¡Œåˆå§‹åŒ–æ“ä½œï¼Œå³æå‰è®¡ç®—æ‰€æœ‰è½¨é“ä¿¡æ¯
 	 */
 	public void initialzationRouter(){
 		Settings s = new Settings(GROUP_NS);
-		String routerType = s.getSetting("router");//×Ü½ÚµãÊı
-		String option = s.getSetting("Pre_or_onlineOrbitCalculation");//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡ÉèÖÃ£¬ÊÇ²ÉÓÃÔÚÔËĞĞ¹ı³ÌÖĞ²»¶Ï¼ÆËã¹ìµÀ×ø±êµÄ·½Ê½£¬»¹ÊÇÍ¨¹ıÌáÇ°ÀûÓÃÍø¸ñ±í´æ´¢¸÷¸ö½ÚµãµÄ¹ìµÀĞÅÏ¢
+		String routerType = s.getSetting("router");//æ€»èŠ‚ç‚¹æ•°
+		String option = s.getSetting("Pre_or_onlineOrbitCalculation");//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–è®¾ç½®ï¼Œæ˜¯é‡‡ç”¨åœ¨è¿è¡Œè¿‡ç¨‹ä¸­ä¸æ–­è®¡ç®—è½¨é“åæ ‡çš„æ–¹å¼ï¼Œè¿˜æ˜¯é€šè¿‡æå‰åˆ©ç”¨ç½‘æ ¼è¡¨å­˜å‚¨å„ä¸ªèŠ‚ç‚¹çš„è½¨é“ä¿¡æ¯
 		
 		HashMap<String, Integer> orbitCalculationWay = new HashMap<String, Integer>();
 		orbitCalculationWay.put("preOrbitCalculation", 1);
 		orbitCalculationWay.put("onlineOrbitCalculation", 2);
 		
 		switch (orbitCalculationWay.get(option)){
-		case 1://Í¨¹ıÌáÇ°ÀûÓÃÍø¸ñ±í´æ´¢¸÷¸ö½ÚµãµÄ¹ìµÀĞÅÏ¢£¬´Ó¶øÔËĞĞ¹ı³ÌÖĞ²»ÔÙµ÷ÓÃ¹ìµÀ¼ÆËãº¯ÊıÀ´Ô¤²â¶øÊÇÍ¨¹ı¶Á±íÀ´Ô¤²â
+		case 1://é€šè¿‡æå‰åˆ©ç”¨ç½‘æ ¼è¡¨å­˜å‚¨å„ä¸ªèŠ‚ç‚¹çš„è½¨é“ä¿¡æ¯ï¼Œä»è€Œè¿è¡Œè¿‡ç¨‹ä¸­ä¸å†è°ƒç”¨è½¨é“è®¡ç®—å‡½æ•°æ¥é¢„æµ‹è€Œæ˜¯é€šè¿‡è¯»è¡¨æ¥é¢„æµ‹
 			((GridRouter)this.router).initialzation();
 			break;
 		case 2:		
@@ -1037,32 +1038,32 @@ public class DTNHost implements Comparable<DTNHost> {
 
 	}
 	
-	/**------------------------------   ¶Ô  DTNHost Ìí¼ÓµÄº¯Êı·½·¨       --------------------------------*/	
+	/**------------------------------   å¯¹  DTNHost æ·»åŠ çš„å‡½æ•°æ–¹æ³•       --------------------------------*/	
 	
-	/** »ñÈ¡DTNHostÖĞµÄchunkBuffer*/
+	/** è·å–DTNHostä¸­çš„chunkBuffer*/
 	public HashMap<String, HashMap<String,File>> getChunkBuffer() {
 		return ChunkBuffer;
 	}
 	
-	/** ¶Ô¶¨ÒåµÄ±í½øĞĞ´¦Àí*/
+	/** å¯¹å®šä¹‰çš„è¡¨è¿›è¡Œå¤„ç†*/
 	public void setFiles(HashMap<String, Integer> files) {
 		this.files = files;
 	}
-	/** »ñÈ¡½ÚµãÖĞ´æ·ÅµÄ¹ØÓÚfileµÄ±í*/
+	/** è·å–èŠ‚ç‚¹ä¸­å­˜æ”¾çš„å…³äºfileçš„è¡¨*/
 	public HashMap<String, Integer> getFiles() {
 		return files;
 	}
 
-	/** ¶Ô¶¨ÒåµÄ»º´æÇø½øĞĞ´¦Àí*/
+	/** å¯¹å®šä¹‰çš„ç¼“å­˜åŒºè¿›è¡Œå¤„ç†*/
 	public void setFileBuffer(HashMap<String, File> FileBuffer) {
 		this.FileBuffer = FileBuffer;
 	}
-	/** »ñÈ¡ÎÄ¼şµÄ»º´æ*/
+	/** è·å–æ–‡ä»¶çš„ç¼“å­˜*/
 	public HashMap<String, File> getFileBuffer() {
 		return FileBuffer;
 	}
 	
-	/** ¿´»º´æFileBufferÖĞÓĞÃ»ÓĞÎÄ¼ş  */
+	/** çœ‹ç¼“å­˜FileBufferä¸­æœ‰æ²¡æœ‰æ–‡ä»¶  */
 	public File getFileBufferForFile(Message aMessage) {
 
 		if (this.FileBuffer.containsKey(aMessage.getFilename()))
@@ -1071,7 +1072,7 @@ public class DTNHost implements Comparable<DTNHost> {
 			return null;
 		//return this.FileBuffer.get(aMessage.getFilename());
 	}
-	/** gyq_test 2016/07/08     ÓÃÓÚµÃµ½µ±Ç°½Úµã»º´æµÄÊ£Óà¿Õ¼ä  */
+	/** gyq_test 2016/07/08     ç”¨äºå¾—åˆ°å½“å‰èŠ‚ç‚¹ç¼“å­˜çš„å‰©ä½™ç©ºé—´  */
 	public int getFreeFileBufferSize(){
 		int occupancy = 0;		
 
@@ -1085,12 +1086,12 @@ public class DTNHost implements Comparable<DTNHost> {
 		return this.cacherouter.getFileBufferSize() - occupancy;
 	}
 	
-	/** µÃµ½µÄÊÇ´æ·ÅÎÄ¼şµÄfileBuffersize  */
+	/** å¾—åˆ°çš„æ˜¯å­˜æ”¾æ–‡ä»¶çš„fileBuffersize  */
 	public int getFileBufferSize(){
 		return this.cacherouter.getFileBufferSize();
 	}
 	
-	/** gyq_test 2016/07/08   ÓÃÓÚÉ¾³ı»º´æÖĞ±»ÇëÇóÊ±¼ä×î¾ÃµÄÎÄ¼ş  */
+	/** gyq_test 2016/07/08   ç”¨äºåˆ é™¤ç¼“å­˜ä¸­è¢«è¯·æ±‚æ—¶é—´æœ€ä¹…çš„æ–‡ä»¶  */
 	public boolean makeRoomForNewFile(int size){
 		if (size > this.cacherouter.getFileBufferSize()) {
 			return false; 										// message too big for the buffer
@@ -1109,12 +1110,12 @@ public class DTNHost implements Comparable<DTNHost> {
 		return true;
 	}
 	
-	/** gyq_test 2016/07/08    ÕÒµ½±»ÇëÇóÊ±¼ä×î³¤µÄÎÄ¼ş£¬×÷ÎªÏÂÒ»¸ö´ıÒÆ³ıÎÄ¼ş   */
+	/** gyq_test 2016/07/08    æ‰¾åˆ°è¢«è¯·æ±‚æ—¶é—´æœ€é•¿çš„æ–‡ä»¶ï¼Œä½œä¸ºä¸‹ä¸€ä¸ªå¾…ç§»é™¤æ–‡ä»¶   */
 	protected File getNextFileToRemove(boolean excludeMsgBeingSent){
 		Collection<File> filebuffer = this.getFileCollection();
 		File oldest = null;
 		for (File f: filebuffer){
-			if(!f.getInitFile()){          // Èç¹û²»ÊÇ³õÊ¼»¯·ÅÈëµÄÎÄ¼ş£¬¼ÌĞøÖ´ĞĞ
+			if(!f.getInitFile()){          // å¦‚æœä¸æ˜¯åˆå§‹åŒ–æ”¾å…¥çš„æ–‡ä»¶ï¼Œç»§ç»­æ‰§è¡Œ
 				if (oldest == null ) {
 					oldest = f;
 				}
@@ -1126,7 +1127,7 @@ public class DTNHost implements Comparable<DTNHost> {
 		return oldest;
 	}
 	
-	/**  gyq_test 2016/07/08    É¾³ı½ÚµãbufferÖĞÎÄ¼ş    */
+	/**  gyq_test 2016/07/08    åˆ é™¤èŠ‚ç‚¹bufferä¸­æ–‡ä»¶    */
 	public void deleteFile(String id, boolean drop) {
 		File removed = removeFromFileBuffer(id);
 		if (removed == null) throw new SimError("no file for id " +
@@ -1134,26 +1135,26 @@ public class DTNHost implements Comparable<DTNHost> {
 		
 		//for (MessageListener ml : this.mListeners) {
 		//ml.messageDeleted(removed, this.getAddress(), drop);
-		//}														                      // ÉÙÁËÊ±¼ä¼àÌıÆ÷
+		//}														                      // å°‘äº†æ—¶é—´ç›‘å¬å™¨
 	}
 	
-	/** gyq_test 2016/07/08    ÓÃÓÚ´Óµ±Ç°½Úµã»º´æ¿Õ¼äÖĞÉ¾³ıÎÄ¼ş   */
+	/** gyq_test 2016/07/08    ç”¨äºä»å½“å‰èŠ‚ç‚¹ç¼“å­˜ç©ºé—´ä¸­åˆ é™¤æ–‡ä»¶   */
 	public File removeFromFileBuffer(String id){
 		File f= this.FileBuffer.remove(id);
 		return f;
 	}
 	
-	/**¡¡·Åµ±Ç°ÏûÏ¢½øÈë´ıÈ·ÈÏÏûÏ¢ÁĞ±íÀï  */
+	/**ã€€æ”¾å½“å‰æ¶ˆæ¯è¿›å…¥å¾…ç¡®è®¤æ¶ˆæ¯åˆ—è¡¨é‡Œ  */
 //	public void putIntoJudgeForRetransfer(Message m){
 //		this.cacherouter.putJudgeForRetransfer(m);		
 //	}
 	
-	/** gyq_test 2016/07/08      ÓÃÓÚµÃµ½µ±Ç°½ÚµãµÄfileCollection */
+	/** gyq_test 2016/07/08      ç”¨äºå¾—åˆ°å½“å‰èŠ‚ç‚¹çš„fileCollection */
 	public Collection<File> getFileCollection(){
 		return this.FileBuffer.values();
 	}
 	
-	/** Îªµ±Ç°½ÚµãÉèÖÃ»º´æÂ·ÓÉ  CacheRouter */
+	/** ä¸ºå½“å‰èŠ‚ç‚¹è®¾ç½®ç¼“å­˜è·¯ç”±  CacheRouter */
 	/**
 	 * Set a CacheRouter for this host
 	 * @param cacherouter The router to set
@@ -1165,7 +1166,7 @@ public class DTNHost implements Comparable<DTNHost> {
 	public CacheRouter getCacheRouter(){
 		return this.cacherouter;
 	}
-	/**------------------------------   ¶Ô  DTNHost Ìí¼ÓµÄº¯Êı·½·¨       --------------------------------*/	
+	/**------------------------------   å¯¹  DTNHost æ·»åŠ çš„å‡½æ•°æ–¹æ³•       --------------------------------*/	
 	
     /**
      * @return satellite type in multi-layer satellite networks: LEO, MEO or GEO

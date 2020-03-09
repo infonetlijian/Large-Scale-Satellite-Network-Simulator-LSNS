@@ -74,19 +74,19 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 	/** this interface's activeness jitter value */
 	private int activenessJitterValue;
 	
-	/**ĞÂÔö²ÎÊı*/
+	/**æ–°å¢å‚æ•°*/
 	/** Link establishment delay */
 	protected double[] linkDelayRange;
 	protected double linkDelay;
-	protected HashMap<DTNHost,HashMap<DTNHost, double[]>> neighborsList = new HashMap<DTNHost,HashMap<DTNHost, double[]>>();//ĞÂÔö
+	protected HashMap<DTNHost,HashMap<DTNHost, double[]>> neighborsList = new HashMap<DTNHost,HashMap<DTNHost, double[]>>();//æ–°å¢
 	protected HashMap<DTNHost,HashMap<DTNHost, double[]>> predictList = new HashMap<DTNHost,HashMap<DTNHost, double[]>>();
-	public HashMap<DTNHost,HashMap<DTNHost, double[]>> getNeighborsList(){//ĞÂÔö
+	public HashMap<DTNHost,HashMap<DTNHost, double[]>> getNeighborsList(){//æ–°å¢
 		return this.neighborsList;
 	}
-	public HashMap<DTNHost,HashMap<DTNHost, double[]>> getPredictList(){//ĞÂÔö
+	public HashMap<DTNHost,HashMap<DTNHost, double[]>> getPredictList(){//æ–°å¢
 		return this.predictList;
 	}
-	/*ĞÂÔöº¯Êı*/
+	/*æ–°å¢å‡½æ•°*/
 	public ConnectivityOptimizer predictionUpdate(){
 		if (optimizer == null) {
 			return null; /* nothing to do */
@@ -123,7 +123,7 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 		}
 		this.linkDelay = randomLinkDelay();
 		
-		System.out.println("Interface type is£º"+this.interfacetype + "  "+"Link delay is£º" + this.linkDelay);
+		System.out.println("Interface type isï¼š"+this.interfacetype + "  "+"Link delay isï¼š" + this.linkDelay);
 		
 		this.transmitRange = s.getDouble(TRANSMIT_RANGE_S);
 		this.transmitSpeed = s.getInt(TRANSMIT_SPEED_S);

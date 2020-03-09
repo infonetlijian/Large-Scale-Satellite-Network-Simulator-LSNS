@@ -82,6 +82,7 @@ public class DTNSim {
     public static final String SHADOWING_TRANSFERRING_LINK = "transferringLink";
     public static final String NROF_SHADOWINGLINK= "nrofShadowingLink";
     public static final String HANDOVER_SNR_THRESHOLD = "SNR_threshold";
+    public static final String FASTMODE = "fastMode";
 
 	/** input: MessageCreateEvent */
 	public static final String MESSAGECREATEMODE = "messageCreateMode";
@@ -154,7 +155,7 @@ public class DTNSim {
 		else {
 			confFiles = new String[] {null};
 		}
-		
+
 		initSettings(confFiles, firstConfIndex);
 		
 		if (batchMode) {
@@ -174,7 +175,7 @@ public class DTNSim {
 	        try
 	        {
 	            String[] info = new String[]
-	            { "ÕıÔÚ³õÊ¼»¯API...", "ÕıÔÚ¼ÓÔØ×ÊÔ´...", "ÕıÔÚ³õÊ¼»¯Í¼ĞÎ½çÃæ..." };
+	            { "æ­£åœ¨åˆå§‹åŒ–API...", "æ­£åœ¨åŠ è½½èµ„æº...", "æ­£åœ¨åˆå§‹åŒ–å›¾å½¢ç•Œé¢..." };
 	            SplashScreen splash = SplashScreen.getSplashScreen();
 	            Graphics g = splash.createGraphics();
 	            

@@ -98,7 +98,7 @@ public class Coord implements Cloneable, Comparable<Coord> {
 		return this.y;
 	}
 	
-	public double getZ() {//ĞÂÔöº¯Êı
+	public double getZ() {//æ–°å¢å‡½æ•°
 		return this.z;
 	}
 	
@@ -177,26 +177,26 @@ public class Coord implements Cloneable, Comparable<Coord> {
 	}
 
 	/**
-	 * ½«CoordÀàÍØÕ¹³ÉÈıÎ¬×ø±êºó£¬Í¨¹ı´Ëº¯Êı½øĞĞÈıÎ¬×ø±êÉèÖÃ
+	 * å°†Coordç±»æ‹“å±•æˆä¸‰ç»´åæ ‡åï¼Œé€šè¿‡æ­¤å‡½æ•°è¿›è¡Œä¸‰ç»´åæ ‡è®¾ç½®
 	 * @param x x axis
 	 * @param y y axis
 	 * @param z z axis
 	 */
-	public void resetLocation(double x,double y,double z){//ÉèÖÃÈıÎ¬×ø±ê
+	public void resetLocation(double x,double y,double z){//è®¾ç½®ä¸‰ç»´åæ ‡
 		this.x=x;
 		this.y=y;
 		this.z=z;
 	}
 	/**
-	 * ½«CoordÀàÍØÕ¹³ÉÈıÎ¬×ø±êºó£¬Í¨¹ı´Ëº¯Êı½øĞĞÈıÎ¬×ø±êÉèÖÃ
-	 * @param x ´«Èë²ÎÁ¿ÎªÈıÎ¬×ø±êµÄÊı×éĞÎÊ½
+	 * å°†Coordç±»æ‹“å±•æˆä¸‰ç»´åæ ‡åï¼Œé€šè¿‡æ­¤å‡½æ•°è¿›è¡Œä¸‰ç»´åæ ‡è®¾ç½®
+	 * @param x ä¼ å…¥å‚é‡ä¸ºä¸‰ç»´åæ ‡çš„æ•°ç»„å½¢å¼
 	 */
 	public void setLocation3D(double[] x){
 		this.x=x[0];
 		this.y=x[1];
 		this.z=x[2];
 	}
-	/**ĞÂÔöº¯Êı**/
+	/**æ–°å¢å‡½æ•°**/
 	public void my_Test(double time,double time_0,double []t){
 				double[][] coordinate = new double[1][3];
 				

@@ -15,7 +15,7 @@ userSetting.hostsMode = normal
 
 # messageCreateMode (normal or batch) used in MessageCreateEvent.java
 userSetting.messageCreateMode = batch
-userSetting.batchCreateNumber = 6
+userSetting.batchCreateNumber = 50
 
 #分簇路由相关参数
 #clusterCheckInterval unit:seconds
@@ -40,7 +40,7 @@ Group.interface2 = Interface2
 Interface1.type = SatelliteWithChannelModelInterface
 
 Interface1.linkDelayRange = 0,0
-Interface1.transmitSpeed = 10M
+Interface1.transmitSpeed = 1M
 Interface1.transmitRange = 6000
 Interface1.nrofRadioInterface = 1
 Interface2.type = SatelliteLaserInterface
@@ -65,7 +65,7 @@ Events2.class = MessageEventGenerator
 Events1.interval = 1,1
 Events2.interval = 1,10
 # Message sizes (500kB - 1MB)
-Events1.size = 256k,2M
+Events1.size = 18k,18k
 #Events1.size = 64k,64k
 Events2.size = 2M,5M
 # range of message source/destination addresses
@@ -92,48 +92,50 @@ Group.msgPathLabel = false
 
 #以下为链路模型设置相关参数
 #Transmitting Power Unit: dBm W, used in SatellitetoGroundChannelModel.java
-userSetting.TransmittingPower = 46
+userSetting.TransmittingPower = 40
 #Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
 userSetting.TransmittingFrequency = 20000M
 #Transmitting Frequency Unit: Hz, used in RelayRouterforInternetAccess.java
-userSetting.Bandwidth = 10M
-userSetting.constantSpeedOfGroundStationLink = 20M
+userSetting.Bandwidth = 1M
+userSetting.constantSpeedOfGroundStationLink = 10M
 # used in RelayRouterforInternetAccess.java
 # Rayleigh, Rice, and Shadowing (i.e., Shadowing Rice) in channelModel.java
-#userSetting.channelModel = Rice
-userSetting.channelModel = Shadowing
+userSetting.channelModel = Rice
+#userSetting.channelModel = Shadowing
 #userSetting.shadowingMode = globalLink
-#userSetting.shadowingMode = transferringLink
-userSetting.shadowingMode = partialLink
+userSetting.shadowingMode = transferringLink
+#userSetting.shadowingMode = partialLink
 userSetting.nrofShadowingLink = 2
 #shadowing duration unit: second
-userSetting.shadowingDuration = 1
-userSetting.shadowingProbability = 0.04
+userSetting.shadowingDuration = 2
+userSetting.shadowingProbability = 0.02
 userSetting.energyRatio_Rice = 10
 #noise density, unit: dB
 userSetting.spectralDensityNoisePower = -164
 #unit: m
-userSetting.transmitAntennaDiameter = 3
-userSetting.receiverAntennaDiameter = 0.5
+userSetting.transmitAntennaDiameter = 0.1
+userSetting.receiverAntennaDiameter = 0.1
 
 #卫星接入添加的设置选项
+userSetting.enableBackupSatellite = true
 #userSetting.transmissionMode = enableBackupSatellite
 #userSetting.transmissionMode = preMigrationHandover
-#userSetting.transmissionMode = normalHandover
-userSetting.transmissionMode = SINRHandover
-unit: dB
-userSetting.SNR_threshold = 59
+userSetting.transmissionMode = normalHandover
+#userSetting.transmissionMode = SINRHandover
+userSetting.SNR_threshold = 60
+#skip the update of useless satellite router or not, used in RelayRouterforInternetAccess.java
+userSetting.fastMode = true
 # upper limits of backup satellites, used in RelayRouterforInternetAccess.java
 #注意，这里指加上当前接入节点的总备份节点数为N个，而不是N+1个
-userSetting.nrofBackupSatellites = 2
+userSetting.nrofBackupSatellites = 4
 userSetting.nrofRobustBackupSatellite = 0
 #设置切换窗口时间--handover window--userSetting.accessSatellitesUpdateInterval
-userSetting.accessSatellitesUpdateInterval = 0.2
+userSetting.accessSatellitesUpdateInterval = 1
 # minimum elevation angle unit: degree
 userSetting.minimumElevationAngle = 50.4
 # change satellite handover criterion (minimumElevationAngle / maximumConnectionDuration), used in RelayRouterforInternetAccess.java
-#userSetting.handoverCriterion = minimumElevationAngle
-userSetting.handoverCriterion = maximumConnectionDuration
+userSetting.handoverCriterion = minimumElevationAngle
+#userSetting.handoverCriterion = maximumConnectionDuration
 #Group.filebuffersize = 1000M
 
 #用户
@@ -141,9 +143,9 @@ Group2.nrofHosts = 1
 Group2.groupID = TerrestrialUser
 Group2.nrofInterfaces = 1
 Group2.interface1 = Interface1
-Interface1.type = SatelliteWithChannelModelInterface
-Interface1.linkDelayRange = 0
-Interface1.transmitSpeed = 2.5M
+#Interface1.type = SatelliteWithChannelModelInterface
+#Interface1.linkDelayRange = 0
+#Interface1.transmitSpeed = 2.5M
 Group2.movementModel = StationaryMovement3D
 Group2.nodeLocation = [46982,48733,55467]
 #[46982,48733,55467]
@@ -155,9 +157,9 @@ Group3.nrofInterfaces = 1
 Group3.interface1 = Interface1
 Interface1.type = SatelliteWithChannelModelInterface
 #Interface1.type = SimpleSatelliteInterface
-Interface1.linkDelayRange = 0
+#Interface1.linkDelayRange = 0
 #Interface1.transmitRange = 30000
-Interface1.transmitSpeed = 10M
+#Interface1.transmitSpeed = 10M
 #假定地面站的buffer足够大
 Group3.bufferSize = 2000M
 Group3.movementModel = StationaryMovement3D
@@ -170,7 +172,7 @@ Group.nrofLEO = 192
 Group.nrofLEOPlanes = 16
 Group.LEO_OrbitPlaneAngle = 53
 Group.LEO_Eccentricity = 0
-Group.LEO_Radius = 550
+Group.LEO_Radius = 1050
 
 # MEO卫星节点参数
 Group.EnableMEO = false
@@ -197,9 +199,9 @@ Scenario.nrofHostGroups = 3
 ## Scenario settings
 Scenario.name = satellite network simulation
 Scenario.simulateConnections = true
-Scenario.updateInterval = 0.1
+Scenario.updateInterval = 0.005
 # 43200s == 12h
-Scenario.endTime = 1200
+Scenario.endTime = 600
 
 
 ## Interface-specific settings:
@@ -329,7 +331,8 @@ MovementModel.rngSeed = 1
 # World's size for Movement Models without implicit size (width, height; meters)
 MovementModel.worldSize = 100000, 100000, 100000
 # How long time to move hosts in the world before real simulation
-MovementModel.warmup = 10
+#影响启动时间，特别是在updateinterval设置过小时，典型值=10
+MovementModel.warmup = 1
 
 
 ## Reports - all report names have to be valid report classes

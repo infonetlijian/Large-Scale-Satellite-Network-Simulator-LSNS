@@ -59,9 +59,9 @@ public class Message implements Comparable<Message> {
 	/** Application ID of the application that created the message */
 	private String	appID;
 	
-	//ĞÂÔöÊôĞÔ
-	private DTNHost sourceHost;//Ô­µØÖ· 
-	private DTNHost destinationHost;//Ä¿µÄµØÖ·
+	//æ–°å¢å±æ€§
+	private DTNHost sourceHost;//åŸåœ°å€ 
+	private DTNHost destinationHost;//ç›®çš„åœ°å€
 	
 	public void setDestinationHost(DTNHost des){
 		this.destinationHost = des;
@@ -76,22 +76,22 @@ public class Message implements Comparable<Message> {
 		return this.destinationHost;
 	}
 	
-	/**------------------------------   ¶ÔMessageÌí¼ÓµÄ±äÁ¿       --------------------------------*/
+	/**------------------------------   å¯¹Messageæ·»åŠ çš„å˜é‡       --------------------------------*/
 	
-	/** Ìí¼Ó²ÎÁ¿£¬±£ÁôÏûÏ¢µÄ³õÊ¼ID£¬ÔÚ´¦ÀíÏìÓ¦°ü£¬¿ØÖÆ°üÊ±»áÓÃµ½*/
+	/** æ·»åŠ å‚é‡ï¼Œä¿ç•™æ¶ˆæ¯çš„åˆå§‹IDï¼Œåœ¨å¤„ç†å“åº”åŒ…ï¼Œæ§åˆ¶åŒ…æ—¶ä¼šç”¨åˆ°*/
 	private String  initMsgID;	
-	/** Ìí¼ÓÓëfileÏà¹Ø²ÎÁ¿£¬Ö±½ÓÓÃfileÀàµÄÊµÀıÀ´´úÌæÕıÔÚ´«ÊäµÄÎÄ¼ş¡£*/
+	/** æ·»åŠ ä¸fileç›¸å…³å‚é‡ï¼Œç›´æ¥ç”¨fileç±»çš„å®ä¾‹æ¥ä»£æ›¿æ­£åœ¨ä¼ è¾“çš„æ–‡ä»¶ã€‚*/
 	private  String filename;
-	/**¡¡ÎÄ¼şÖĞĞ¯´øchunkµÄID*/
+	/**ã€€æ–‡ä»¶ä¸­æºå¸¦chunkçš„ID*/
 	private  String chunkID;
-	/** ÏûÏ¢ÖĞĞ¯´øµÄÎÄ¼ş */
+	/** æ¶ˆæ¯ä¸­æºå¸¦çš„æ–‡ä»¶ */
 	private  File data;	
-	/** bitMapÓÃÓÚ¶ÔchunkID½øĞĞÓ³Éä    */
+	/** bitMapç”¨äºå¯¹chunkIDè¿›è¡Œæ˜ å°„    */
 	private ArrayList<Integer> bitMap = new ArrayList<Integer>();
-	/** ÓÃÓÚÅĞ¶Ï°üµÄÀàĞÍ */
+	/** ç”¨äºåˆ¤æ–­åŒ…çš„ç±»å‹ */
 	public final static String SelectLabel = "PacketType";
 
-	/**------------------------------   ¶ÔMessageÌí¼ÓµÄ±äÁ¿       --------------------------------*/
+	/**------------------------------   å¯¹Messageæ·»åŠ çš„å˜é‡       --------------------------------*/
 	
 	public void setTo(DTNHost to) {
 		this.to = to;
@@ -115,13 +115,13 @@ public class Message implements Comparable<Message> {
 	 */
 //	public Message(DTNHost from, DTNHost to, String id, int size) {
 //		this.from = from;
-//		this.to = to;//¸Ä³ÉÉÏÒ»ÌøºÍÏÂÒ»ÌøµÄ½ÚµãµØÖ·
+//		this.to = to;//æ”¹æˆä¸Šä¸€è·³å’Œä¸‹ä¸€è·³çš„èŠ‚ç‚¹åœ°å€
 //		this.id = id;
 //		this.size = size;
 //		this.path = new ArrayList<DTNHost>();
 //		this.uniqueId = nextUniqueId;
 //		
-//		this.source = from;//ĞÂÔöÊôĞÔ£¬³õÊ¼»¯Óï¾ä
+//		this.source = from;//æ–°å¢å±æ€§ï¼Œåˆå§‹åŒ–è¯­å¥
 //		this.destination = to;
 //		
 //		this.timeCreated = SimClock.getTime();
@@ -434,63 +434,63 @@ public class Message implements Comparable<Message> {
 		this.appID = appID;
 	}
 	
-	/**------------------------------   ¶ÔMessageÌí¼ÓµÄº¯Êı·½·¨       --------------------------------*/
+	/**------------------------------   å¯¹Messageæ·»åŠ çš„å‡½æ•°æ–¹æ³•       --------------------------------*/
 	
-	/** ¶ÔbitMapÖĞËùÓĞÔªËØÖÃÁã²Ù×÷ */
+	/** å¯¹bitMapä¸­æ‰€æœ‰å…ƒç´ ç½®é›¶æ“ä½œ */
 	public void setZeroForBitMap(){
 		this.bitMap.clear();
 		for(int i=0;i<10;i++)
 			bitMap.add(0);
 	}
-	/** »ñÈ¡ÏûÏ¢³õÊ¼ID  */
+	/** è·å–æ¶ˆæ¯åˆå§‹ID  */
 	public String getInitMsgId(){
 		return this.initMsgID;
 	}
-	/** ÉèÖÃÏûÏ¢³õÊ¼ID  */
+	/** è®¾ç½®æ¶ˆæ¯åˆå§‹ID  */
 	public void setInitMsgId(String s){
 		this.initMsgID = s;
 	}
-	/** µÃµ½ÏûÏ¢Ğ¯´øµÄbitMap  */
+	/** å¾—åˆ°æ¶ˆæ¯æºå¸¦çš„bitMap  */
 	public ArrayList<Integer> getBitMap(){
 		return this.bitMap;
 	}
-	/** µÃµ½ÏìÓ¦º¯ÊıÖĞÕıÔÚ´«ÊäµÄÎÄ¼ş      */
+	/** å¾—åˆ°å“åº”å‡½æ•°ä¸­æ­£åœ¨ä¼ è¾“çš„æ–‡ä»¶      */
 	public File getFile(){
 		return this.data;
 	}
-    /** ¶ÔÎÄ¼şÃû²Ù×÷      */
+    /** å¯¹æ–‡ä»¶åæ“ä½œ      */
 	public String getFilename() {
 		return filename;
 	}
-    /** ¶ÔÎÄ¼şÃûÉèÖÃ²Ù×÷      */
+    /** å¯¹æ–‡ä»¶åè®¾ç½®æ“ä½œ      */
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
 	
-	/** ¶Ô·ÖÆ¬ºóµÄÄÚÈİ½øĞĞ²Ù×÷  */
+	/** å¯¹åˆ†ç‰‡åçš„å†…å®¹è¿›è¡Œæ“ä½œ  */
 	public String getChunkID(){
 		return chunkID;
 	}
 	public void setChunkID(String chunkID){
 		this.chunkID=chunkID;		
 	}
-	/** ¶Ôbitmap½øĞĞÉèÖÃ   */
+	/** å¯¹bitmapè¿›è¡Œè®¾ç½®   */
 	public void setBitMap(ArrayList<Integer> bm){
 		this.bitMap = bm;
 		
 	}
-	/** ¶ÔÏûÏ¢Ğ¯´øµÄÎÄ¼ş½øĞĞÉèÖÃ   */
+	/** å¯¹æ¶ˆæ¯æºå¸¦çš„æ–‡ä»¶è¿›è¡Œè®¾ç½®   */
 	public void setFile(File f){
 		this.data = f;
 	}
 
-	/**¡¡¶ÔÏûÏ¢µÄ´´½¨Ê±¼äÓë½ÓÊÕÊ±¼ä½øĞĞÉèÖÃ*/
+	/**ã€€å¯¹æ¶ˆæ¯çš„åˆ›å»ºæ—¶é—´ä¸æ¥æ”¶æ—¶é—´è¿›è¡Œè®¾ç½®*/
 	public void setTime(double timeC, double timeR){
 		this.timeCreated = timeC;
 		this.timeReceived = timeR;
 	}
 	
-	// ÕâÊÇ¶ÔÔ­ÓĞµÄº¯Êı×öÁËĞŞ¸Ä£¬²¢²»ÍêÈ«ÖØĞ´
+	// è¿™æ˜¯å¯¹åŸæœ‰çš„å‡½æ•°åšäº†ä¿®æ”¹ï¼Œå¹¶ä¸å®Œå…¨é‡å†™
 	
 	/**
 	 * Creates a new Message.
@@ -500,13 +500,13 @@ public class Message implements Comparable<Message> {
 	 * 	will be the same for all replicates of the message)
 	 * @param size Size of the message (in bytes)
 	 */
-	public Message(DTNHost from, DTNHost to, String id, int size) {			//	ÏûÏ¢³õÊ¼»¯¹ı³Ì
+	public Message(DTNHost from, DTNHost to, String id, int size) {			//	æ¶ˆæ¯åˆå§‹åŒ–è¿‡ç¨‹
 		this.from = from;
 		this.to = to;
 		this.id = id;
 		this.size = size;
 		this.path = new ArrayList<DTNHost>();								
-		this.uniqueId = nextUniqueId;  										//	ÏûÏ¢id±êÊ¶
+		this.uniqueId = nextUniqueId;  										//	æ¶ˆæ¯idæ ‡è¯†
 		this.initMsgID = id;
 		
 		this.timeCreated = SimClock.getTime();
@@ -516,18 +516,18 @@ public class Message implements Comparable<Message> {
 		this.requestMsg = null;
 		this.properties = null;
 		this.appID = null;			
-		this.setZeroForBitMap();											//	¶ÔbitMap³õÊ¼»¯
+		this.setZeroForBitMap();											//	å¯¹bitMapåˆå§‹åŒ–
 		Message.nextUniqueId++;
 		addNodeOnPath(from);
 	}
-	/**  ÖØĞ´¹¹Ôìº¯Êı£¬µ±ÎªÏìÓ¦ÏûÏ¢ÓĞÊı¾İ´æÔÚÊ±£¬½øĞĞµ÷ÓÃ*/
-	public Message(DTNHost from, DTNHost to, String id, int size, File Data) {	//ÏûÏ¢³õÊ¼»¯¹ı³Ì
+	/**  é‡å†™æ„é€ å‡½æ•°ï¼Œå½“ä¸ºå“åº”æ¶ˆæ¯æœ‰æ•°æ®å­˜åœ¨æ—¶ï¼Œè¿›è¡Œè°ƒç”¨*/
+	public Message(DTNHost from, DTNHost to, String id, int size, File Data) {	//æ¶ˆæ¯åˆå§‹åŒ–è¿‡ç¨‹
 		this.from = from;
 		this.to = to;
 		this.id = id;
 		this.size = size;
 		this.path = new ArrayList<DTNHost>();								
-		this.uniqueId = nextUniqueId;  											//ÏûÏ¢id±êÊ¶
+		this.uniqueId = nextUniqueId;  											//æ¶ˆæ¯idæ ‡è¯†
 		this.data= new File();
 		this.data= this.data.copyFrom(Data);
 		this.data.copyData(Data);		
@@ -549,14 +549,14 @@ public class Message implements Comparable<Message> {
 	 */
 	public Message replicate() {
 		
-		if(this.getProperty(SelectLabel) != (Object)1){									// µ±ÏûÏ¢²»ÎªÓ¦´ğÏûÏ¢
+		if(this.getProperty(SelectLabel) != (Object)1){									// å½“æ¶ˆæ¯ä¸ä¸ºåº”ç­”æ¶ˆæ¯
 			Message m = new Message(from, to, id, size);
 			m.copyFrom(this);
 			m.filename=this.filename;
 			m.bitMap=this.bitMap;
 			m.initMsgID = this.initMsgID;			
 			return m;
-		} else{																			// µ±ÎªÏìÓ¦ÏûÏ¢Ê±
+		} else{																			// å½“ä¸ºå“åº”æ¶ˆæ¯æ—¶
 			Message m = new Message(from, to, id, size, data);			
 			m.copyFrom(this);
 			m.filename= this.filename;
@@ -578,7 +578,7 @@ public class Message implements Comparable<Message> {
 		this.requestMsg  = m.requestMsg;
 		this.appID = m.appID;
 		this.initTtl = m.initTtl;						
-		this.chunkID = m.chunkID;						//¶ÔchunkI½øĞĞ¸´ÖÆ
+		this.chunkID = m.chunkID;						//å¯¹chunkIè¿›è¡Œå¤åˆ¶
 
 		if (m.properties != null) {
 			Set<String> keys = m.properties.keySet();
@@ -587,6 +587,6 @@ public class Message implements Comparable<Message> {
 			}
 		}
 	}	
-	/**------------------------------   ¶ÔMessageÌí¼ÓµÄº¯Êı·½·¨       --------------------------------*/
+	/**------------------------------   å¯¹Messageæ·»åŠ çš„å‡½æ•°æ–¹æ³•       --------------------------------*/
 	
 }

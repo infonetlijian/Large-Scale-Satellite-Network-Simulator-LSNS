@@ -124,14 +124,14 @@ public class SimScenario implements Serializable {
 	/** new 3-dimensional coordinate */
 	private int worldSizeX;
 	private int worldSizeY;
-	private int worldSizeZ;//ĞÂÔö²ÎÊı£¬ÈıÎ¬×ø±ê
+	private int worldSizeZ;//æ–°å¢å‚æ•°ï¼Œä¸‰ç»´åæ ‡
 
-	/**------------------------------   ¶ÔMessageÌí¼ÓµÄ±äÁ¿       --------------------------------*/
+	/**------------------------------   å¯¹Messageæ·»åŠ çš„å˜é‡       --------------------------------*/
 	/** user setting in the sim Cache */
 	public static final String EnableCache_s = "EnableCache";
-	/** »º´æ¿Õ¼ä  */
+	/** ç¼“å­˜ç©ºé—´  */
 	private HashMap<String,File> FileBuffer;
-	/** ÎÄ¼şÁĞ±í£¨test£©*/
+	/** æ–‡ä»¶åˆ—è¡¨ï¼ˆtestï¼‰*/
 	private HashMap<String,Integer> FileOfHosts;
     /** Record the orbit parameters info for satellite movement model **/
     private HashMap<DTNHost, double[]> orbitInfo;
@@ -176,7 +176,7 @@ public class SimScenario implements Serializable {
 		/** new 3-dimensional coordinate */
 		/* TODO: check size from movement models */
 		s.setNameSpace(MovementModel.MOVEMENT_MODEL_NS);
-		int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE, 3);//´Ó2Î¬ĞŞ¸ÄÎª3Î¬
+		int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE, 3);//ä»2ç»´ä¿®æ”¹ä¸º3ç»´
 		this.worldSizeX = worldSize[0];
 		this.worldSizeY = worldSize[1];
 		this.worldSizeZ = worldSize[2];
@@ -192,7 +192,7 @@ public class SimScenario implements Serializable {
 	 * Returns the SimScenario instance and creates one if it doesn't exist yet
 	 */
 	public static SimScenario getInstance() {
-		reset();//Çå¿ÕÔ­ÏÈ³õÊ¼»¯µÄ·ÂÕæ»·¾³
+		reset();//æ¸…ç©ºåŸå…ˆåˆå§‹åŒ–çš„ä»¿çœŸç¯å¢ƒ
 		if (myinstance == null) {
 			myinstance = new SimScenario();
 		}
@@ -348,14 +348,14 @@ public class SimScenario implements Serializable {
 	}
 	
 	/**
-	 * ÉèÖÃ·ÂÕæ¸üĞÂÊ±¼ä
+	 * è®¾ç½®ä»¿çœŸæ›´æ–°æ—¶é—´
 	 */
 	public void setUpdateInterval(double interval){
 		this.updateInterval = interval;
 	}
 	
 	/**
-	 * ÉèÖÃ·ÂÕæ½áÊøÊ±¼ä
+	 * è®¾ç½®ä»¿çœŸç»“æŸæ—¶é—´
 	 */
 	public void setEndTime(double EndTime){
 		this.endTime = EndTime;
@@ -454,7 +454,7 @@ public class SimScenario implements Serializable {
 					setSatelliteOrbitInfo(host, mmProto, s, j);
 				}
             }
-            //ÄÚ²¿ÉèÖÃÁËÅĞ¶ÏÌõ¼ş£¬Ö»»áÔÚÂú×ãSatelliteMovementÄ£¿éÊ±Ö´ĞĞ
+            //å†…éƒ¨è®¾ç½®äº†åˆ¤æ–­æ¡ä»¶ï¼Œåªä¼šåœ¨æ»¡è¶³SatelliteMovementæ¨¡å—æ—¶æ‰§è¡Œ
             setOrbitInfo(s, satelliteHosts);
             setCommunicationNodesProperty(s, hosts);
 
@@ -462,12 +462,12 @@ public class SimScenario implements Serializable {
 
 		/* initialization of satellite link info */
 		for (DTNHost h : hosts) {
-			if (h.getMovementModel() instanceof SatelliteMovement){	//ÎÀĞÇ½Úµã
+			if (h.getMovementModel() instanceof SatelliteMovement){	//å«æ˜ŸèŠ‚ç‚¹
 				((SatelliteMovement) h.getMovementModel()).initSatelliteInfo();
 				h.changeHostsList(hosts);
 			}
 			else {
-				h.changeHostsList(hosts);//¶ÔÓÚ²»ÊÇÎÀĞÇµÄ½Úµã£¬Ò²½«È«¾Ö½ÚµãÁĞ±íĞ´Èë
+				h.changeHostsList(hosts);//å¯¹äºä¸æ˜¯å«æ˜Ÿçš„èŠ‚ç‚¹ï¼Œä¹Ÿå°†å…¨å±€èŠ‚ç‚¹åˆ—è¡¨å†™å…¥
 			}
 		}
 		//set static clustering for LEO nodes
@@ -486,22 +486,22 @@ public class SimScenario implements Serializable {
      * set some nodes in the same orbit plane as communication nodes
      */
 	public void setCommunicationNodesProperty(Settings s, List<DTNHost> hosts){
-		//Ö»¶ÔÎÀĞÇ½Úµã½øĞĞÉèÖÃ£¬ÆäËü×éµÄ½Úµã²»¹Ü
+		//åªå¯¹å«æ˜ŸèŠ‚ç‚¹è¿›è¡Œè®¾ç½®ï¼Œå…¶å®ƒç»„çš„èŠ‚ç‚¹ä¸ç®¡
 		if (!s.getSetting(MOVEMENT_MODEL_S).contains("SatelliteMovement"))
 			return;
 
-		//ÉèÖÃÍ¨ĞÅÎÀĞÇ½Úµã
+		//è®¾ç½®é€šä¿¡å«æ˜ŸèŠ‚ç‚¹
 		int nrofCommunicationNodesInEachPlane = s.getInt("nrofCommunicationNodesInEachPlane");
-		//¹ìµÀÆ½ÃæĞÅÏ¢
+		//è½¨é“å¹³é¢ä¿¡æ¯
 		int nrofLEO = ((SatelliteMovement)hosts.get(0).getMovementModel()).getTotalNrofLEOSatellites();   
 		int nrofPlanes = ((SatelliteMovement)hosts.get(0).getMovementModel()).getTotalNrofLEOPlanes();
     	int nrofLEOInOnePlane = nrofLEO/nrofPlanes;
     	
     	HashMap<DTNHost, Integer> CommunicationNodesList = new HashMap<DTNHost, Integer>();
-    	//¹ìµÀÆ½ÃæÄÚ¾ùÔÈÉèÖÃÍ¨ĞÅ½Úµã
+    	//è½¨é“å¹³é¢å†…å‡åŒ€è®¾ç½®é€šä¿¡èŠ‚ç‚¹
     	int interval = nrofLEOInOnePlane/nrofCommunicationNodesInEachPlane;
     	
-    	//¶ÔÃ¿Ò»¸ö¹ìµÀÆ½Ãæ
+    	//å¯¹æ¯ä¸€ä¸ªè½¨é“å¹³é¢
     	for (int i = 0; i < nrofPlanes; i++){
     		for (int number = 0 + i*nrofLEOInOnePlane; number < (i+1)*nrofLEOInOnePlane; number+= interval){
     			hosts.get(number).getRouter().CommunicationSatellitesLabel = true;
@@ -651,7 +651,7 @@ public class SimScenario implements Serializable {
             }
           	break;
        	}
-       // Õë¶ÔÈı²ãÎÀĞÇÍøÂç£¬GEOÎÀĞÇ²ÎÊı¼ÆËã£¡
+       // é’ˆå¯¹ä¸‰å±‚å«æ˜Ÿç½‘ç»œï¼ŒGEOå«æ˜Ÿå‚æ•°è®¡ç®—ï¼
        case "GEO":{
          	if (s.getSetting(MOVEMENT_MODEL_S).contains("SatelliteMovement")) {
                 double[] orbitParameters = generateOrbitParameters(s, "GEO", satelliteNum, nrofHosts, nrofPlanes);
@@ -695,10 +695,10 @@ public class SimScenario implements Serializable {
     	switch(type){
 	    	case "LEO":{
 	    		switch(constellationType){
-		    		case "WalkerStar":{ // ¼«¹ìµÀ
+		    		case "WalkerStar":{ // æè½¨é“
 		    			return initialLEOWalkerStarParameters(s, m, NROF_SATELLITES, NROF_PLANE);
 		    		}
-		    		case "WalkerDelta":{ // ÇãĞ±¹ìµÀ
+		    		case "WalkerDelta":{ // å€¾æ–œè½¨é“
 		    			return initialLEOWalkerDeltaParameters(s, m, NROF_SATELLITES, NROF_PLANE);
 		    		}
 	    		}
@@ -740,9 +740,9 @@ public class SimScenario implements Serializable {
     public double[] initialLEOWalkerDeltaParameters(Settings s, int m, int NROF_SATELLITES, int NROF_PLANE) {
         double[] parameters = new double[7];
 
-        double radius;							//°ë¾¶
-        double eccentricity;					//ÀëĞÄÂÊ
-        double orbitPlaneAngle;					//¹ìµÀÃæÇã½Ç
+        double radius;							//åŠå¾„
+        double eccentricity;					//ç¦»å¿ƒç‡
+        double orbitPlaneAngle;					//è½¨é“é¢å€¾è§’
         if (s.contains("LEO_OrbitPlaneAngle") == false)
             orbitPlaneAngle = 60;
         else
@@ -754,25 +754,25 @@ public class SimScenario implements Serializable {
             eccentricity = s.getDouble("LEO_Eccentricity");
 
         if (s.contains("LEO_Radius") == false)
-        /**µØÇò°ë¾¶Îª6371km**/
-            radius = 6371 + 780;							//µ¥Î»ÊÇkm
+        /**åœ°çƒåŠå¾„ä¸º6371km**/
+            radius = 6371 + 780;							//å•ä½æ˜¯km
         else
             radius = 6371 + s.getDouble("LEO_Radius");
         
-        //int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//×Ü½ÚµãÊı
-        //int NROF_PLANE = 3;//¹ìµÀÆ½ÃæÊı
-        int NROF_S_EACHPLANE = NROF_SATELLITES / NROF_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+        //int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//æ€»èŠ‚ç‚¹æ•°
+        //int NROF_PLANE = 3;//è½¨é“å¹³é¢æ•°
+        int NROF_S_EACHPLANE = NROF_SATELLITES / NROF_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
         
         parameters[0] = radius;
-        parameters[1] = eccentricity;		// 0.1Æ«ĞÄÂÊ£¬Ó°Ïì½Ï´ó,e=c/a
-        parameters[2] = orbitPlaneAngle;	// ¹ìµÀÇã½Ç
-//        parameters[3] = (360 / NROF_S_EACHPLANE) * (Math.floor(m / NROF_S_EACHPLANE) + 1);//m´Ó0¿ªÊ¼
+        parameters[1] = eccentricity;		// 0.1åå¿ƒç‡ï¼Œå½±å“è¾ƒå¤§,e=c/a
+        parameters[2] = orbitPlaneAngle;	// è½¨é“å€¾è§’
+//        parameters[3] = (360 / NROF_S_EACHPLANE) * (Math.floor(m / NROF_S_EACHPLANE) + 1);//mä»0å¼€å§‹
 //        parameters[4] = 0;
         
-		parameters[3]= (360/NROF_PLANE)*(m/NROF_S_EACHPLANE);			// (Éı½»µã³à¾­)
+		parameters[3]= (360/NROF_PLANE)*(m/NROF_S_EACHPLANE);			// (å‡äº¤ç‚¹èµ¤ç»)
 		System.out.println(m+"  "+NROF_S_EACHPLANE);
 		parameters[4]= (360/NROF_S_EACHPLANE)*((m-(m/NROF_S_EACHPLANE)*NROF_S_EACHPLANE) - 1) 
-						+ (360/NROF_SATELLITES)*(m/NROF_S_EACHPLANE); 	// (½üµØµã·ù½Ç)
+						+ (360/NROF_SATELLITES)*(m/NROF_S_EACHPLANE); 	// (è¿‘åœ°ç‚¹å¹…è§’)
 		
         
 //        if ((Math.floor(m / NROF_S_EACHPLANE) + 1) % 2 == 1)
@@ -784,8 +784,8 @@ public class SimScenario implements Serializable {
         System.out.println("LEOWalkerStarParameters:"+m + "  " + parameters[0] + 
         		"  " + parameters[1]+ "    "+parameters[2]+"   "
         					+parameters[3] + "  " + parameters[4] + "  " + parameters[5]);
-        //nrofPlane = m/NROF_S_EACHPLANE + 1;//ÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ
-        //nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//ÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
+        //nrofPlane = m/NROF_S_EACHPLANE + 1;//å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·
+        //nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
         
         parameters[6] = 1;					// '1' indicates LEO satellite
         
@@ -799,9 +799,9 @@ public class SimScenario implements Serializable {
 	public double[] initialMEOWalkerStarParameters(Settings s, int m, int NROF_MEOSATELLITES, int nrofMEOPlane){
 		double[] parameters = new double[7];
 
-		double MEOradius;//MEO¹ìµÀ°ë¾¶
+		double MEOradius;//MEOè½¨é“åŠå¾„
 		double eccentricity;
-		double orbitPlaneAngle;//¹ìµÀÃæÇã½Ç
+		double orbitPlaneAngle;//è½¨é“é¢å€¾è§’
 		
 		if (s.contains("MEO_OrbitPlaneAngle") == false)
 			orbitPlaneAngle = 86.4;
@@ -816,29 +816,29 @@ public class SimScenario implements Serializable {
 			eccentricity = s.getDouble("MEO_Eccentricity");
 		
 		if (s.contains("MEO_Radius") == false)
-			/**µØÇò°ë¾¶Îª6371km**/
-			MEOradius = 6371 + 2000;//µ¥Î»ÊÇkm;
+			/**åœ°çƒåŠå¾„ä¸º6371km**/
+			MEOradius = 6371 + 2000;//å•ä½æ˜¯km;
 		else
 			MEOradius = 6371 + s.getDouble("MEO_Radius");
-		/**MEO¹ìµÀÆ½ÃæÊı**/
+		/**MEOè½¨é“å¹³é¢æ•°**/
 		if (s.contains("nrofMEOPlane") == false)
 			nrofMEOPlane = 3;
 		else
 			nrofMEOPlane = s.getInt("nrofMEOPlane");
-		/**MEO½Úµã¸öÊı**/
+		/**MEOèŠ‚ç‚¹ä¸ªæ•°**/
 		if (s.contains("nrofMEO") == false)
 			NROF_MEOSATELLITES = 3;
 		else
 			NROF_MEOSATELLITES = s.getInt("nrofMEO");
-		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//×Ü½ÚµãÊı
-		//int NROF_PLANE = 3;//¹ìµÀÆ½ÃæÊı
+		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//æ€»èŠ‚ç‚¹æ•°
+		//int NROF_PLANE = 3;//è½¨é“å¹³é¢æ•°
 		
-		int NROF_S_EACHPLANE = NROF_MEOSATELLITES/nrofMEOPlane;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+		int NROF_S_EACHPLANE = NROF_MEOSATELLITES/nrofMEOPlane;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
 		
 		parameters[0]= MEOradius;
-		parameters[1]= eccentricity;//0.1Æ«ĞÄÂÊ£¬Ó°Ïì½Ï´ó,e=c/a
+		parameters[1]= eccentricity;//0.1åå¿ƒç‡ï¼Œå½±å“è¾ƒå¤§,e=c/a
 		parameters[2]= orbitPlaneAngle;
-		parameters[3]= (360 / NROF_S_EACHPLANE) * (Math.floor(m / NROF_S_EACHPLANE) + 1);//m´Ó0¿ªÊ¼
+		parameters[3]= (360 / NROF_S_EACHPLANE) * (Math.floor(m / NROF_S_EACHPLANE) + 1);//mä»0å¼€å§‹
 		parameters[4]= 0.0;
         if ((Math.floor(m / NROF_S_EACHPLANE) + 1) % 2 == 1)
             parameters[5] = (360 / NROF_S_EACHPLANE) * (m - Math.floor(m / NROF_S_EACHPLANE) * NROF_S_EACHPLANE);
@@ -848,8 +848,8 @@ public class SimScenario implements Serializable {
         System.out.println("MEOWalkerStarParameters"+m + "  " + parameters[0] + 
         		"  " + parameters[1]+ "    "+parameters[2]+"   "
         					+parameters[3] + "  " + parameters[4] + "  " + parameters[5]);
-		//nrofPlane = m/NROF_S_EACHPLANE + 1;//ÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ
-		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//ÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
+		//nrofPlane = m/NROF_S_EACHPLANE + 1;//å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·
+		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
 		
         parameters[6] = 2;// '2' indicates LEO satellite
         
@@ -864,9 +864,9 @@ public class SimScenario implements Serializable {
 	public double[] initialGEOWalkerStarParameters(Settings s, int m, int NROF_GEOSATELLITES, int nrofGEOPlane){
 		double[] parameters = new double[7];
 
-		double GEOradius;//GEO¹ìµÀ°ë¾¶
+		double GEOradius;//GEOè½¨é“åŠå¾„
 		double eccentricity;
-		double orbitPlaneAngle;//¹ìµÀÃæÇã½Ç
+		double orbitPlaneAngle;//è½¨é“é¢å€¾è§’
 		
 		if (s.contains("GEO_OrbitPlaneAngle") == false)
 			orbitPlaneAngle = 86.4;
@@ -881,29 +881,29 @@ public class SimScenario implements Serializable {
 			eccentricity = s.getDouble("GEO_Eccentricity");
 		
 		if (s.contains("GEO_Radius") == false)
-			/**µØÇò°ë¾¶Îª6371km**/
-			GEOradius = 6371 + 2000;//µ¥Î»ÊÇkm;
+			/**åœ°çƒåŠå¾„ä¸º6371km**/
+			GEOradius = 6371 + 2000;//å•ä½æ˜¯km;
 		else
 			GEOradius = 6371 + s.getDouble("GEO_Radius");
-		/**GEO¹ìµÀÆ½ÃæÊı**/
+		/**GEOè½¨é“å¹³é¢æ•°**/
 		if (s.contains("nrofGEOPlane") == false)
 			nrofGEOPlane = 3;
 		else
 			nrofGEOPlane = s.getInt("nrofGEOPlane");
-		/**GEO½Úµã¸öÊı**/
+		/**GEOèŠ‚ç‚¹ä¸ªæ•°**/
 		if (s.contains("nrofGEO") == false)
 			NROF_GEOSATELLITES = 3;
 		else
 			NROF_GEOSATELLITES = s.getInt("nrofGEO");
-		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//×Ü½ÚµãÊı
-		//int NROF_PLANE = 3;//¹ìµÀÆ½ÃæÊı
+		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//æ€»èŠ‚ç‚¹æ•°
+		//int NROF_PLANE = 3;//è½¨é“å¹³é¢æ•°
 		
-		int NROF_S_EACHPLANE = NROF_GEOSATELLITES/nrofGEOPlane;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+		int NROF_S_EACHPLANE = NROF_GEOSATELLITES/nrofGEOPlane;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
 		
 		parameters[0]= GEOradius;
-		parameters[1]= eccentricity;//0.1Æ«ĞÄÂÊ£¬Ó°Ïì½Ï´ó,e=c/a
+		parameters[1]= eccentricity;//0.1åå¿ƒç‡ï¼Œå½±å“è¾ƒå¤§,e=c/a
 		parameters[2]= orbitPlaneAngle;
-		parameters[3]= (360 / NROF_S_EACHPLANE) * (Math.floor(m / NROF_S_EACHPLANE) + 1);//m´Ó0¿ªÊ¼
+		parameters[3]= (360 / NROF_S_EACHPLANE) * (Math.floor(m / NROF_S_EACHPLANE) + 1);//mä»0å¼€å§‹
 		parameters[4]= 0.0;
         if ((Math.floor(m / NROF_S_EACHPLANE) + 1) % 2 == 1)
             parameters[5] = (360 / NROF_S_EACHPLANE) * (m - Math.floor(m / NROF_S_EACHPLANE) * NROF_S_EACHPLANE);
@@ -913,8 +913,8 @@ public class SimScenario implements Serializable {
         System.out.println("GEOWalkerStarParameters"+m + "  " + parameters[0] + 
         		"  " + parameters[1]+ "    "+parameters[2]+"   "
         					+parameters[3] + "  " + parameters[4] + "  " + parameters[5]);
-		//nrofPlane = m/NROF_S_EACHPLANE + 1;//ÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ
-		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//ÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
+		//nrofPlane = m/NROF_S_EACHPLANE + 1;//å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·
+		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
 		
         parameters[6] = 3;// '3' indicates GEO satellite
         
@@ -925,9 +925,9 @@ public class SimScenario implements Serializable {
 	public double[] initialLEOWalkerStarParameters(Settings s, int m, int NROF_SATELLITES, int NROF_PLANE){
         double[] parameters = new double[7];
 
-        double radius;//°ë¾¶
-        double eccentricity;//ÀëĞÄÂÊ
-        double orbitPlaneAngle;//¹ìµÀÃæÇã½Ç
+        double radius;//åŠå¾„
+        double eccentricity;//ç¦»å¿ƒç‡
+        double orbitPlaneAngle;//è½¨é“é¢å€¾è§’
         if (s.contains("LEO_OrbitPlaneAngle") == false)
             orbitPlaneAngle = 86.4;
         else
@@ -939,18 +939,18 @@ public class SimScenario implements Serializable {
             eccentricity = s.getDouble("LEO_Eccentricity");
 
         if (s.contains("LEO_Radius") == false)
-        /**µØÇò°ë¾¶Îª6371km**/
-            radius = 6371 + 780;//µ¥Î»ÊÇkm
+        /**åœ°çƒåŠå¾„ä¸º6371km**/
+            radius = 6371 + 780;//å•ä½æ˜¯km
         else
             radius = 6371 + s.getDouble("LEO_Radius");
-        //int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//×Ü½ÚµãÊı
-        //int NROF_PLANE = 3;//¹ìµÀÆ½ÃæÊı
-        int NROF_S_EACHPLANE = NROF_SATELLITES / NROF_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+        //int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//æ€»èŠ‚ç‚¹æ•°
+        //int NROF_PLANE = 3;//è½¨é“å¹³é¢æ•°
+        int NROF_S_EACHPLANE = NROF_SATELLITES / NROF_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
 		
 		Random random = new Random();
 		parameters[0]= radius;
-		parameters[1]= eccentricity;//0.1Æ«ĞÄÂÊ£¬Ó°Ïì½Ï´ó,e=c/a
-		parameters[2]= orbitPlaneAngle;//¹ìµÀÇã½Ç
+		parameters[1]= eccentricity;//0.1åå¿ƒç‡ï¼Œå½±å“è¾ƒå¤§,e=c/a
+		parameters[2]= orbitPlaneAngle;//è½¨é“å€¾è§’
 		parameters[3]= (360/NROF_S_EACHPLANE)*(m/NROF_S_EACHPLANE);
 		
 		parameters[4]= (360/NROF_S_EACHPLANE)*((m-(m/NROF_S_EACHPLANE)*NROF_S_EACHPLANE) - 1) + (360/NROF_SATELLITES)*(m/NROF_S_EACHPLANE);
@@ -969,9 +969,9 @@ public class SimScenario implements Serializable {
 	public double[] initialMEOWalkerDeltaParameters(Settings s, int m, int NROF_MEOSATELLITES, int nrofMEOPlane){
 		double[] parameters = new double[7];
 
-		double MEOradius;//MEO¹ìµÀ°ë¾¶
+		double MEOradius;//MEOè½¨é“åŠå¾„
 		double eccentricity;
-		double orbitPlaneAngle;//¹ìµÀÃæÇã½Ç
+		double orbitPlaneAngle;//è½¨é“é¢å€¾è§’
 		
 		if (s.contains("MEO_OrbitPlaneAngle") == false)
 			orbitPlaneAngle = 86.4;
@@ -984,29 +984,29 @@ public class SimScenario implements Serializable {
 			eccentricity = s.getDouble("MEO_Eccentricity");
 		
 		if (s.contains("MEO_Radius") == false)
-			/**µØÇò°ë¾¶Îª6371km**/
-			MEOradius = 6371 + 2000;//µ¥Î»ÊÇkm;
+			/**åœ°çƒåŠå¾„ä¸º6371km**/
+			MEOradius = 6371 + 2000;//å•ä½æ˜¯km;
 		else
 			MEOradius = 6371 + s.getDouble("MEO_Radius");
-		/**MEO¹ìµÀÆ½ÃæÊı**/
+		/**MEOè½¨é“å¹³é¢æ•°**/
 		if (s.contains("nrofMEOPlane") == false)
 			nrofMEOPlane = 3;
 		else
 			nrofMEOPlane = s.getInt("nrofMEOPlane");
-		/**MEO½Úµã¸öÊı**/
+		/**MEOèŠ‚ç‚¹ä¸ªæ•°**/
 		if (s.contains("nrofMEO") == false)
 			NROF_MEOSATELLITES = 3;
 		else
 			NROF_MEOSATELLITES = s.getInt("nrofMEO");
 
-		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//×Ü½ÚµãÊı
-		//int NROF_PLANE = 3;//¹ìµÀÆ½ÃæÊı
-		int NROF_S_EACHPLANE = NROF_MEOSATELLITES/nrofMEOPlane;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//æ€»èŠ‚ç‚¹æ•°
+		//int NROF_PLANE = 3;//è½¨é“å¹³é¢æ•°
+		int NROF_S_EACHPLANE = NROF_MEOSATELLITES/nrofMEOPlane;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
 		
 		Random random = new Random();
 		m = m - 1;
 		parameters[0]= MEOradius;
-		parameters[1]= eccentricity;//0.1Æ«ĞÄÂÊ£¬Ó°Ïì½Ï´ó,e=c/a
+		parameters[1]= eccentricity;//0.1åå¿ƒç‡ï¼Œå½±å“è¾ƒå¤§,e=c/a
 		parameters[2]= orbitPlaneAngle;
 		parameters[3]= (360/nrofMEOPlane)*((m-1)/NROF_S_EACHPLANE);
 		System.out.println(m+"  "+NROF_S_EACHPLANE);
@@ -1016,8 +1016,8 @@ public class SimScenario implements Serializable {
         System.out.println("MEOWalkerDeltaParameters"+m + "  " + parameters[0] + 
         		"  " + parameters[1]+ "    "+parameters[2]+"   "
         					+parameters[3] + "  " + parameters[4] + "  " + parameters[5]);
-		//nrofPlane = m/NROF_S_EACHPLANE + 1;//ÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ
-		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//ÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
+		//nrofPlane = m/NROF_S_EACHPLANE + 1;//å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·
+		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
 		
 		parameters[6] = 2;// '2' indicates MEO satellite
 		
@@ -1025,7 +1025,7 @@ public class SimScenario implements Serializable {
 	}
 
 	/**
-	 * ¼ÆËãGEOÎÀĞÇ²ÎÊı
+	 * è®¡ç®—GEOå«æ˜Ÿå‚æ•°
 	 * @param s
 	 * @param m
 	 * @param NROF_GEOSATELLITES
@@ -1035,9 +1035,9 @@ public class SimScenario implements Serializable {
 	public double[] initialGEOWalkerDeltaParameters(Settings s, int m, int NROF_GEOSATELLITES, int nrofGEOPlane){
 		double[] parameters = new double[7];
 
-		double GEOradius;//MEO¹ìµÀ°ë¾¶
+		double GEOradius;//MEOè½¨é“åŠå¾„
 		double eccentricity;
-		double orbitPlaneAngle;//¹ìµÀÃæÇã½Ç
+		double orbitPlaneAngle;//è½¨é“é¢å€¾è§’
 		
 		if (s.contains("GEO_OrbitPlaneAngle") == false)
 			orbitPlaneAngle = 86.4;
@@ -1050,29 +1050,29 @@ public class SimScenario implements Serializable {
 			eccentricity = s.getDouble("GEO_Eccentricity");
 		
 		if (s.contains("GEO_Radius") == false)
-			/**µØÇò°ë¾¶Îª6371km**/
-			GEOradius = 6371 + 2000;//µ¥Î»ÊÇkm;
+			/**åœ°çƒåŠå¾„ä¸º6371km**/
+			GEOradius = 6371 + 2000;//å•ä½æ˜¯km;
 		else
 			GEOradius = 6371 + s.getDouble("GEO_Radius");
-		/** GEO¹ìµÀÆ½ÃæÊı**/
+		/** GEOè½¨é“å¹³é¢æ•°**/
 		if (s.contains("nrofGEOPlane") == false)
 			nrofGEOPlane = 3;
 		else
 			nrofGEOPlane = s.getInt("nrofGEOPlane");
-		/** GEO½Úµã¸öÊı**/
+		/** GEOèŠ‚ç‚¹ä¸ªæ•°**/
 		if (s.contains("nrofGEO") == false)
 			NROF_GEOSATELLITES = 3;
 		else
 			NROF_GEOSATELLITES = s.getInt("nrofGEO");
 
-		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//×Ü½ÚµãÊı
-		//int NROF_PLANE = 3;//¹ìµÀÆ½ÃæÊı
-		int NROF_S_EACHPLANE = NROF_GEOSATELLITES/nrofGEOPlane;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+		//int NROF_SATELLITES = s.getInt(NROF_HOSTS_S);//æ€»èŠ‚ç‚¹æ•°
+		//int NROF_PLANE = 3;//è½¨é“å¹³é¢æ•°
+		int NROF_S_EACHPLANE = NROF_GEOSATELLITES/nrofGEOPlane;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
 		
 		Random random = new Random();
-		m = m - 1;					// ÓëÎÀĞÇĞòºÅÓĞ¹Ø£¬Àà±ÈLEO´Ó0¿ªÊ¼¼ÆËã£¡
+		m = m - 1;					// ä¸å«æ˜Ÿåºå·æœ‰å…³ï¼Œç±»æ¯”LEOä»0å¼€å§‹è®¡ç®—ï¼
 		parameters[0]= GEOradius;
-		parameters[1]= eccentricity;//0.1Æ«ĞÄÂÊ£¬Ó°Ïì½Ï´ó,e=c/a
+		parameters[1]= eccentricity;//0.1åå¿ƒç‡ï¼Œå½±å“è¾ƒå¤§,e=c/a
 		parameters[2]= orbitPlaneAngle;
 		parameters[3]= (360/nrofGEOPlane)*((m-1)/NROF_S_EACHPLANE);
 		System.out.println(m+"  "+NROF_S_EACHPLANE);
@@ -1082,8 +1082,8 @@ public class SimScenario implements Serializable {
         System.out.println("GEOWalkerDeltaParameters"+m + "  " + parameters[0] + 
         		"  " + parameters[1]+ "    "+parameters[2]+"   "+ parameters[3]
         		+ "  " + parameters[4] + "  " + parameters[5]);
-		//nrofPlane = m/NROF_S_EACHPLANE + 1;//ÎÀĞÇËùÊô¹ìµÀÆ½Ãæ±àºÅ
-		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//ÎÀĞÇÔÚ¹ìµÀÆ½ÃæÄÚµÄ±àºÅ
+		//nrofPlane = m/NROF_S_EACHPLANE + 1;//å«æ˜Ÿæ‰€å±è½¨é“å¹³é¢ç¼–å·
+		//nrofSatelliteINPlane = m - (nrofPlane - 1) * NROF_S_EACHPLANE;//å«æ˜Ÿåœ¨è½¨é“å¹³é¢å†…çš„ç¼–å·
 		
 		parameters[6] = 3;// '3' indicates GEO satellite
 		
@@ -1099,67 +1099,67 @@ public class SimScenario implements Serializable {
 		String cacheEnable = settings.getSetting(EnableCache_s); // decide whether to enable the cache function
 		
 		if (cacheEnable.indexOf("true") >= 0) {
-			Settings ss = new Settings(GROUP_NS + 1);					// Ã¿Ò»¸öÖ÷»ú×éÓĞÒ»¸öÅäÖÃ¶ÔÏó£¬¾ßÌåµÄ¿ÉÄÜºÍÃüÃû¿Õ¼äÓĞ¹Ø
+			Settings ss = new Settings(GROUP_NS + 1);					// æ¯ä¸€ä¸ªä¸»æœºç»„æœ‰ä¸€ä¸ªé…ç½®å¯¹è±¡ï¼Œå…·ä½“çš„å¯èƒ½å’Œå‘½åç©ºé—´æœ‰å…³
 			ss.setSecondaryNamespace(GROUP_NS);
 			int num = ss.getInt(NROF_HOSTS_S);
-			int nrofFile = ss.getInt(DTNSim.nrofFile_s);						// defaultÉè¶¨µÄÎÄ¼şÊıÄ¿
+			int nrofFile = ss.getInt(DTNSim.nrofFile_s);						// defaultè®¾å®šçš„æ–‡ä»¶æ•°ç›®
 			
-			this.FileOfHosts = new HashMap<String, Integer>(); 			// £¨Ìí¼Ó£©Ò»¸öÎÄ¼şÁĞ±í
+			this.FileOfHosts = new HashMap<String, Integer>(); 			// ï¼ˆæ·»åŠ ï¼‰ä¸€ä¸ªæ–‡ä»¶åˆ—è¡¨
 
 			for (int j = 0; j < num * nrofGroups; j++) {
 				CacheRouter cacherouter = new CacheRouter(ss);
-				FileBuffer = new HashMap<String, File>(); 				// ¶¨ÒåÃ¿¸ö½ÚµãµÄ»º´æÇø
+				FileBuffer = new HashMap<String, File>(); 				// å®šä¹‰æ¯ä¸ªèŠ‚ç‚¹çš„ç¼“å­˜åŒº
 				this.hosts.get(j).setFileBuffer(FileBuffer);
-				this.hosts.get(j).setRouter(cacherouter); 				// ÎªÃ¿¸ö½ÚµãÉèÖÃ»º´æÂ·ÓÉ
+				this.hosts.get(j).setRouter(cacherouter); 				// ä¸ºæ¯ä¸ªèŠ‚ç‚¹è®¾ç½®ç¼“å­˜è·¯ç”±
 			}
 
 			for (int m = 0; m < nrofFile; m++) {
-				File newFile = new File(m, num * nrofGroups);					// ÕâÀïÏÈµÃµ½Ëæ»úµÄhost
+				File newFile = new File(m, num * nrofGroups);					// è¿™é‡Œå…ˆå¾—åˆ°éšæœºçš„host
 				this.FileOfHosts.put(newFile.getId(), newFile.getFromAddressID());
-				for (int i = 0; i < num * nrofGroups; i++) {				// Íù¶ÔÓ¦½ÚµãµÄ»º´æ¿Õ¼äÖĞ·ÅÈëÎÄ¼ş
+				for (int i = 0; i < num * nrofGroups; i++) {				// å¾€å¯¹åº”èŠ‚ç‚¹çš„ç¼“å­˜ç©ºé—´ä¸­æ”¾å…¥æ–‡ä»¶
 					if (i == newFile.getFromAddressID()) {
 						this.hosts.get(i).getFileBuffer().put(newFile.getId(), newFile);
 					}
 				}
 			}
 
-			// »¹Òª¶ÔÃ¿¸ö½Úµã¶¼·ÅÈëÈ«¾ÖµÄÎÄ¼ş±í£¬²âÊÔµÃµ½³õÊ¼»¯ºóÃ¿¸ö½Úµã´æÔÚÕâÕÅ±í
+			// è¿˜è¦å¯¹æ¯ä¸ªèŠ‚ç‚¹éƒ½æ”¾å…¥å…¨å±€çš„æ–‡ä»¶è¡¨ï¼Œæµ‹è¯•å¾—åˆ°åˆå§‹åŒ–åæ¯ä¸ªèŠ‚ç‚¹å­˜åœ¨è¿™å¼ è¡¨
 			for (int j = 0; j < num * nrofGroups; j++) {
-				this.hosts.get(j).setFiles(this.FileOfHosts); // ¶ÔÃ¿¸ö½ÚµãÉèÖÃ×ÜÌåµÄÕâÕÅ±í
+				this.hosts.get(j).setFiles(this.FileOfHosts); // å¯¹æ¯ä¸ªèŠ‚ç‚¹è®¾ç½®æ€»ä½“çš„è¿™å¼ è¡¨
 			}
 		}
 		else assert false : "the setting of EnableCache error!";
 	}
 	
 	/**
-	 * ³õÊ¼»¯¼ÆËãÃ¿¸ö¹ìµÀÆ½ÃæÄÚµÄËùÓĞ½Úµã£¬²¢·ÅÈëNetworkInteraceÖĞ´æ´¢ÏÂÀ´£¬±ãÓÚÔÚ½¨Á¢Á´Â·Ê±ÅĞ¶Ï£¬Ö±½Ó¾Ü¾ø²»ÔÊĞíµÄConnection½¨Á¢£¬¼õÉÙ·ÂÕæÆ÷¿ªÏú
+	 * åˆå§‹åŒ–è®¡ç®—æ¯ä¸ªè½¨é“å¹³é¢å†…çš„æ‰€æœ‰èŠ‚ç‚¹ï¼Œå¹¶æ”¾å…¥NetworkInteraceä¸­å­˜å‚¨ä¸‹æ¥ï¼Œä¾¿äºåœ¨å»ºç«‹é“¾è·¯æ—¶åˆ¤æ–­ï¼Œç›´æ¥æ‹’ç»ä¸å…è®¸çš„Connectionå»ºç«‹ï¼Œå‡å°‘ä»¿çœŸå™¨å¼€é”€
 	 * @param hosts
 	 */
 //	public void setallowToConnectNodesInLEOPlane(List<DTNHost> hosts){
-//		//¹ìµÀÆ½ÃæĞÅÏ¢
+//		//è½¨é“å¹³é¢ä¿¡æ¯
 //		int nrofLEO = ((SatelliteMovement)hosts.get(0).getMovementModel()).getTotalNrofLEOSatellites();   
 //		int nrofPlanes = ((SatelliteMovement)hosts.get(0).getMovementModel()).getTotalNrofLEOPlanes();
 //    	int nrofLEOInOnePlane = nrofLEO/nrofPlanes;
 //    	
 //    	HashMap<Integer, List<DTNHost>> map = new HashMap<Integer, List<DTNHost>>();
-//    	/**¼ÆËãÃ¿Ò»¸ö½ÚµãµÄ¹ìµÀÄÚ½Úµã**/
+//    	/**è®¡ç®—æ¯ä¸€ä¸ªèŠ‚ç‚¹çš„è½¨é“å†…èŠ‚ç‚¹**/
 //		for (DTNHost h : hosts){
 //			int seriesNumberOfLEOPlane = h.getAddress()/nrofLEOInOnePlane + 1;
-//			//ÅĞ¶ÏÕâ¸ö¹ìµÀÆ½ÃæÊÇ·ñ¼ÆËã¹ıÁË
+//			//åˆ¤æ–­è¿™ä¸ªè½¨é“å¹³é¢æ˜¯å¦è®¡ç®—è¿‡äº†
 //			if (!map.containsKey(seriesNumberOfLEOPlane)){
-//			    int startNumber = nrofLEOInOnePlane * (seriesNumberOfLEOPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-//			    int endNumber = nrofLEOInOnePlane * seriesNumberOfLEOPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+//			    int startNumber = nrofLEOInOnePlane * (seriesNumberOfLEOPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+//			    int endNumber = nrofLEOInOnePlane * seriesNumberOfLEOPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
 //			        List<DTNHost> allHostsInSamePlane = new ArrayList<DTNHost>();
 //			        for (DTNHost host : getHosts()){
 //			            if (host.getAddress() >= startNumber && host.getAddress()<= endNumber){
-//			                allHostsInSamePlane.add(host);//Í¬Ò»¸ö¹ìµÀÄÚµÄÏàÁÚ½Úµã
+//			                allHostsInSamePlane.add(host);//åŒä¸€ä¸ªè½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹
 //			            }
 //			        }
 //			        map.put(seriesNumberOfLEOPlane, allHostsInSamePlane);
 //			}
-//			//Ğ´Èë½Ó¿ÚÀàÖĞ´æ´¢ÏÂÀ´
+//			//å†™å…¥æ¥å£ç±»ä¸­å­˜å‚¨ä¸‹æ¥
 //			for (NetworkInterface i : h.getInterfaces()){
-//				//ÔÚLEOÆ½ÃæÉÏ£¬Á½ÀàÔÊĞíÁ¬½ÓµÄ½ÚµãÁĞ±í
+//				//åœ¨LEOå¹³é¢ä¸Šï¼Œä¸¤ç±»å…è®¸è¿æ¥çš„èŠ‚ç‚¹åˆ—è¡¨
 //				i.allowToConnectNodesInLEOPlane = new ArrayList<DTNHost>();
 //				i.allowToConnectNodesInLEOPlane.addAll(map.get(seriesNumberOfLEOPlane));
 //				i.allowToConnectNodesInLEOPlane.addAll(i.getHost().getRouter().CommunicationNodesList.keySet());

@@ -173,7 +173,6 @@ public class World {
 				}
 				((ExtendedMessageEventGenerator)this.nextEventQueue).updateBatchLable(false);
 			}
-
 			updateHosts(); 										// update all hosts after every event
 			setNextEventQueue();
 		}

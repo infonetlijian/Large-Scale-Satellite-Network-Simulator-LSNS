@@ -76,6 +76,7 @@ public class VBRConnectionWithChannelModel extends Connection {
      * @param angle
      */
     public static void updateRelativeLocation(DTNHost user, ArrayList<Tuple<DTNHost, Double>> angle) {
+        relativeLocation.remove(user);//release memory at first
         relativeLocation.put(user, angle);
     }
 
