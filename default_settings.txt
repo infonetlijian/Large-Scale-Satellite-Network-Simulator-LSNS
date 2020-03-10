@@ -118,19 +118,19 @@ userSetting.receiverAntennaDiameter = 0.1
 
 #卫星接入添加的设置选项
 userSetting.enableBackupSatellite = true
-#userSetting.transmissionMode = enableBackupSatellite
+userSetting.transmissionMode = enableBackupSatellite
 #userSetting.transmissionMode = preMigrationHandover
-userSetting.transmissionMode = normalHandover
+#userSetting.transmissionMode = normalHandover
 #userSetting.transmissionMode = SINRHandover
 userSetting.SNR_threshold = 60
 #skip the update of useless satellite router or not, used in RelayRouterforInternetAccess.java
 userSetting.fastMode = true
 # upper limits of backup satellites, used in RelayRouterforInternetAccess.java
 #注意，这里指加上当前接入节点的总备份节点数为N个，而不是N+1个
-userSetting.nrofBackupSatellites = 4
+userSetting.nrofBackupSatellites = 2
 userSetting.nrofRobustBackupSatellite = 0
 #设置切换窗口时间--handover window--userSetting.accessSatellitesUpdateInterval
-userSetting.accessSatellitesUpdateInterval = 1
+userSetting.accessSatellitesUpdateInterval = 0.1
 # minimum elevation angle unit: degree
 userSetting.minimumElevationAngle = 50.4
 # change satellite handover criterion (minimumElevationAngle / maximumConnectionDuration), used in RelayRouterforInternetAccess.java

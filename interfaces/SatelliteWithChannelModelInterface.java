@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import static core.SimScenario.SCENARIO_NS;
+
 /**
  * A simple Network Interface that provides a constant bit-rate service, where
  * one transmission can be on at a time.
@@ -28,6 +30,12 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 	private static boolean dynamicClustering;
 	/** allConnected or clustering */
 	private static String mode;
+	/** skip some calculation to accelerate running */
+	private boolean fastMode = false;
+	/** sliding window size */
+	public static double updateInterval = 1;
+	/** update interval for simulator in World.java */
+	private double simulatorUpdateInterval = 0.1;
 	/** Record channel speed after update each connection **/
 	private HashMap<DTNHost, List<Double>> channelStatusRecord = new HashMap<DTNHost, List<Double>>();
 	/**
@@ -40,6 +48,12 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 		Settings s2 = new Settings(DTNSim.USERSETTINGNAME_S);
 		mode = s2.getSetting(DTNSim.ROUTERMODENAME_S);
 
+		Settings userSetting = new Settings("userSetting");
+		fastMode = userSetting.getBoolean(DTNSim.FASTMODE);
+		updateInterval = userSetting.getDouble(DTNSim.ACCESS_SAT_UPDATEINTERVAL);
+
+		Settings scenario = new Settings(SCENARIO_NS);
+		simulatorUpdateInterval = scenario.getDouble("updateInterval");
 	}
 
 	/**
@@ -250,16 +264,25 @@ public class SatelliteWithChannelModelInterface extends NetworkInterface {
 			con.update();
 			double currentSpeed = con.getSpeed();
 			DTNHost otherNode = con.getOtherNode(this.getHost());
+			//no need to update other channels if only consider RelayRouterforInternetAccess.java
+			if (fastMode & !otherNode.toString().contains(DTNSim.USER) & !this.getHost().toString().contains(DTNSim.USER))
+				continue;
+
 			List<Double> oldRecord;
 			if (this.channelStatusRecord.get(otherNode) == null) {
 				oldRecord = new ArrayList<Double>();
 			}
 			else {
 				oldRecord = this.channelStatusRecord.get(otherNode);
-				this.channelStatusRecord.remove(otherNode);//memory release, avoid hashcode change in a hashmap
+				//this.channelStatusRecord.remove(otherNode);//memory release, avoid hashcode change in a hashmap
+			}
+			//clear the record after a while or the size of the record could be huge
+			if (oldRecord.size() > updateInterval/simulatorUpdateInterval) {
+				oldRecord.clear();
 			}
 			//warning: here can easily cause memory leak, please double check if you need to change the code
-				this.channelStatusRecord.put(otherNode, oldRecord);
+			oldRecord.add(currentSpeed);
+			this.channelStatusRecord.put(otherNode, oldRecord);
 		}
 	}
 

@@ -60,7 +60,7 @@ public abstract class MessageRouter {
     /** indicates that if this node is communication satellites*/
     public boolean CommunicationSatellitesLabel;
     /** record all communication nodes and their orbit plane number*/
-    public HashMap<DTNHost, Integer> CommunicationNodesList;//×¢Òâ£ºÕâÀï¼ÇÂ¼µÄÆ½Ãæ±àºÅ´Ó0¿ªÊ¼
+    public HashMap<DTNHost, Integer> CommunicationNodesList;//æ³¨æ„ï¼šè¿™é‡Œè®°å½•çš„å¹³é¢ç¼–å·ä»0å¼€å§‹
     
 	/* Return values when asking to start a transmission:
 	 * RCV_OK (0) means that the host accepts the message and transfer started, 
@@ -108,8 +108,8 @@ public abstract class MessageRouter {
 	/** The messages this router is carrying */
 	protected HashMap<String, Message> messages; 
 	
-	/**------------------------------   ¶ÔMessageRouterÌí¼ÓµÄ±äÁ¿       --------------------------------*/
-	/** ÓÃÓÚÅĞ¶Ï°üµÄÀàĞÍ */
+	/**------------------------------   å¯¹MessageRouteræ·»åŠ çš„å˜é‡       --------------------------------*/
+	/** ç”¨äºåˆ¤æ–­åŒ…çš„ç±»å‹ */
 	public String SelectLabel;
 	/** user setting in the sim -setting id ({@value})*/
 	public static final String USERSETTINGNAME_S = "userSetting";
@@ -119,7 +119,7 @@ public abstract class MessageRouter {
 	/** retransmission time of message */
 	private static final String RETRANS_TIME = "reTransTime";
 	private int reTranstime;
-	/** ------------------------------   ¶ÔMessageRouterÌí¼ÓµÄ±äÁ¿       --------------------------------*/
+	/** ------------------------------   å¯¹MessageRouteræ·»åŠ çš„å˜é‡       --------------------------------*/
 	
 	
 
@@ -139,7 +139,7 @@ public abstract class MessageRouter {
 		this.mListeners = mListeners;
 		this.host = host;
 		
-		Settings setting = new Settings(USERSETTINGNAME_S);		//¶ÁÈ¡ÉèÖÃ£¬ÅĞ¶ÏÊÇ·ñĞèÒª·Ö´Ø
+		Settings setting = new Settings(USERSETTINGNAME_S);		//è¯»å–è®¾ç½®ï¼Œåˆ¤æ–­æ˜¯å¦éœ€è¦åˆ†ç°‡
 		cacheEnable = setting.getSetting(EnableCache_s); // decide whether to enable the cache function
 	    Settings s = new Settings("Interface");
 	    reTranstime = s.getInt("reTransmitTime");
@@ -332,18 +332,18 @@ public abstract class MessageRouter {
 	 * @return The message that this host received
 	 */
 	public Message messageTransferred(String id, DTNHost from) {
-		Message incoming = removeFromIncomingBuffer(id, from);			//½«ÏûÏ¢´ÓincomingMessagesÉ¾³ı
-		boolean isFinalRecipient;										//ÅĞ¶ÏÏûÏ¢´«µİµ½Ä¿µÄ½Úµã
-		boolean isFirstDelivery; 										//is this first delivered instance of the msg //ÏûÏ¢´«µİµ½¸Ã½Úµã	
+		Message incoming = removeFromIncomingBuffer(id, from);			//å°†æ¶ˆæ¯ä»incomingMessagesåˆ é™¤
+		boolean isFinalRecipient;										//åˆ¤æ–­æ¶ˆæ¯ä¼ é€’åˆ°ç›®çš„èŠ‚ç‚¹
+		boolean isFirstDelivery; 										//is this first delivered instance of the msg //æ¶ˆæ¯ä¼ é€’åˆ°è¯¥èŠ‚ç‚¹	
 		if (incoming == null) {
 			throw new SimError("No message with ID " + id + " in the incoming "+
 					"buffer of " + this.host);
 		}
-		//ÓÃÓÚ²âÊÔµÄ´úÂë
-		//System.out.println("µ±Ç°½Úµã£º"+"  "+this.getHost()+"   "+"ÏûÏ¢Ê£ÓàÖØ´«´ÎÊı£º"+incoming.getProperty(RETRANS_TIME)+ "  "
-		//	+"ÏûÏ¢ID£º"+"  "+incoming.getId()+" "+"Ô´½Úµã£º"+incoming.getFrom()+"  "+"Ä¿µÄ½Úµã£º"+incoming.getTo() +"  ÏûÏ¢´óĞ¡£º"+incoming.getSize());
+		//ç”¨äºæµ‹è¯•çš„ä»£ç 
+		//System.out.println("å½“å‰èŠ‚ç‚¹ï¼š"+"  "+this.getHost()+"   "+"æ¶ˆæ¯å‰©ä½™é‡ä¼ æ¬¡æ•°ï¼š"+incoming.getProperty(RETRANS_TIME)+ "  "
+		//	+"æ¶ˆæ¯IDï¼š"+"  "+incoming.getId()+" "+"æºèŠ‚ç‚¹ï¼š"+incoming.getFrom()+"  "+"ç›®çš„èŠ‚ç‚¹ï¼š"+incoming.getTo() +"  æ¶ˆæ¯å¤§å°ï¼š"+incoming.getSize());
 		
-		incoming.setReceiveTime(SimClock.getTime());					//ÉèÖÃÏûÏ¢½ÓÊÕÊ±¼ä		
+		incoming.setReceiveTime(SimClock.getTime());					//è®¾ç½®æ¶ˆæ¯æ¥æ”¶æ—¶é—´		
 				
 		// Pass the message to the application (if any) and get outgoing message
 		Message outgoing = incoming;
@@ -358,21 +358,21 @@ public abstract class MessageRouter {
 		// If the application re-targets the message (changes 'to')
 		// then the message is not considered as 'delivered' to this host.
 		isFinalRecipient = aMessage.getTo() == this.host;
-		isFirstDelivery = isFinalRecipient && !isDeliveredMessage(aMessage);  	// ÅĞ¶ÏÊÇ·ñÎªÄ¿µÄ½ÚµãÇÒÎªµÚÒ»´Îµ½´ï
+		isFirstDelivery = isFinalRecipient && !isDeliveredMessage(aMessage);  	// åˆ¤æ–­æ˜¯å¦ä¸ºç›®çš„èŠ‚ç‚¹ä¸”ä¸ºç¬¬ä¸€æ¬¡åˆ°è¾¾
 		
 		/** put the message into the corresponding buffer*/
-		if (!isFinalRecipient && outgoing!=null) {			// ²»ÊÇÄ¿µÄ½Úµã£¬Ó¦ÓÃ²ãÒ²²»Ïë¶ªµôÕâ¸öÏûÏ¢
+		if (!isFinalRecipient && outgoing!=null) {			// ä¸æ˜¯ç›®çš„èŠ‚ç‚¹ï¼Œåº”ç”¨å±‚ä¹Ÿä¸æƒ³ä¸¢æ‰è¿™ä¸ªæ¶ˆæ¯
 			// when dtnHost receive this message, the retransmission time should be updated
 		    aMessage.updateProperty(RETRANS_TIME, this.reTranstime);
 		    
 			addToMessages(aMessage, false);      
-			if(incoming.getProperty(SelectLabel)!=null){	// ÊÇ·ñÊ¹ÓÃ»º´æ¹¦ÄÜ
+			if(incoming.getProperty(SelectLabel)!=null){	// æ˜¯å¦ä½¿ç”¨ç¼“å­˜åŠŸèƒ½
 				this.getHost().getCacheRouter().NotDestinationCache(aMessage);
 			}
 		}	
-		else if (isFirstDelivery) {							// ÕâÊÇÄ¿µÄ½ÚµãÇÒÊÇµÚÒ»´Îµ½´ï
+		else if (isFirstDelivery) {							// è¿™æ˜¯ç›®çš„èŠ‚ç‚¹ä¸”æ˜¯ç¬¬ä¸€æ¬¡åˆ°è¾¾
 			this.deliveredMessages.put(id, aMessage);	
-			if(incoming.getProperty(SelectLabel)!=null){	// ÊÇ·ñÊ¹ÓÃ»º´æ¹¦ÄÜ
+			if(incoming.getProperty(SelectLabel)!=null){	// æ˜¯å¦ä½¿ç”¨ç¼“å­˜åŠŸèƒ½
 				this.getHost().getCacheRouter().DestinationCache(aMessage);
 			}
 		} 
@@ -650,7 +650,7 @@ public abstract class MessageRouter {
 	
 	
 	
-	/** -------------------------- ¶Ô´úÂëµÄĞŞ¸Ä  --------------------------- */
+	/** -------------------------- å¯¹ä»£ç çš„ä¿®æ”¹  --------------------------- */
 	
 	/**
 	 * Constructor. Creates a new message router based on the settings in

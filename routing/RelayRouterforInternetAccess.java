@@ -168,19 +168,6 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
             type = this.getHost().toString();
         }
 
-        //skip the update of useless satellites, accelerate the running speed of simulator
-        if (fastMode && !type.contains(DTNSim.GS)){
-            boolean reachable = false;
-            for (DTNHost user: findDedicatedHosts(DTNSim.USER)){
-                if (distanceJudge(user, this.getHost()))
-                    reachable = true;
-            }
-            if (!reachable) {
-                //System.out.println("skip:  "+this.getHost());
-                return;
-            }
-        }
-
         // used by shadowing decision, in VBRConnectionWithChannelModel.java
         if (channelModelType.contains(DTNSim.SHADOWING)){
             updateRelativeLocation();
@@ -273,10 +260,21 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                 handoverDelay();
         }
 
+        //skip the update of useless satellites, accelerate the running speed of simulator
+        if (fastMode && !type.contains(DTNSim.GS)){
+            boolean reachable = false;
+            for (DTNHost user: findDedicatedHosts(DTNSim.USER)){
+                if (distanceJudge(user, this.getHost()))
+                    reachable = true;
+            }
+            if (!reachable) {
+                return;
+            }
+        }
+
         /** 3.For satellite nodes, to forward data messages to terrestrial users **/
         if (type.contains(DTNSim.SAT)) {
             updateSlidingWindow(this.getHost());
-
             messageQueueManagement(this);
 
             if (!this.accessUsers.isEmpty()) {
@@ -598,7 +596,6 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
 
             //update history information
             StatusInBackupGroup.put(satellite,(history*(countInSlidingWindow - 1) + currentCapacity)/countInSlidingWindow);
-            this.SlidingWindowRecord.remove(h);
             this.SlidingWindowRecord.put(h, StatusInBackupGroup);
         }
     }
@@ -1113,7 +1110,7 @@ public class RelayRouterforInternetAccess extends ActiveRouter{
                         throw new SimError("SNR record information error");
                     //convert transmission rate to SNR (unit : dB)
                     double SNR = channelModel.dBcoverter(StatusInBackupGroup.get(lastAccessSatellite), false);
-                    System.out.println("SNR  "+SNR);
+                    //System.out.println("SNR  "+SNR);
                     if (SNR > SNR_threshold){
                         return;
                     }
