@@ -2,7 +2,7 @@
  * Project Name:SatelliteNetworkSimulationPlatform 
  * File CGR.java
  * Package Name:routing 
- * Date:2017Äê4ÔÂ6ÈÕÉÏÎç11:09:57 
+ * Date:2017å¹´4æœˆ6æ—¥ä¸Šåˆ11:09:57 
  * Copyright (c) 2017, LiJian9@mail.ustc.mail.cn. All Rights Reserved. 
  * 
 */  
@@ -34,7 +34,7 @@ import core.SimError;
  * ClassName:DijsktraSearchBasedonTemporalGraph <br/> 
  * Function: TODO ADD FUNCTION. <br/> 
  * Reason:   TODO ADD REASON. <br/> 
- * Date:     2017Äê4ÔÂ6ÈÕ ÉÏÎç11:09:57 <br/> 
+ * Date:     2017å¹´4æœˆ6æ—¥ ä¸Šåˆ11:09:57 <br/> 
  * @author   USTC, LiJian
  * @version   
  * @since    JDK 1.7 
@@ -42,12 +42,12 @@ import core.SimError;
  */
 
 public class CGR extends ActiveRouter{
-	/**×Ô¼º¶¨ÒåµÄ±äÁ¿ºÍÓ³ÉäµÈ
+	/**è‡ªå·±å®šä¹‰çš„å˜é‡å’Œæ˜ å°„ç­‰
 	 * 
 	 */
 	public static final String MSG_WAITLABEL = "waitLabel";
 	public static final String MSG_PATHLABEL = "msgPathLabel"; 
-	public static final String MSG_ROUTERPATH = "routerPath";  //¶¨Òå×Ö¶ÎÃû³Æ£¬¼ÙÉèÎªMSG_MY_PROPERTY
+	public static final String MSG_ROUTERPATH = "routerPath";  //å®šä¹‰å­—æ®µåç§°ï¼Œå‡è®¾ä¸ºMSG_MY_PROPERTY
 	/** Group name in the group -setting id ({@value})*/
 	public static final String GROUPNAME_S = "Group";
 	/** interface name in the group -setting id ({@value})*/
@@ -55,26 +55,26 @@ public class CGR extends ActiveRouter{
 	/** transmit range -setting id ({@value})*/
 	public static final String TRANSMIT_RANGE_S = "transmitRange";
 
-	private static final double SPEEDOFLIGHT = 299792458;//¹âËÙ£¬½üËÆ3*10^8m/s
+	private static final double SPEEDOFLIGHT = 299792458;//å…‰é€Ÿï¼Œè¿‘ä¼¼3*10^8m/s
 	private static final double MESSAGESIZE = 1024000;//1MB
-	private static final double  HELLOINTERVAL = 30;//hello°ü·¢ËÍ¼ä¸ô
+	private static final double  HELLOINTERVAL = 30;//helloåŒ…å‘é€é—´éš”
 	
 	int[] predictionLabel = new int[2000];
-	double[] transmitDelay = new double[2000];//1000´ú±í×ÜµÄ½ÚµãÊı
-	//double[] liveTime = new double[2000];//Á´Â·µÄÉú´æÊ±¼ä£¬³õÊ¼»¯Ê±×Ô¶¯¸³ÖµÎª0
-	double[] endTime = new double[2000];//Á´Â·µÄÉú´æÊ±¼ä£¬³õÊ¼»¯Ê±×Ô¶¯¸³ÖµÎª0
+	double[] transmitDelay = new double[2000];//1000ä»£è¡¨æ€»çš„èŠ‚ç‚¹æ•°
+	//double[] liveTime = new double[2000];//é“¾è·¯çš„ç”Ÿå­˜æ—¶é—´ï¼Œåˆå§‹åŒ–æ—¶è‡ªåŠ¨èµ‹å€¼ä¸º0
+	double[] endTime = new double[2000];//é“¾è·¯çš„ç”Ÿå­˜æ—¶é—´ï¼Œåˆå§‹åŒ–æ—¶è‡ªåŠ¨èµ‹å€¼ä¸º0
 	
-	private boolean msgPathLabel;//´Ë±êÊ¶Ö¸Ê¾ÊÇ·ñÔÚĞÅÏ¢Í·²¿ÖĞ±êÊ¶Â·ÓÉÂ·¾¶
-	private double	transmitRange;//ÉèÖÃµÄ¿ÉÍ¨ĞĞ¾àÀëãĞÖµ
-	private List<DTNHost> hosts;//È«¾Ö½ÚµãÁĞ±í
+	private boolean msgPathLabel;//æ­¤æ ‡è¯†æŒ‡ç¤ºæ˜¯å¦åœ¨ä¿¡æ¯å¤´éƒ¨ä¸­æ ‡è¯†è·¯ç”±è·¯å¾„
+	private double	transmitRange;//è®¾ç½®çš„å¯é€šè¡Œè·ç¦»é˜ˆå€¼
+	private List<DTNHost> hosts;//å…¨å±€èŠ‚ç‚¹åˆ—è¡¨
 	
 	HashMap<DTNHost, Double> arrivalTime = new HashMap<DTNHost, Double>();
-	private HashMap<DTNHost, List<Tuple<Integer, Boolean>>> routerTable = new HashMap<DTNHost, List<Tuple<Integer, Boolean>>>();//½ÚµãµÄÂ·ÓÉ±í
-	private HashMap<String, Double> busyLabel = new HashMap<String, Double>();//Ö¸Ê¾ÏÂÒ»Ìø½Úµã´¦ÓÚÃ¦µÄ×´Ì¬£¬ĞèÒªµÈ´ı
-	protected HashMap<DTNHost, HashMap<DTNHost, double[]>> neighborsList = new HashMap<DTNHost, HashMap<DTNHost, double[]>>();//ĞÂÔöÈ«¾ÖÆäËü½ÚµãÁÚ¾ÓÁ´Â·Éú´æÊ±¼äĞÅÏ¢
+	private HashMap<DTNHost, List<Tuple<Integer, Boolean>>> routerTable = new HashMap<DTNHost, List<Tuple<Integer, Boolean>>>();//èŠ‚ç‚¹çš„è·¯ç”±è¡¨
+	private HashMap<String, Double> busyLabel = new HashMap<String, Double>();//æŒ‡ç¤ºä¸‹ä¸€è·³èŠ‚ç‚¹å¤„äºå¿™çš„çŠ¶æ€ï¼Œéœ€è¦ç­‰å¾…
+	protected HashMap<DTNHost, HashMap<DTNHost, double[]>> neighborsList = new HashMap<DTNHost, HashMap<DTNHost, double[]>>();//æ–°å¢å…¨å±€å…¶å®ƒèŠ‚ç‚¹é‚»å±…é“¾è·¯ç”Ÿå­˜æ—¶é—´ä¿¡æ¯
 	protected HashMap<DTNHost, HashMap<DTNHost, double[]>> predictList = new HashMap<DTNHost, HashMap<DTNHost, double[]>>();
 	
-	Random random = new Random();//ÓÃÓÚÔÚÏàÍ¬•rÑÓé_äNÏÂßMĞĞëS™Cßx“ñ
+	Random random = new Random();//ç”¨äºåœ¨ç›¸åŒæ™‚å»¶é–‹éŠ·ä¸‹é€²è¡Œéš¨æ©Ÿé¸æ“‡
 	private boolean routerTableUpdateLabel;
 	double RoutingTimeNow;
 	double simEndTime;
@@ -82,17 +82,17 @@ public class CGR extends ActiveRouter{
 		
 	private HashMap<DTNHost, List<Tuple<DTNHost, DTNHost>>> contactGraph = new HashMap<DTNHost, List<Tuple<DTNHost, DTNHost>>>();
 	
-	/**ÓÃÓÚ¼ÇÂ¼Ã¿¸öĞÂ½¨Á¢µÄÁ´Â·£¬connectionÊ²Ã´Ê±ºò¿ÉÒÔ¶Ï¿ª**/
+	/**ç”¨äºè®°å½•æ¯ä¸ªæ–°å»ºç«‹çš„é“¾è·¯ï¼Œconnectionä»€ä¹ˆæ—¶å€™å¯ä»¥æ–­å¼€**/
 	private HashMap<Connection, Double> connectionDisconnectTime = new HashMap<Connection, Double>();
 	/**
-	 * ´«ÈëÊÂÏÈ¶¨ºÃµÄ½Ó´¥Í¼
+	 * ä¼ å…¥äº‹å…ˆå®šå¥½çš„æ¥è§¦å›¾
 	 * @param contactGraph
 	 */
 	public void setContactGraph(HashMap<DTNHost, List<Tuple<DTNHost, DTNHost>>> contactGraph){
 		this.contactGraph = contactGraph;
 	}
 	/**
-	 * ¶ÁÈ¡½Ó´¥Í¼
+	 * è¯»å–æ¥è§¦å›¾
 	 * @return
 	 */
 	public HashMap<DTNHost, List<Tuple<DTNHost, DTNHost>>> getContactGraph(){
@@ -100,14 +100,14 @@ public class CGR extends ActiveRouter{
 	}
 	
 	/**
-	 * ³õÊ¼»¯
+	 * åˆå§‹åŒ–
 	 * @param s
 	 */
 	public CGR (Settings s){
 		super(s);
 	}
 	/**
-	 * ³õÊ¼»¯
+	 * åˆå§‹åŒ–
 	 * @param r
 	 */
 	protected CGR(CGR  r) {
@@ -116,19 +116,19 @@ public class CGR extends ActiveRouter{
 		this.transmitRange = setting.getDouble("transmitRange");
 		Settings s = new Settings("Group");
 		linkDuration =  s.getDouble("router.CGR.linkDuration");
-		this.msgPathLabel = s.getBoolean(MSG_PATHLABEL);//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡´«ÊäËÙÂÊ
+		this.msgPathLabel = s.getBoolean(MSG_PATHLABEL);//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–ä¼ è¾“é€Ÿç‡
 		Settings settings = new Settings("Scenario");
 		this.simEndTime = settings.getDouble("endTime");
 	}
 	/**
-	 * ¸´ÖÆ´ËrouterÀà
+	 * å¤åˆ¶æ­¤routerç±»
 	 */
 	@Override
 	public MessageRouter replicate() {
 		return new CGR(this);
 	}
 	/**
-	 * ÔÚNetworkinterfaceÀàÖĞÖ´ĞĞÁ´Â·ÖĞ¶Ïº¯Êıdisconnect()ºó£¬¶ÔÓ¦½ÚµãµÄrouterµ÷ÓÃ´Ëº¯Êı
+	 * åœ¨Networkinterfaceç±»ä¸­æ‰§è¡Œé“¾è·¯ä¸­æ–­å‡½æ•°disconnect()åï¼Œå¯¹åº”èŠ‚ç‚¹çš„routerè°ƒç”¨æ­¤å‡½æ•°
 	 */
 	@Override
 	public void changedConnection(Connection con){
@@ -138,12 +138,12 @@ public class CGR extends ActiveRouter{
 //			if(con.isTransferring()){
 //				if (con.getOtherNode(this.getHost()).getRouter().isIncomingMessage(con.getMessage().getId()))
 //					con.getOtherNode(this.getHost()).getRouter().removeFromIncomingBuffer(con.getMessage().getId(), this.getHost());
-//				super.addToMessages(con.getMessage(), false);//¶ÔÓÚÒòÎªÁ´Â·ÖĞ¶Ï¶ø¶ªÊ§µÄÏûÏ¢£¬ÖØĞÂ·Å»Ø·¢ËÍ·½µÄ¶ÓÁĞÖĞ£¬²¢ÇÒÉ¾³ı¶Ô·½½ÚµãµÄincomingĞÅÏ¢
+//				super.addToMessages(con.getMessage(), false);//å¯¹äºå› ä¸ºé“¾è·¯ä¸­æ–­è€Œä¸¢å¤±çš„æ¶ˆæ¯ï¼Œé‡æ–°æ”¾å›å‘é€æ–¹çš„é˜Ÿåˆ—ä¸­ï¼Œå¹¶ä¸”åˆ é™¤å¯¹æ–¹èŠ‚ç‚¹çš„incomingä¿¡æ¯
 //			}
 //		}
 	}
 	/**
-	 * ÕÒµ½½ÚµãµØÖ·¶ÔÓ¦µÄ½ÚµãDTNHost
+	 * æ‰¾åˆ°èŠ‚ç‚¹åœ°å€å¯¹åº”çš„èŠ‚ç‚¹DTNHost
 	 * @param address
 	 * @return
 	 */
@@ -161,13 +161,13 @@ public class CGR extends ActiveRouter{
 		return this.connectionDisconnectTime.get(con);
 	}
 	/**
-	 * ÓÃÓÚ¼°Ê±¶Ï¿ªÒÑ¾­ÓÃ¹ıµÄ½Ó´¥Á´Â·
+	 * ç”¨äºåŠæ—¶æ–­å¼€å·²ç»ç”¨è¿‡çš„æ¥è§¦é“¾è·¯
 	 */
 	public void connectionCheck(){
 		if (this.getHost().getConnections().isEmpty())
 			return;
 		for (Connection c : this.getHost().getConnections()){
-			/**²»±»Õ¼ÓÃµÄÁ´Â·È«²¿¶¼¶Ï¿ª**/
+			/**ä¸è¢«å ç”¨çš„é“¾è·¯å…¨éƒ¨éƒ½æ–­å¼€**/
 			if (!c.isTransferring() && SimClock.getTime() > getConnectionDisconnectionTime(c)){
 				NetworkInterface ni = this.getHost().getInterface(1);
 				NetworkInterface anotherInterface = c.getOtherInterface(ni);
@@ -177,7 +177,7 @@ public class CGR extends ActiveRouter{
 		}
 	}
 	/**
-	 * ¸ù¾İĞèÒª¹¹½¨½Ó´¥Á´Â·£¬µ«ÊÇÒ»¸ö½ÚµãÍ¬Ò»Ê±¼äÖ»ÄÜ½¨Á¢Ò»¸öÁ´Â·ÓÃÓÚ´«Êä
+	 * æ ¹æ®éœ€è¦æ„å»ºæ¥è§¦é“¾è·¯ï¼Œä½†æ˜¯ä¸€ä¸ªèŠ‚ç‚¹åŒä¸€æ—¶é—´åªèƒ½å»ºç«‹ä¸€ä¸ªé“¾è·¯ç”¨äºä¼ è¾“
 	 */
 	public boolean constructContactLink(int nextHopAddress, Message msg){
 		DTNHost nextHop = findHostFromAddress(nextHopAddress);
@@ -187,32 +187,32 @@ public class CGR extends ActiveRouter{
 			return false;
 //		if (!nextHop.getConnections().isEmpty()){
 //			for (Connection con : nextHop.getConnections()){
-//				if (con.isTransferring()){//Èç¹ûÏÂÒ»¸ö½ÚµãÒÑ¾­±»Õ¼ÓÃÁË£¬¾Í²»½¨Á¢Á´Â·
+//				if (con.isTransferring()){//å¦‚æœä¸‹ä¸€ä¸ªèŠ‚ç‚¹å·²ç»è¢«å ç”¨äº†ï¼Œå°±ä¸å»ºç«‹é“¾è·¯
 //					isTransferring = true;
 //					return;
 //				}
-//				if (con.getOtherNode(nextHop) == this.getHost())//Èç¹ûÒÑ¾­´æÔÚÁË±¾½Úµãµ½ÏÂÒ»¸ö½ÚµãÖ®¼äµÄÁ´Â·£¬¾Í²»ÓÃÔÙ½¨Á¢ÁË
+//				if (con.getOtherNode(nextHop) == this.getHost())//å¦‚æœå·²ç»å­˜åœ¨äº†æœ¬èŠ‚ç‚¹åˆ°ä¸‹ä¸€ä¸ªèŠ‚ç‚¹ä¹‹é—´çš„é“¾è·¯ï¼Œå°±ä¸ç”¨å†å»ºç«‹äº†
 //					return;
 //				else{
 //					if (SimClock.getTime() > ((CGR)nextHop.getRouter()).connectionDisconnectTime.get(con)){
-//						((ContactGraphInterface)nextHop.getInterface(1)).disconnect(con, nextHop.getInterface(1));//²»ÔÚ´«ÊäµÄÁ´Â·¾ÍÖ±½ÓÏú»Ù£¬ĞèÒªÓÃµÄÊ±ºòÔÙ½¨Á¢
+//						((ContactGraphInterface)nextHop.getInterface(1)).disconnect(con, nextHop.getInterface(1));//ä¸åœ¨ä¼ è¾“çš„é“¾è·¯å°±ç›´æ¥é”€æ¯ï¼Œéœ€è¦ç”¨çš„æ—¶å€™å†å»ºç«‹
 //						((ContactGraphInterface)nextHop.getInterface(1)).removeConnection(con);
 //					}
 //				}
 //			}
 //		}
-		/**Ò»¸ö½ÚµãÍ¬Ò»Ê±¼äÖ»ÄÜ½¨Á¢Ò»ÌõÁ´Â·**/
+		/**ä¸€ä¸ªèŠ‚ç‚¹åŒä¸€æ—¶é—´åªèƒ½å»ºç«‹ä¸€æ¡é“¾è·¯**/
 		if (!nextHop.getConnections().isEmpty() || !this.getConnections().isEmpty())
 			return false;
 		//System.out.println("distance:  "+nextHop.getLocation().distance(this.getHost().getLocation()));
-		if (nextHop.getLocation().distance(this.getHost().getLocation()) <= this.transmitRange){//ÔÚ¾àÀë·¶Î§ÄÚµÄ½¨Á¢Á¬½Ó
+		if (nextHop.getLocation().distance(this.getHost().getLocation()) <= this.transmitRange){//åœ¨è·ç¦»èŒƒå›´å†…çš„å»ºç«‹è¿æ¥
 			
 //			if (((ContactGraphInterface)this.getHost().getInterface(1)).getInterruptHostsList() != null){
 //				if (!((ContactGraphInterface)this.getHost().getInterface(1)).getInterruptHostsList().contains(nextHop)){
-//					this.getHost().getInterface(1).connect(nextHop.getInterface(1));//Interfaceº¯ÊıÄÚ²¿×Ô¶¯¼õÒ»
+//					this.getHost().getInterface(1).connect(nextHop.getInterface(1));//Interfaceå‡½æ•°å†…éƒ¨è‡ªåŠ¨å‡ä¸€
 //				}
 //			}
-			this.getHost().getInterface(1).connect(nextHop.getInterface(1));//Interfaceº¯ÊıÄÚ²¿×Ô¶¯¼õÒ»
+			this.getHost().getInterface(1).connect(nextHop.getInterface(1));//Interfaceå‡½æ•°å†…éƒ¨è‡ªåŠ¨å‡ä¸€
 			
 			Connection thisConnection = findConnection(nextHop.getAddress());
 			//System.out.println(thisConnection+" "+linkDuration+"  "+msg+"  "+thisConnection.getSpeed());
@@ -221,7 +221,7 @@ public class CGR extends ActiveRouter{
 			this.connectionDisconnectTime.put(thisConnection, SimClock.getTime() + 
 					linkDuration * (msg.getSize() / thisConnection.getSpeed()));
 			
-//			/**¼ÇÂ¼CGR¹ı³ÌÖĞµÄÁ´Â·½¨Á¢¹ı³ÌÓÃ**/
+//			/**è®°å½•CGRè¿‡ç¨‹ä¸­çš„é“¾è·¯å»ºç«‹è¿‡ç¨‹ç”¨**/
 //			//connectionSetupLabel = true;
 //			recordContactGraph(thisConnection, SimClock.getTime() + 
 //					linkDuration * (msg.getSize() / thisConnection.getSpeed()));
@@ -231,11 +231,11 @@ public class CGR extends ActiveRouter{
 		return false;
 	}
 	
-	/***********************************************CPUCycle²âÊÔÓÃ´úÂë*************************************************************/
-	private static HashMap<DTNHost, List<Tuple<Double, Double>>> contactTime = new HashMap<DTNHost, List<Tuple<Double, Double>>>();//Ã¿¸öcontact¶ÔÓ¦µÄÁ´Â·½¨Á¢ºÍÀë¿ªÊ±¼ä
+	/***********************************************CPUCycleæµ‹è¯•ç”¨ä»£ç *************************************************************/
+	private static HashMap<DTNHost, List<Tuple<Double, Double>>> contactTime = new HashMap<DTNHost, List<Tuple<Double, Double>>>();//æ¯ä¸ªcontactå¯¹åº”çš„é“¾è·¯å»ºç«‹å’Œç¦»å¼€æ—¶é—´
 	private static HashMap<DTNHost, List<Tuple<DTNHost, DTNHost>>> contactPlan = new HashMap<DTNHost, List<Tuple<DTNHost, DTNHost>>>();
 	
-	//private boolean connectionSetupLabel = false;//±êÊ¾Õâ¸öÊ±¿Ì´Ë½ÚµãÊÇ·ñ·¢ÆğÁËÁ´Â·½¨Á¢ÇëÇó
+	//private boolean connectionSetupLabel = false;//æ ‡ç¤ºè¿™ä¸ªæ—¶åˆ»æ­¤èŠ‚ç‚¹æ˜¯å¦å‘èµ·äº†é“¾è·¯å»ºç«‹è¯·æ±‚
 	
 //	public void recordContactGraph(){
 //		if (connectionSetupLabel == true){
@@ -243,7 +243,7 @@ public class CGR extends ActiveRouter{
 //		}
 //		else{
 //			int index = (int)(SimClock.getTime() * 10);
-//			/**Ã»ÓĞ½¨Á¢Á´Â·¼´Îª¿Õ**/
+//			/**æ²¡æœ‰å»ºç«‹é“¾è·¯å³ä¸ºç©º**/
 //			if (this.contactGraph.get(this.getHost()) != null){
 //				if (this.contactGraph.get(this.getHost()).size() - 1 < index){
 //					int differenceValue = (this.contactGraph.get(this.getHost()).size() - 1) - index; 
@@ -263,7 +263,7 @@ public class CGR extends ActiveRouter{
 	public void testCPUCycleProcess(){
 		Settings s = new Settings("Scenario");
 		double endTime = s.getDouble("endTime");
-		if(SimClock.getTime() >= endTime - 12){//9990sÖ®ºó
+		if(SimClock.getTime() >= endTime - 12){//9990sä¹‹å
 			List<Message> messages = new ArrayList<Message>(this.getMessageCollection());
 			if (!messages.isEmpty()){
 				for (int count = 0; count < 20; count++){
@@ -320,10 +320,10 @@ public class CGR extends ActiveRouter{
 //		DTNHost from = connection.getKey();
 //		DTNHost to = connection.getValue();
 //		
-////		/**¶ÔdoubleÀàĞÍµÄÖµ½øĞĞËÄÉáÎåÈë£¬±ÜÃâ³öÏÖ1.00000001ÕâÖÖÇé¿ö**/
+////		/**å¯¹doubleç±»å‹çš„å€¼è¿›è¡Œå››èˆäº”å…¥ï¼Œé¿å…å‡ºç°1.00000001è¿™ç§æƒ…å†µ**/
 ////		BigDecimal b = new BigDecimal(time);  
 ////		time = b.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue(); 
-//		/**³õÊ¼»¯ÓÃ**/
+//		/**åˆå§‹åŒ–ç”¨**/
 //		if (this.contactGraph.get(from) == null){
 //			List<Tuple<DTNHost, DTNHost>> contactPlan = new ArrayList<Tuple<DTNHost, DTNHost>>();
 //			for (int i = 0 ; i < duration ; i++ ){
@@ -358,16 +358,16 @@ public class CGR extends ActiveRouter{
 //		}	
 //		//System.out.println("connection: "+connection +"  "+ time);
 //	}
-	/***********************************************CPUCycle²âÊÔÓÃ´úÂë*************************************************************/
+	/***********************************************CPUCycleæµ‹è¯•ç”¨ä»£ç *************************************************************/
 	
 	/**
-	 * Â·ÓÉ¸üĞÂ£¬Ã¿´Îµ÷ÓÃÂ·ÓÉ¸üĞÂÊ±µÄÖ÷Èë¿Ú
+	 * è·¯ç”±æ›´æ–°ï¼Œæ¯æ¬¡è°ƒç”¨è·¯ç”±æ›´æ–°æ—¶çš„ä¸»å…¥å£
 	 */
 	@Override
 	public void update() {
 		super.update();
-		
-		/*²âÊÔ´úÂë£¬±£Ö¤neighborsºÍconnectionsµÄÒ»ÖÂĞÔ*/
+
+		/*æµ‹è¯•ä»£ç ï¼Œä¿è¯neighborså’Œconnectionsçš„ä¸€è‡´æ€§*/
 		List<DTNHost> conNeighbors = new ArrayList<DTNHost>();
 		for (Connection con : this.getConnections()){
 			conNeighbors.add(con.getOtherNode(this.getHost()));
@@ -377,26 +377,26 @@ public class CGR extends ActiveRouter{
 		}
 		*/
 		//this.getHost().getNeighbors().changeNeighbors(conNeighbors);
-		//this.getHost().getNeighbors().updateNeighbors(this.getHost(), this.getConnections());//¸üĞÂÁÚ¾Ó½ÚµãÊı¾İ¿â
-		/*²âÊÔ´úÂë£¬±£Ö¤neighborsºÍconnectionsµÄÒ»ÖÂĞÔ*/
+		//this.getHost().getNeighbors().updateNeighbors(this.getHost(), this.getConnections());//æ›´æ–°é‚»å±…èŠ‚ç‚¹æ•°æ®åº“
+		/*æµ‹è¯•ä»£ç ï¼Œä¿è¯neighborså’Œconnectionsçš„ä¸€è‡´æ€§*/
 		
 		System.out.println(this.getHost().getNeighbors());
 		this.hosts = this.getHost().getNeighbors().getHosts();
-		List<Connection> connections = this.getConnections();  //È¡µÃËùÓĞÁÚ¾Ó½Úµã
+		List<Connection> connections = this.getConnections();  //å–å¾—æ‰€æœ‰é‚»å±…èŠ‚ç‚¹
 		List<Message> messages = new ArrayList<Message>(this.getMessageCollection());
 		
 
 		
-		if (isTransferring()) {//ÅĞ¶ÏÁ´Â·ÊÇ·ñ±»Õ¼ÓÃ
+		if (isTransferring()) {//åˆ¤æ–­é“¾è·¯æ˜¯å¦è¢«å ç”¨
 			return; // can't start a new transfer
 		}
-		if (connections.size() > 0){//ÓĞÁÚ¾ÓÊ±ĞèÒª½øĞĞhello°ü·¢ËÍĞ­Òé
-			//helloProtocol();//Ö´ĞĞhello°üµÄÎ¬»¤¹¤×÷
+		if (connections.size() > 0){//æœ‰é‚»å±…æ—¶éœ€è¦è¿›è¡ŒhelloåŒ…å‘é€åè®®
+			//helloProtocol();//æ‰§è¡ŒhelloåŒ…çš„ç»´æŠ¤å·¥ä½œ
 		}
-//		if (!canStartTransfer())//ÊÇ·ñÓĞÁÖ½Ü½ÚµãÇÒÓĞĞÅÏ¢ĞèÒª´«ËÍ
+//		if (!canStartTransfer())//æ˜¯å¦æœ‰æ—æ°èŠ‚ç‚¹ä¸”æœ‰ä¿¡æ¯éœ€è¦ä¼ é€
 //			return;
 		
-		//Èç¹ûÈ«¾ÖÁ´Â·×´Ì¬ÓĞËù¸Ä±ä£¬¾ÍĞèÒªÖØĞÂ¼ÆËãËùÓĞÂ·ÓÉ
+		//å¦‚æœå…¨å±€é“¾è·¯çŠ¶æ€æœ‰æ‰€æ”¹å˜ï¼Œå°±éœ€è¦é‡æ–°è®¡ç®—æ‰€æœ‰è·¯ç”±
 		/*boolean linkStateChange = false;
 		if (linkStateChange == true){
 			this.busyLabel.clear();
@@ -404,31 +404,31 @@ public class CGR extends ActiveRouter{
 		}*/
 		
 		this.RoutingTimeNow = SimClock.getTime();
-		/** ÉèÖÃ±êÖ¾Î»£¬±£Ö¤ÔÚÍ¬Ò»Ê±¼äÂ·ÓÉËã·¨Ö»¸üĞÂÒ»´Î */
+		/** è®¾ç½®æ ‡å¿—ä½ï¼Œä¿è¯åœ¨åŒä¸€æ—¶é—´è·¯ç”±ç®—æ³•åªæ›´æ–°ä¸€æ¬¡ */
 		routerTableUpdateLabel = false;
 		
 		connectionCheck();
 		
 		if (messages.isEmpty())
 			return;
-		for (Message msg : messages){//³¢ÊÔ·¢ËÍ¶ÓÁĞÀïµÄÏûÏ¢	
+		for (Message msg : messages){//å°è¯•å‘é€é˜Ÿåˆ—é‡Œçš„æ¶ˆæ¯	
 			if (checkBusyLabelForNextHop(msg))
 				continue;
-			/**ĞÂÔö£¬ÓÃÓÚCGRºÍContactGraphInterfaceÖĞµÄ´«Êä»úÖÆ**/
+			/**æ–°å¢ï¼Œç”¨äºCGRå’ŒContactGraphInterfaceä¸­çš„ä¼ è¾“æœºåˆ¶**/
 //			DTNHost from = msg.getFrom();
 //			if (from.getRouter() instanceof CGR){
 //				((ContactGraphInterface)from.getInterface(1)).CGRConstruct(msg, this.routerTable);
 //			}
-			/**ĞÂÔö£¬ÓÃÓÚCGRºÍContactGraphInterfaceÖĞµÄ´«Êä»úÖÆ**/
+			/**æ–°å¢ï¼Œç”¨äºCGRå’ŒContactGraphInterfaceä¸­çš„ä¼ è¾“æœºåˆ¶**/
 			if (findPathToSend(msg, connections, this.msgPathLabel) == true)
 				return;
 		}
 
 	}
 	/**
-	 * ¼ì²é´Ë´ı´«ÏûÏ¢msgÊÇ·ñĞèÒªµÈ´ı£¬µÈ´ıÔ­Òò¿ÉÄÜÊÇ1.Ä¿µÄ½ÚµãÕıÔÚ±»Õ¼ÓÃ£»2.Â·ÓÉµÃµ½µÄÂ·¾¶ÊÇÔ¤²âÂ·¾¶£¬ÏÂÒ»Ìø½ÚµãĞèÒªµÈ´ıÒ»¶ÎÊ±¼ä²ÅÄÜµ½´ï
+	 * æ£€æŸ¥æ­¤å¾…ä¼ æ¶ˆæ¯msgæ˜¯å¦éœ€è¦ç­‰å¾…ï¼Œç­‰å¾…åŸå› å¯èƒ½æ˜¯1.ç›®çš„èŠ‚ç‚¹æ­£åœ¨è¢«å ç”¨ï¼›2.è·¯ç”±å¾—åˆ°çš„è·¯å¾„æ˜¯é¢„æµ‹è·¯å¾„ï¼Œä¸‹ä¸€è·³èŠ‚ç‚¹éœ€è¦ç­‰å¾…ä¸€æ®µæ—¶é—´æ‰èƒ½åˆ°è¾¾
 	 * @param msg
-	 * @return ÊÇ·ñĞèÒªµÈ´ı
+	 * @return æ˜¯å¦éœ€è¦ç­‰å¾…
 	 */
 	public boolean checkBusyLabelForNextHop(Message msg){
 		if (this.busyLabel.containsKey(msg.getId())){
@@ -443,62 +443,62 @@ public class CGR extends ActiveRouter{
 		return false;
 	}
 	/**
-	 * ¸üĞÂÂ·ÓÉ±í£¬Ñ°ÕÒÂ·¾¶²¢³¢ÊÔ×ª·¢ÏûÏ¢
+	 * æ›´æ–°è·¯ç”±è¡¨ï¼Œå¯»æ‰¾è·¯å¾„å¹¶å°è¯•è½¬å‘æ¶ˆæ¯
 	 * @param msg
 	 * @param connections
 	 * @param msgPathLabel
 	 * @return
 	 */
 	public boolean findPathToSend(Message msg, List<Connection> connections, boolean msgPathLabel){
-		if (msgPathLabel == true){//Èç¹ûÔÊĞíÔÚÏûÏ¢ÖĞĞ´ÈëÂ·¾¶ÏûÏ¢
-			if (msg.getProperty(MSG_ROUTERPATH) == null){//Í¨¹ı°üÍ·ÊÇ·ñÒÑĞ´ÈëÂ·¾¶ĞÅÏ¢À´ÅĞ¶ÏÊÇ·ñĞèÒªµ¥¶À¼ÆËãÂ·ÓÉ(Í¬Ê±Ò²°üº¬ÁËÔ¤²âµÄ¿ÉÄÜ)
+		if (msgPathLabel == true){//å¦‚æœå…è®¸åœ¨æ¶ˆæ¯ä¸­å†™å…¥è·¯å¾„æ¶ˆæ¯
+			if (msg.getProperty(MSG_ROUTERPATH) == null){//é€šè¿‡åŒ…å¤´æ˜¯å¦å·²å†™å…¥è·¯å¾„ä¿¡æ¯æ¥åˆ¤æ–­æ˜¯å¦éœ€è¦å•ç‹¬è®¡ç®—è·¯ç”±(åŒæ—¶ä¹ŸåŒ…å«äº†é¢„æµ‹çš„å¯èƒ½)
 				Tuple<Message, Connection> t = 
 						findPathFromRouterTabel(msg, connections, msgPathLabel);
 				return sendMsg(t);
 			}
-			else{//Èç¹ûÊÇÖĞ¼Ì½Úµã£¬¾Í¼ì²éÏûÏ¢Ëù´øµÄÂ·¾¶ĞÅÏ¢
+			else{//å¦‚æœæ˜¯ä¸­ç»§èŠ‚ç‚¹ï¼Œå°±æ£€æŸ¥æ¶ˆæ¯æ‰€å¸¦çš„è·¯å¾„ä¿¡æ¯
 				Tuple<Message, Connection> t = 
 						findPathFromMessage(msg);
-				assert t != null: "¶ÁÈ¡Â·¾¶ĞÅÏ¢Ê§°Ü£¡";
+				assert t != null: "è¯»å–è·¯å¾„ä¿¡æ¯å¤±è´¥ï¼";
 				return sendMsg(t);
 			}
-		}else{//²»»áÔÙĞÅÏ¢ÖĞĞ´ÈëÂ·¾¶ĞÅÏ¢£¬Ã¿Ò»Ìø¶¼ĞèÒªÖØĞÂ¼ÆËãÂ·¾¶
+		}else{//ä¸ä¼šå†ä¿¡æ¯ä¸­å†™å…¥è·¯å¾„ä¿¡æ¯ï¼Œæ¯ä¸€è·³éƒ½éœ€è¦é‡æ–°è®¡ç®—è·¯å¾„
 			Tuple<Message, Connection> t = 
-					findPathFromRouterTabel(msg, connections, msgPathLabel);//°´´ı·¢ËÍÏûÏ¢Ë³ĞòÕÒÂ·¾¶£¬²¢³¢ÊÔ·¢ËÍ
+					findPathFromRouterTabel(msg, connections, msgPathLabel);//æŒ‰å¾…å‘é€æ¶ˆæ¯é¡ºåºæ‰¾è·¯å¾„ï¼Œå¹¶å°è¯•å‘é€
 			return sendMsg(t);
 		}
 	}
 	/**
-	 * Í¨¹ı¶ÁÈ¡ĞÅÏ¢msgÍ·²¿ÀïµÄÂ·¾¶ĞÅÏ¢£¬À´»ñÈ¡Â·ÓÉÂ·¾¶£¬Èç¹ûÊ§Ğ§£¬ÔòĞèÒªµ±Ç°½ÚµãÖØĞÂ¼ÆËãÂ·ÓÉ
+	 * é€šè¿‡è¯»å–ä¿¡æ¯msgå¤´éƒ¨é‡Œçš„è·¯å¾„ä¿¡æ¯ï¼Œæ¥è·å–è·¯ç”±è·¯å¾„ï¼Œå¦‚æœå¤±æ•ˆï¼Œåˆ™éœ€è¦å½“å‰èŠ‚ç‚¹é‡æ–°è®¡ç®—è·¯ç”±
 	 * @param msg
 	 * @return
 	 */
 	public Tuple<Message, Connection> findPathFromMessage(Message msg){
 		assert msg.getProperty(MSG_ROUTERPATH) != null : 
-			"message don't have routerPath";//ÏÈ²é¿´ĞÅÏ¢ÓĞÃ»ÓĞÂ·¾¶ĞÅÏ¢£¬Èç¹ûÓĞ¾Í°´ÕÕÒÑÓĞÂ·¾¶ĞÅÏ¢·¢ËÍ£¬Ã»ÓĞÔò²éÕÒÂ·ÓÉ±í½øĞĞ·¢ËÍ
+			"message don't have routerPath";//å…ˆæŸ¥çœ‹ä¿¡æ¯æœ‰æ²¡æœ‰è·¯å¾„ä¿¡æ¯ï¼Œå¦‚æœæœ‰å°±æŒ‰ç…§å·²æœ‰è·¯å¾„ä¿¡æ¯å‘é€ï¼Œæ²¡æœ‰åˆ™æŸ¥æ‰¾è·¯ç”±è¡¨è¿›è¡Œå‘é€
 		List<Tuple<Integer, Boolean>> routerPath = (List<Tuple<Integer, Boolean>>)msg.getProperty(MSG_ROUTERPATH);
 		
 		int thisAddress = this.getHost().getAddress();
-		assert msg.getTo().getAddress() != thisAddress : "±¾½ÚµãÒÑÊÇÄ¿µÄ½Úµã£¬½ÓÊÕ´¦Àí¹ı³Ì´íÎó";
+		assert msg.getTo().getAddress() != thisAddress : "æœ¬èŠ‚ç‚¹å·²æ˜¯ç›®çš„èŠ‚ç‚¹ï¼Œæ¥æ”¶å¤„ç†è¿‡ç¨‹é”™è¯¯";
 		int nextHopAddress = -1;
 		
 		//System.out.println(this.getHost()+"  "+msg+" "+routerPath);
 		boolean waitLable = false;
 		for (int i = 0; i < routerPath.size(); i++){
 			if (routerPath.get(i).getKey() == thisAddress){
-				nextHopAddress = routerPath.get(i+1).getKey();//ÕÒµ½ÏÂÒ»Ìø½ÚµãµØÖ·
-				waitLable = routerPath.get(i+1).getValue();//ÕÒµ½ÏÂÒ»ÌøÊÇ·ñĞèÒªµÈ´ıµÄ±êÖ¾Î»
-				break;//Ìø³öÑ­»·
+				nextHopAddress = routerPath.get(i+1).getKey();//æ‰¾åˆ°ä¸‹ä¸€è·³èŠ‚ç‚¹åœ°å€
+				waitLable = routerPath.get(i+1).getValue();//æ‰¾åˆ°ä¸‹ä¸€è·³æ˜¯å¦éœ€è¦ç­‰å¾…çš„æ ‡å¿—ä½
+				break;//è·³å‡ºå¾ªç¯
 			}
 		}
 		//System.out.println("test "+nextHopAddress +"  "+routerPath);		
 		if (nextHopAddress > -1){
-			/**CGR¶ÀÓĞ£¬ÔÚĞèÒªµÄÊ±ºò½¨Á¢Á´Â·**/
+			/**CGRç‹¬æœ‰ï¼Œåœ¨éœ€è¦çš„æ—¶å€™å»ºç«‹é“¾è·¯**/
 			constructContactLink(nextHopAddress, msg);
-			/**CGR¶ÀÓĞ£¬ÔÚĞèÒªµÄÊ±ºò½¨Á¢Á´Â·**/
+			/**CGRç‹¬æœ‰ï¼Œåœ¨éœ€è¦çš„æ—¶å€™å»ºç«‹é“¾è·¯**/
 			Connection nextCon = findConnection(nextHopAddress);
-			if (nextCon == null){//ÄÜÕÒµ½Â·¾¶ĞÅÏ¢£¬µ«ÊÇÈ´Ã»ÄÜÕÒµ½Á¬½Ó
-				/**Èç¹û×Ô¼º½ÚµãÓĞÄÜÁ¦ÍùÍâ´«Êı¾İ£¬¾ÍÖØÂ·ÓÉ**/
+			if (nextCon == null){//èƒ½æ‰¾åˆ°è·¯å¾„ä¿¡æ¯ï¼Œä½†æ˜¯å´æ²¡èƒ½æ‰¾åˆ°è¿æ¥
+				/**å¦‚æœè‡ªå·±èŠ‚ç‚¹æœ‰èƒ½åŠ›å¾€å¤–ä¼ æ•°æ®ï¼Œå°±é‡è·¯ç”±**/
 				if (this.getHost().getConnections().isEmpty() && !this.isTransferring()){
 					
 					List<DTNHost> busyHosts = new ArrayList<DTNHost>();
@@ -507,7 +507,7 @@ public class CGR extends ActiveRouter{
 						busyHosts.add(this.findHostByAddress(nextHopAddress));
 						if (updateRouterTable(msg, busyHosts) == true){
 							List<Tuple<Integer, Boolean>> routerPath2 = this.routerTable.get(msg.getTo());
-							if (msgPathLabel == true){//Èç¹ûĞ´ÈëÂ·¾¶ĞÅÏ¢±êÖ¾Î»Õæ£¬¾ÍĞ´ÈëÂ·¾¶ÏûÏ¢
+							if (msgPathLabel == true){//å¦‚æœå†™å…¥è·¯å¾„ä¿¡æ¯æ ‡å¿—ä½çœŸï¼Œå°±å†™å…¥è·¯å¾„æ¶ˆæ¯
 								msg.updateProperty(MSG_ROUTERPATH, routerPath);
 							}
 							int nextHopAddress2 = routerPath2.get(0).getKey();
@@ -516,7 +516,7 @@ public class CGR extends ActiveRouter{
 						}
 						else
 							break;
-						if (++updateCount > 5)//×î¶àÖØÂ·ÓÉ´ÎÊı
+						if (++updateCount > 5)//æœ€å¤šé‡è·¯ç”±æ¬¡æ•°
 							break;
 					}			
 				}
@@ -530,7 +530,7 @@ public class CGR extends ActiveRouter{
 	}
 
 	/**
-	 * Í¨¹ı¸üĞÂÂ·ÓÉ±í£¬ÕÒµ½µ±Ç°ĞÅÏ¢Ó¦µ±×ª·¢µÄÏÂÒ»Ìø½Úµã£¬²¢ÇÒ¸ù¾İÔ¤ÏÈÉèÖÃ¾ö¶¨´Ë¼ÆËãµÃµ½µÄÂ·¾¶ĞÅÏ¢ÊÇ·ñĞèÒªĞ´ÈëĞÅÏ¢msgÍ·²¿µ±ÖĞ
+	 * é€šè¿‡æ›´æ–°è·¯ç”±è¡¨ï¼Œæ‰¾åˆ°å½“å‰ä¿¡æ¯åº”å½“è½¬å‘çš„ä¸‹ä¸€è·³èŠ‚ç‚¹ï¼Œå¹¶ä¸”æ ¹æ®é¢„å…ˆè®¾ç½®å†³å®šæ­¤è®¡ç®—å¾—åˆ°çš„è·¯å¾„ä¿¡æ¯æ˜¯å¦éœ€è¦å†™å…¥ä¿¡æ¯msgå¤´éƒ¨å½“ä¸­
 	 * @param message
 	 * @param connections
 	 * @param msgPathLabel
@@ -538,21 +538,21 @@ public class CGR extends ActiveRouter{
 	 */
 	public Tuple<Message, Connection> findPathFromRouterTabel(Message message, List<Connection> connections, boolean msgPathLabel){
 		
-		if (updateRouterTable(message, null) == false){//ÔÚ´«ÊäÖ®Ç°£¬ÏÈ¸üĞÂÂ·ÓÉ±í
+		if (updateRouterTable(message, null) == false){//åœ¨ä¼ è¾“ä¹‹å‰ï¼Œå…ˆæ›´æ–°è·¯ç”±è¡¨
 			//System.out.println("false");
-			return null;//ÈôÃ»ÓĞ·µ»ØËµÃ÷Ò»¶¨ÕÒµ½ÁË¶ÔÓ¦Â·¾¶
+			return null;//è‹¥æ²¡æœ‰è¿”å›è¯´æ˜ä¸€å®šæ‰¾åˆ°äº†å¯¹åº”è·¯å¾„
 		}
 		List<Tuple<Integer, Boolean>> routerPath = this.routerTable.get(message.getTo());
 		
-		if (msgPathLabel == true){//Èç¹ûĞ´ÈëÂ·¾¶ĞÅÏ¢±êÖ¾Î»Õæ£¬¾ÍĞ´ÈëÂ·¾¶ÏûÏ¢
+		if (msgPathLabel == true){//å¦‚æœå†™å…¥è·¯å¾„ä¿¡æ¯æ ‡å¿—ä½çœŸï¼Œå°±å†™å…¥è·¯å¾„æ¶ˆæ¯
 			message.updateProperty(MSG_ROUTERPATH, routerPath);
 		}
 		
-		/**CGR¶ÀÓĞ£¬ÔÚĞèÒªµÄÊ±ºò½¨Á¢Á´Â·**/
+		/**CGRç‹¬æœ‰ï¼Œåœ¨éœ€è¦çš„æ—¶å€™å»ºç«‹é“¾è·¯**/
 		int nextHopAddress = routerPath.get(0).getKey();
 		
 		if (!constructContactLink(nextHopAddress, message)){
-//			/**Èç¹û×Ô¼º½ÚµãÓĞÄÜÁ¦ÍùÍâ´«Êı¾İ£¬¾ÍÖØÂ·ÓÉ**/
+//			/**å¦‚æœè‡ªå·±èŠ‚ç‚¹æœ‰èƒ½åŠ›å¾€å¤–ä¼ æ•°æ®ï¼Œå°±é‡è·¯ç”±**/
 //			if (this.getHost().getConnections().isEmpty() && !this.isTransferring()){
 //				
 //				List<DTNHost> busyHosts = new ArrayList<DTNHost>();
@@ -561,7 +561,7 @@ public class CGR extends ActiveRouter{
 //					busyHosts.add(this.findHostByAddress(nextHopAddress));
 //					if (updateRouterTable(message, busyHosts) == true){
 //						List<Tuple<Integer, Boolean>> routerPath2 = this.routerTable.get(message.getTo());
-//						if (msgPathLabel == true){//Èç¹ûĞ´ÈëÂ·¾¶ĞÅÏ¢±êÖ¾Î»Õæ£¬¾ÍĞ´ÈëÂ·¾¶ÏûÏ¢
+//						if (msgPathLabel == true){//å¦‚æœå†™å…¥è·¯å¾„ä¿¡æ¯æ ‡å¿—ä½çœŸï¼Œå°±å†™å…¥è·¯å¾„æ¶ˆæ¯
 //							message.updateProperty(MSG_ROUTERPATH, routerPath);
 //						}
 //						int nextHopAddress2 = routerPath2.get(0).getKey();
@@ -575,12 +575,12 @@ public class CGR extends ActiveRouter{
 //				}			
 //			}
 		}
-		/**CGR¶ÀÓĞ£¬ÔÚĞèÒªµÄÊ±ºò½¨Á¢Á´Â·**/
+		/**CGRç‹¬æœ‰ï¼Œåœ¨éœ€è¦çš„æ—¶å€™å»ºç«‹é“¾è·¯**/
 		
-		Connection path = findConnection(routerPath.get(0).getKey());//È¡µÚÒ»ÌøµÄ½ÚµãµØÖ·
+		Connection path = findConnection(routerPath.get(0).getKey());//å–ç¬¬ä¸€è·³çš„èŠ‚ç‚¹åœ°å€
 		//System.out.println("test: "+SimClock.getTime()+"  "+message+"  "+this.getHost()+" nextHop "+nextHopAddress+"  "+path+" connections number: "+this.getHost().getConnections());
 		if (path != null){
-			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, path);//ÕÒµ½ÓëµÚÒ»Ìø½ÚµãµÄÁ¬½Ó
+			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, path);//æ‰¾åˆ°ä¸ç¬¬ä¸€è·³èŠ‚ç‚¹çš„è¿æ¥
 			return t;
 		}
 		else{			
@@ -589,7 +589,7 @@ public class CGR extends ActiveRouter{
 		}
 	}
 	/**
-	 * ÓÉ½ÚµãµØÖ·ÕÒµ½¶ÔÓ¦µÄ½ÚµãDTNHost
+	 * ç”±èŠ‚ç‚¹åœ°å€æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹DTNHost
 	 * @param address
 	 * @return
 	 */
@@ -601,7 +601,7 @@ public class CGR extends ActiveRouter{
 		return null;
 	}
 	/**
-	 * ÓÉÏÂÒ»Ìø½ÚµãµØÖ·Ñ°ÕÒ¶ÔÓ¦µÄÁÚ¾ÓÁ¬½Ó
+	 * ç”±ä¸‹ä¸€è·³èŠ‚ç‚¹åœ°å€å¯»æ‰¾å¯¹åº”çš„é‚»å±…è¿æ¥
 	 * @param address
 	 * @return
 	 */
@@ -614,7 +614,7 @@ public class CGR extends ActiveRouter{
 	}
 
 	/**
-	 * ¸üĞÂÂ·ÓÉ±í£¬°üÀ¨1¡¢¸üĞÂÒÑÓĞÁ´Â·µÄÂ·¾¶£»2¡¢½øĞĞÈ«¾ÖÔ¤²â
+	 * æ›´æ–°è·¯ç”±è¡¨ï¼ŒåŒ…æ‹¬1ã€æ›´æ–°å·²æœ‰é“¾è·¯çš„è·¯å¾„ï¼›2ã€è¿›è¡Œå…¨å±€é¢„æµ‹
 	 * @param m
 	 * @return
 	 */
@@ -624,59 +624,59 @@ public class CGR extends ActiveRouter{
 		PathSearch(msg, busyHosts);
 		//gridSearch(msg);
 		
-		//updatePredictionRouter(msg);//ĞèÒª½øĞĞÔ¤²â
-		if (this.routerTable.containsKey(msg.getTo())){//Ô¤²âÒ²ÕÒ²»µ½µ½´ïÄ¿µÄ½ÚµãµÄÂ·¾¶£¬ÔòÂ·ÓÉÊ§°Ü
-			//m.changeRouterPath(this.routerTable.get(m.getTo()));//°Ñ¼ÆËã³öÀ´µÄÂ·¾¶Ö±½ÓĞ´ÈëĞÅÏ¢µ±ÖĞ
-			//System.out.println("Ñ°Â·³É¹¦£¡£¡£¡    "+" Path length:  "+routerTable.get(msg.getTo()).size()+" routertable size: "+routerTable.size()+" Netgrid Path:  "+routerTable.get(msg.getTo()));
-			return true;//ÕÒµ½ÁËÂ·¾¶
+		//updatePredictionRouter(msg);//éœ€è¦è¿›è¡Œé¢„æµ‹
+		if (this.routerTable.containsKey(msg.getTo())){//é¢„æµ‹ä¹Ÿæ‰¾ä¸åˆ°åˆ°è¾¾ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„ï¼Œåˆ™è·¯ç”±å¤±è´¥
+			//m.changeRouterPath(this.routerTable.get(m.getTo()));//æŠŠè®¡ç®—å‡ºæ¥çš„è·¯å¾„ç›´æ¥å†™å…¥ä¿¡æ¯å½“ä¸­
+			//System.out.println("å¯»è·¯æˆåŠŸï¼ï¼ï¼    "+" Path length:  "+routerTable.get(msg.getTo()).size()+" routertable size: "+routerTable.size()+" Netgrid Path:  "+routerTable.get(msg.getTo()));
+			return true;//æ‰¾åˆ°äº†è·¯å¾„
 		}else{
-			//System.out.println("Ñ°Â·Ê§°Ü£¡£¡£¡");
+			//System.out.println("å¯»è·¯å¤±è´¥ï¼ï¼ï¼");
 			return false;
 		}
 		
-		//if (!this.getHost().getNeighbors().getNeighbors().isEmpty())//Èç¹û±¾½Úµã²»´¦ÓÚ¹ÂÁ¢×´Ì¬£¬Ôò½øĞĞÁÚ¾Ó½ÚµãµÄÂ·ÓÉ¸üĞÂ
+		//if (!this.getHost().getNeighbors().getNeighbors().isEmpty())//å¦‚æœæœ¬èŠ‚ç‚¹ä¸å¤„äºå­¤ç«‹çŠ¶æ€ï¼Œåˆ™è¿›è¡Œé‚»å±…èŠ‚ç‚¹çš„è·¯ç”±æ›´æ–°
 		//	;	
 	}
 	
 	/**
-	 * ºËĞÄÂ·ÓÉËã·¨£¬ÔËÓÃÌ°ĞÄÑ¡ÔñĞÔÖÊ½øĞĞ±éÀú£¬ÕÒ³öµ½´ïÄ¿µÄ½ÚµãµÄ×î¶ÌÂ·¾¶
+	 * æ ¸å¿ƒè·¯ç”±ç®—æ³•ï¼Œè¿ç”¨è´ªå¿ƒé€‰æ‹©æ€§è´¨è¿›è¡Œéå†ï¼Œæ‰¾å‡ºåˆ°è¾¾ç›®çš„èŠ‚ç‚¹çš„æœ€çŸ­è·¯å¾„
 	 * @param msg
 	 */
 	public void gridSearch(Message msg){
 //		double t0 = System.currentTimeMillis();
-//		System.out.println("start: "+t0);//ÓÃÓÚÍ³¼ÆÂ·ÓÉËã·¨µÄÔËĞĞÊ±¼ä
+//		System.out.println("start: "+t0);//ç”¨äºç»Ÿè®¡è·¯ç”±ç®—æ³•çš„è¿è¡Œæ—¶é—´
 		
-//		if (routerTableUpdateLabel == true)//routerTableUpdateLabel == trueÔò´ú±í´Ë´Î¸üĞÂÂ·ÓÉ±íÒÑ¾­¸üĞÂ¹ıÁË£¬ËùÒÔ²»ÒªÖØ¸´¼ÆËã
+//		if (routerTableUpdateLabel == true)//routerTableUpdateLabel == trueåˆ™ä»£è¡¨æ­¤æ¬¡æ›´æ–°è·¯ç”±è¡¨å·²ç»æ›´æ–°è¿‡äº†ï¼Œæ‰€ä»¥ä¸è¦é‡å¤è®¡ç®—
 //			return;
 		this.routerTable.clear();
 		this.arrivalTime.clear();
 		
-		/**È«ÍøµÄ´«ÊäËÙÂÊ¼Ù¶¨ÎªÒ»ÑùµÄ**/
+		/**å…¨ç½‘çš„ä¼ è¾“é€Ÿç‡å‡å®šä¸ºä¸€æ ·çš„**/
 		double transmitSpeed = this.getHost().getInterface(1).getTransmitSpeed();
-		/**±íÊ¾Â·ÓÉ¿ªÊ¼µÄÊ±¼ä**/
+		/**è¡¨ç¤ºè·¯ç”±å¼€å§‹çš„æ—¶é—´**/
 		//double RoutingTimeNow = SimClock.getTime();
 		
-		/**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/
+		/**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/
 		List<DTNHost> searchedSet = new ArrayList<DTNHost>();
 		List<DTNHost> sourceSet = new ArrayList<DTNHost>();
-		sourceSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½ÚµãËù
-		searchedSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½Úµã
+		sourceSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹æ‰€
+		searchedSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹
 		Neighbors nei = this.getHost().getNeighbors();
 		
 
 		
-		for (Connection con : this.getHost().getConnections()){//Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í
+		for (Connection con : this.getHost().getConnections()){//æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨
 			DTNHost neiHost = con.getOtherNode(this.getHost());
-			sourceSet.add(neiHost);//³õÊ¼Ê±Ö»ÓĞ±¾½ÚµãºÍÁ´Â·ÁÚ¾Ó		
+			sourceSet.add(neiHost);//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹å’Œé“¾è·¯é‚»å±…		
 			Double time = SimClock.getTime() + msg.getSize()/this.getHost().getInterface(1).getTransmitSpeed();
 			List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 			Tuple<Integer, Boolean> hop = new Tuple<Integer, Boolean>(neiHost.getAddress(), false);
-			path.add(hop);//×¢ÒâË³Ğò
+			path.add(hop);//æ³¨æ„é¡ºåº
 			arrivalTime.put(neiHost, time);
 			routerTable.put(neiHost, path);
 		}
 		//System.out.println(this.getHost()+" :  "+routerTable);
-		/**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/
+		/**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/
 		
 		int iteratorTimes = 0;
 		int size = this.hosts.size();
@@ -687,28 +687,28 @@ public class CGR extends ActiveRouter{
 		Settings s = new Settings("Scenario");
 		double updateInterval = s.getDouble("updateInterval");
 		
-		arrivalTime.put(this.getHost(), this.RoutingTimeNow);//³õÊ¼»¯µ½´ïÊ±¼ä
+		arrivalTime.put(this.getHost(), this.RoutingTimeNow);//åˆå§‹åŒ–åˆ°è¾¾æ—¶é—´
 		
-		/**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+		/**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
 		List<Tuple<DTNHost, Double>> PriorityQueue = new ArrayList<Tuple<DTNHost, Double>>();
 		//List<GridCell> GridCellListinPriorityQueue = new ArrayList<GridCell>();
 		//List<Double> correspondingTimeinQueue = new ArrayList<Double>();
-		/**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+		/**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
 		
-		double TNMCostTime = 0;//²âÊÔËã·¨ÔËĞĞÊ±¼äÓÃ
+		double TNMCostTime = 0;//æµ‹è¯•ç®—æ³•è¿è¡Œæ—¶é—´ç”¨
 		
-		while(true){//DijsktraËã·¨Ë¼Ïë£¬Ã¿´ÎÀú±éÈ«¾Ö£¬ÕÒÊ±ÑÓ×îĞ¡µÄ¼ÓÈëÂ·ÓÉ±í£¬±£Ö¤Â·ÓÉ±íÖĞÓÀÔ¶ÊÇÊ±ÑÓ×îĞ¡µÄÂ·¾¶
+		while(true){//Dijsktraç®—æ³•æ€æƒ³ï¼Œæ¯æ¬¡å†éå…¨å±€ï¼Œæ‰¾æ—¶å»¶æœ€å°çš„åŠ å…¥è·¯ç”±è¡¨ï¼Œä¿è¯è·¯ç”±è¡¨ä¸­æ°¸è¿œæ˜¯æ—¶å»¶æœ€å°çš„è·¯å¾„
 			if (iteratorTimes >= size)// || updateLabel == false)
 				break; 
 			updateLabel = false;
 
 			for (DTNHost c : sourceSet){
 				
-				//List<DTNHost> neiList = GN.getNeighborsNetgrids(c, netgridArrivalTime.get(c));//»ñÈ¡Ô´¼¯ºÏÖĞhost½ÚµãµÄÁÚ¾Ó½Úµã(°üÀ¨µ±Ç°ºÍÎ´À´ÁÚ¾Ó)
+				//List<DTNHost> neiList = GN.getNeighborsNetgrids(c, netgridArrivalTime.get(c));//è·å–æºé›†åˆä¸­hostèŠ‚ç‚¹çš„é‚»å±…èŠ‚ç‚¹(åŒ…æ‹¬å½“å‰å’Œæœªæ¥é‚»å±…)
 				//List<DTNHost> neiList = nei.getNeighbors(c, SimClock.getTime());
 				
-				/**»ñÈ¡contactGraphÀïÃæµÄÎ´À´¿ÉÓÃÁ´Â·(µ±Ç°Ê±¿ÌÖ±µ½TTL½áÊøÇ°)**/
-				double t00 = System.currentTimeMillis();//¸´ÔÓ¶È²âÊÔ´úÂë
+				/**è·å–contactGraphé‡Œé¢çš„æœªæ¥å¯ç”¨é“¾è·¯(å½“å‰æ—¶åˆ»ç›´åˆ°TTLç»“æŸå‰)**/
+				double t00 = System.currentTimeMillis();//å¤æ‚åº¦æµ‹è¯•ä»£ç 
 				
 				List<DTNHost> neiList = new ArrayList<DTNHost>();
 				double nextTime = arrivalTime.get(c);
@@ -719,10 +719,10 @@ public class CGR extends ActiveRouter{
 				for (double endTime = nextTime + msgTtl; nextTime < endTime; nextTime += updateInterval){
 					if (endTime >= this.simEndTime)
 						break; 
-//					/**ËÄÉáÎåÈë**/
+//					/**å››èˆäº”å…¥**/
 //					BigDecimal b = new BigDecimal(nextTime);  
 //					nextTime = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();  
-					int index = (int)(nextTime * 10);//³ËÒÔ10ÊÇÒòÎª·ÂÕæµÄ×îĞ¡¸üĞÂ¼ä¸ôÊÇ0.1s
+					int index = (int)(nextTime * 10);//ä¹˜ä»¥10æ˜¯å› ä¸ºä»¿çœŸçš„æœ€å°æ›´æ–°é—´éš”æ˜¯0.1s
 					Tuple<DTNHost, DTNHost> connection = this.getContactGraph().get(c).get(index);
 					if (connection == null)
 						continue;
@@ -735,24 +735,24 @@ public class CGR extends ActiveRouter{
 						connectionSetUpTime.put(thisHost, nextTime);
 					}
 				}
-				/**»ñÈ¡contactGraphÀïÃæµÄÎ´À´¿ÉÓÃÁ´Â·**/
-				double t01 = System.currentTimeMillis();//¸´ÔÓ¶È²âÊÔ´úÂë
-				TNMCostTime += (t01-t00);				//¸´ÔÓ¶È²âÊÔ´úÂë
+				/**è·å–contactGraphé‡Œé¢çš„æœªæ¥å¯ç”¨é“¾è·¯**/
+				double t01 = System.currentTimeMillis();//å¤æ‚åº¦æµ‹è¯•ä»£ç 
+				TNMCostTime += (t01-t00);				//å¤æ‚åº¦æµ‹è¯•ä»£ç 
 				
-				/**ÅĞ¶ÏÊÇ·ñÒÑ¾­ÊÇËÑË÷¹ıµÄÔ´Íø¸ñ¼¯ºÏÖĞµÄÍø¸ñ**/
+				/**åˆ¤æ–­æ˜¯å¦å·²ç»æ˜¯æœç´¢è¿‡çš„æºç½‘æ ¼é›†åˆä¸­çš„ç½‘æ ¼**/
 				if (searchedSet.contains(c))
 					continue;
 				
 				searchedSet.add(c);
-				for (DTNHost eachNeighborNetgrid : neiList){//startTime.keySet()°üº¬ÁËËùÓĞµÄÁÚ¾Ó½Úµã£¬°üº¬Î´À´µÄÁÚ¾Ó½Úµã
-					if (sourceSet.contains(eachNeighborNetgrid))//È·±£²»»ØÍ·
+				for (DTNHost eachNeighborNetgrid : neiList){//startTime.keySet()åŒ…å«äº†æ‰€æœ‰çš„é‚»å±…èŠ‚ç‚¹ï¼ŒåŒ…å«æœªæ¥çš„é‚»å±…èŠ‚ç‚¹
+					if (sourceSet.contains(eachNeighborNetgrid))//ç¡®ä¿ä¸å›å¤´
 						continue;
 					
 					double waitTime = connectionSetUpTime.get(eachNeighborNetgrid) - arrivalTime.get(c);
 					if (waitTime <= 0)
 						waitTime = 0;
 					double time = arrivalTime.get(c) + msg.getSize()/transmitSpeed + waitTime;
-					/**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
+					/**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
 					List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 					if (this.routerTable.containsKey(c))
 						path.addAll(this.routerTable.get(c));
@@ -763,22 +763,22 @@ public class CGR extends ActiveRouter{
 						predictLable = false;
 					
 					Tuple<Integer, Boolean> thisHop = new Tuple<Integer, Boolean>(eachNeighborNetgrid.getAddress(), predictLable);
-					path.add(thisHop);//×¢ÒâË³Ğò
-					/**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
-					/**Î¬»¤×îĞ¡´«ÊäÊ±¼äµÄ¶ÓÁĞ**/
+					path.add(thisHop);//æ³¨æ„é¡ºåº
+					/**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
+					/**ç»´æŠ¤æœ€å°ä¼ è¾“æ—¶é—´çš„é˜Ÿåˆ—**/
 					if (arrivalTime.containsKey(eachNeighborNetgrid)){
-						/**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+						/**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
 						if (time <= arrivalTime.get(eachNeighborNetgrid)){
-							if (random.nextBoolean() == true && time - arrivalTime.get(eachNeighborNetgrid) < 0.1){//Èç¹ûÊ±¼äÏàµÈ£¬×öËæ»ú»¯Ñ¡Ôñ
+							if (random.nextBoolean() == true && time - arrivalTime.get(eachNeighborNetgrid) < 0.1){//å¦‚æœæ—¶é—´ç›¸ç­‰ï¼ŒåšéšæœºåŒ–é€‰æ‹©
 								
-								/**×¢Òâ£¬ÔÚ¶Ô¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+								/**æ³¨æ„ï¼Œåœ¨å¯¹é˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 								int index = -1;
 								for (Tuple<DTNHost, Double> t : PriorityQueue){
 									if (t.getKey() == eachNeighborNetgrid){
 										index = PriorityQueue.indexOf(t);
 									}
 								}
-								/**×¢Òâ£¬ÔÚÉÏÃæ¶ÔPriorityQueue¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+								/**æ³¨æ„ï¼Œåœ¨ä¸Šé¢å¯¹PriorityQueueé˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 								if (index > -1){
 									PriorityQueue.remove(index);
 									PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborNetgrid, time));
@@ -787,14 +787,14 @@ public class CGR extends ActiveRouter{
 								}
 							}
 						}
-						/**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+						/**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
 					}
 					else{						
 						PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborNetgrid, time));
 						arrivalTime.put(eachNeighborNetgrid, time);
 						routerTable.put(eachNeighborNetgrid, path);
 					}
-					/**¶Ô¶ÓÁĞ½øĞĞÅÅĞò**/
+					/**å¯¹é˜Ÿåˆ—è¿›è¡Œæ’åº**/
 					sort(PriorityQueue);	
 					updateLabel = true;
 				}
@@ -802,19 +802,19 @@ public class CGR extends ActiveRouter{
 			iteratorTimes++;
 			for (int i = 0; i < PriorityQueue.size(); i++){
 				if (!sourceSet.contains(PriorityQueue.get(i).getKey())){
-					sourceSet.add(PriorityQueue.get(i).getKey());//½«ĞÂµÄ×î¶ÌÍø¸ñ¼ÓÈë
+					sourceSet.add(PriorityQueue.get(i).getKey());//å°†æ–°çš„æœ€çŸ­ç½‘æ ¼åŠ å…¥
 					break;
 				}
 			}
 				
-//			if (routerTable.containsKey(msg.getTo()))//Èç¹ûÖĞÍ¾ÕÒµ½ĞèÒªµÄÂ·½£¬¾ÍÖ±½ÓÍË³öËÑË÷
+//			if (routerTable.containsKey(msg.getTo()))//å¦‚æœä¸­é€”æ‰¾åˆ°éœ€è¦çš„è·¯å¾‘ï¼Œå°±ç›´æ¥é€€å‡ºæœç´¢
 //				return;
 		}
 		routerTableUpdateLabel = true;
 		
-		//this.getHost().increaseRoutingRunningCount();//ºËĞÄÂ·ÓÉËã·¨µ÷ÓÃ´ÎÊı¼ÆÊıÆ÷
+		//this.getHost().increaseRoutingRunningCount();//æ ¸å¿ƒè·¯ç”±ç®—æ³•è°ƒç”¨æ¬¡æ•°è®¡æ•°å™¨
 		
-//		double t1 = System.currentTimeMillis();//ÓÃÓÚÍ³¼ÆÂ·ÓÉËã·¨µÄÔËĞĞÊ±¼ä
+//		double t1 = System.currentTimeMillis();//ç”¨äºç»Ÿè®¡è·¯ç”±ç®—æ³•çš„è¿è¡Œæ—¶é—´
 //		System.out.println("cost: "+ (t1-t0)+" TGMCostTime: "+TNMCostTime+"  "+count);
 //		//System.out.println(this.getHost()+" table: "+routerTable+" time : "+SimClock.getTime());
 //		if (this.count++ >= 15){
@@ -825,19 +825,19 @@ public class CGR extends ActiveRouter{
 		
 	}
 	/**
-	 * Ã°ÅİÅÅĞò
+	 * å†’æ³¡æ’åº
 	 * @param distanceList
 	 * @return
 	 */
 	public List<Tuple<DTNHost, Double>> sort(List<Tuple<DTNHost, Double>> distanceList){
 		for (int j = 0; j < distanceList.size(); j++){
 			for (int i = 0; i < distanceList.size() - j - 1; i++){
-				if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()){//´ÓĞ¡µ½´ó£¬´óµÄÖµ·ÅÔÚ¶ÓÁĞÓÒ²à
+				if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()){//ä»å°åˆ°å¤§ï¼Œå¤§çš„å€¼æ”¾åœ¨é˜Ÿåˆ—å³ä¾§
 					Tuple<DTNHost, Double> var1 = distanceList.get(i);
 					Tuple<DTNHost, Double> var2 = distanceList.get(i + 1);
 					distanceList.remove(i);
-					distanceList.remove(i);//×¢Òâ£¬Ò»µ©Ö´ĞĞremoveÖ®ºó£¬Õû¸öListµÄ´óĞ¡¾Í±äÁË£¬ËùÒÔÔ­±¾i+1µÄÎ»ÖÃÏÖÔÚ±ä³ÉÁËi
-					//×¢ÒâË³Ğò
+					distanceList.remove(i);//æ³¨æ„ï¼Œä¸€æ—¦æ‰§è¡Œremoveä¹‹åï¼Œæ•´ä¸ªListçš„å¤§å°å°±å˜äº†ï¼Œæ‰€ä»¥åŸæœ¬i+1çš„ä½ç½®ç°åœ¨å˜æˆäº†i
+					//æ³¨æ„é¡ºåº
 					distanceList.add(i, var2);
 					distanceList.add(i + 1, var1);
 				}
@@ -846,16 +846,16 @@ public class CGR extends ActiveRouter{
 		return distanceList;
 	}
 	
-	static double count = 0;//¸´ÔÓ¶È²âÊÔ´úÂë
+	static double count = 0;//å¤æ‚åº¦æµ‹è¯•ä»£ç 
 	static Double[] CostArray = {0.0,0.0,0.0};
 	static int RunningTimes = 15;
 	/**
-	 * EASR(earliest arrival space routing algorithm)£¬Ö´ĞĞ×î¶ÌÂ·¾¶Â·ÓÉËã·¨
+	 * EASR(earliest arrival space routing algorithm)ï¼Œæ‰§è¡Œæœ€çŸ­è·¯å¾„è·¯ç”±ç®—æ³•
 	 * @param msg
 	 */
 	public List<Tuple<Integer, Boolean>> PathSearch(Message msg, List<DTNHost> busyHosts){
 //		double t0 = System.nanoTime();
-//		System.out.println(t0);//ÓÃÓÚÍ³¼ÆÂ·ÓÉËã·¨µÄÔËĞĞÊ±¼ä
+//		System.out.println(t0);//ç”¨äºç»Ÿè®¡è·¯ç”±ç®—æ³•çš„è¿è¡Œæ—¶é—´
 		
 		if (routerTableUpdateLabel == true && busyHosts == null)
 			return routerTable.get(msg.getTo());
@@ -863,33 +863,33 @@ public class CGR extends ActiveRouter{
 		this.routerTable.clear();
 		this.arrivalTime.clear();
 		
-		/**È«ÍøµÄ´«ÊäËÙÂÊ¼Ù¶¨ÎªÒ»ÑùµÄ**/
+		/**å…¨ç½‘çš„ä¼ è¾“é€Ÿç‡å‡å®šä¸ºä¸€æ ·çš„**/
 		double transmitSpeed = this.getHost().getInterface(1).getTransmitSpeed();
-		/**±íÊ¾Â·ÓÉ¿ªÊ¼µÄÊ±¼ä**/
+		/**è¡¨ç¤ºè·¯ç”±å¼€å§‹çš„æ—¶é—´**/
 		//double RoutingTimeNow = SimClock.getTime();
 		
-		/**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/
+		/**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/
 		List<DTNHost> searchedSet = new ArrayList<DTNHost>();
 		List<DTNHost> sourceSet = new ArrayList<DTNHost>();
-		sourceSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½ÚµãËù
-		searchedSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½Úµã
+		sourceSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹æ‰€
+		searchedSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹
 		Neighbors nei = this.getHost().getNeighbors();
 		
 		List<DTNHost> oneHopNeighbors = nei.getNeighbors(this.getHost(), SimClock.getTime());
 		if (busyHosts != null)
 			oneHopNeighbors.removeAll(busyHosts);
 		
-		for (DTNHost neiHost : oneHopNeighbors){//Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í
-			sourceSet.add(neiHost);//³õÊ¼Ê±Ö»ÓĞ±¾½ÚµãºÍÁ´Â·ÁÚ¾Ó		
+		for (DTNHost neiHost : oneHopNeighbors){//æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨
+			sourceSet.add(neiHost);//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹å’Œé“¾è·¯é‚»å±…		
 			Double time = SimClock.getTime() + msg.getSize()/this.getHost().getInterface(1).getTransmitSpeed();
 			List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 			Tuple<Integer, Boolean> hop = new Tuple<Integer, Boolean>(neiHost.getAddress(), false);
-			path.add(hop);//×¢ÒâË³Ğò
+			path.add(hop);//æ³¨æ„é¡ºåº
 			arrivalTime.put(neiHost, time);
 			routerTable.put(neiHost, path);
 		}
 		//System.out.println(this.getHost()+" :  "+routerTable);
-		/**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/
+		/**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/
 		
 		int iteratorTimes = 0;
 		int size = this.hosts.size();
@@ -897,19 +897,19 @@ public class CGR extends ActiveRouter{
 		boolean predictLable = false;
 		
 		
-		arrivalTime.put(this.getHost(), this.RoutingTimeNow);//³õÊ¼»¯µ½´ïÊ±¼ä
+		arrivalTime.put(this.getHost(), this.RoutingTimeNow);//åˆå§‹åŒ–åˆ°è¾¾æ—¶é—´
 		
-		/**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+		/**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
 		List<Tuple<DTNHost, Double>> PriorityQueue = new ArrayList<Tuple<DTNHost, Double>>();
 		//List<GridCell> GridCellListinPriorityQueue = new ArrayList<GridCell>();
 		//List<Double> correspondingTimeinQueue = new ArrayList<Double>();
-		/**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+		/**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
 		
-//		double TGMCostTime = 0;//²âÊÔËã·¨ÔËĞĞÊ±¼äÓÃ
+//		double TGMCostTime = 0;//æµ‹è¯•ç®—æ³•è¿è¡Œæ—¶é—´ç”¨
 //		int executeCount1 = 0;
 //		int executeCount2 = 0;
 		
-		while(true){//DijsktraËã·¨Ë¼Ïë£¬Ã¿´ÎÀú±éÈ«¾Ö£¬ÕÒÊ±ÑÓ×îĞ¡µÄ¼ÓÈëÂ·ÓÉ±í£¬±£Ö¤Â·ÓÉ±íÖĞÓÀÔ¶ÊÇÊ±ÑÓ×îĞ¡µÄÂ·¾¶
+		while(true){//Dijsktraç®—æ³•æ€æƒ³ï¼Œæ¯æ¬¡å†éå…¨å±€ï¼Œæ‰¾æ—¶å»¶æœ€å°çš„åŠ å…¥è·¯ç”±è¡¨ï¼Œä¿è¯è·¯ç”±è¡¨ä¸­æ°¸è¿œæ˜¯æ—¶å»¶æœ€å°çš„è·¯å¾„
 			if (iteratorTimes >= size )//|| updateLabel == false)
 				break; 
 			updateLabel = false;
@@ -917,9 +917,9 @@ public class CGR extends ActiveRouter{
 			for (DTNHost c : sourceSet){
 //				executeCount1++;
 
-				//List<DTNHost> neiList = GN.getNeighborsNetgrids(c, netgridArrivalTime.get(c));//»ñÈ¡Ô´¼¯ºÏÖĞhost½ÚµãµÄÁÚ¾Ó½Úµã(°üÀ¨µ±Ç°ºÍÎ´À´ÁÚ¾Ó)
+				//List<DTNHost> neiList = GN.getNeighborsNetgrids(c, netgridArrivalTime.get(c));//è·å–æºé›†åˆä¸­hostèŠ‚ç‚¹çš„é‚»å±…èŠ‚ç‚¹(åŒ…æ‹¬å½“å‰å’Œæœªæ¥é‚»å±…)
 				
-//				/**¸´ÔÓ¶È²âÊÔ´úÂë,¿ÉÉ¾**/
+//				/**å¤æ‚åº¦æµ‹è¯•ä»£ç ,å¯åˆ **/
 //				double t00 = System.currentTimeMillis();
 //				System.out.println("TGM start: "+t00 + "  "+this.hosts.size());
 //				for (DTNHost h : this.hosts){
@@ -927,50 +927,50 @@ public class CGR extends ActiveRouter{
 //				}
 //				double t01 = System.currentTimeMillis();
 //				System.out.println("TGM total cost: "+(t01-t00));
-//				/**¸´ÔÓ¶È²âÊÔ´úÂë£¬¿ÉÉ¾**/
+//				/**å¤æ‚åº¦æµ‹è¯•ä»£ç ï¼Œå¯åˆ **/
 
-//				double t00 = System.nanoTime();//¸´ÔÓ¶È²âÊÔ´úÂë
+//				double t00 = System.nanoTime();//å¤æ‚åº¦æµ‹è¯•ä»£ç 
 
 				List<DTNHost> neiList = nei.getNeighbors(c, SimClock.getTime());
 				if (busyHosts != null)
 					neiList.removeAll(busyHosts);
 				
-//				double t01 = System.nanoTime();//¸´ÔÓ¶È²âÊÔ´úÂë
-//				TGMCostTime += (t01-t00);				//¸´ÔÓ¶È²âÊÔ´úÂë
+//				double t01 = System.nanoTime();//å¤æ‚åº¦æµ‹è¯•ä»£ç 
+//				TGMCostTime += (t01-t00);				//å¤æ‚åº¦æµ‹è¯•ä»£ç 
 				
-				/**ÅĞ¶ÏÊÇ·ñÒÑ¾­ÊÇËÑË÷¹ıµÄÔ´Íø¸ñ¼¯ºÏÖĞµÄÍø¸ñ**/
+				/**åˆ¤æ–­æ˜¯å¦å·²ç»æ˜¯æœç´¢è¿‡çš„æºç½‘æ ¼é›†åˆä¸­çš„ç½‘æ ¼**/
 				if (searchedSet.contains(c))
 					continue;
 				
 				searchedSet.add(c);
-				for (DTNHost eachNeighborNetgrid : neiList){//startTime.keySet()°üº¬ÁËËùÓĞµÄÁÚ¾Ó½Úµã£¬°üº¬Î´À´µÄÁÚ¾Ó½Úµã
-					if (sourceSet.contains(eachNeighborNetgrid))//È·±£²»»ØÍ·
+				for (DTNHost eachNeighborNetgrid : neiList){//startTime.keySet()åŒ…å«äº†æ‰€æœ‰çš„é‚»å±…èŠ‚ç‚¹ï¼ŒåŒ…å«æœªæ¥çš„é‚»å±…èŠ‚ç‚¹
+					if (sourceSet.contains(eachNeighborNetgrid))//ç¡®ä¿ä¸å›å¤´
 						continue;
 					
 //					executeCount2++;
 					
 					double time = arrivalTime.get(c) + msg.getSize()/transmitSpeed;
-					/**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
+					/**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
 					List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 					if (this.routerTable.containsKey(c))
 						path.addAll(this.routerTable.get(c));
 					Tuple<Integer, Boolean> thisHop = new Tuple<Integer, Boolean>(eachNeighborNetgrid.getAddress(), predictLable);
-					path.add(thisHop);//×¢ÒâË³Ğò
-					/**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
-					/**Î¬»¤×îĞ¡´«ÊäÊ±¼äµÄ¶ÓÁĞ**/
+					path.add(thisHop);//æ³¨æ„é¡ºåº
+					/**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
+					/**ç»´æŠ¤æœ€å°ä¼ è¾“æ—¶é—´çš„é˜Ÿåˆ—**/
 					if (arrivalTime.containsKey(eachNeighborNetgrid)){
-						/**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+						/**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
 						if (time <= arrivalTime.get(eachNeighborNetgrid)){
-							if (random.nextBoolean() == true && time - arrivalTime.get(eachNeighborNetgrid) < 0.1){//Èç¹ûÊ±¼äÏàµÈ£¬×öËæ»ú»¯Ñ¡Ôñ
+							if (random.nextBoolean() == true && time - arrivalTime.get(eachNeighborNetgrid) < 0.1){//å¦‚æœæ—¶é—´ç›¸ç­‰ï¼ŒåšéšæœºåŒ–é€‰æ‹©
 								
-								/**×¢Òâ£¬ÔÚ¶Ô¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+								/**æ³¨æ„ï¼Œåœ¨å¯¹é˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 								int index = -1;
 								for (Tuple<DTNHost, Double> t : PriorityQueue){
 									if (t.getKey() == eachNeighborNetgrid){
 										index = PriorityQueue.indexOf(t);
 									}
 								}
-								/**×¢Òâ£¬ÔÚÉÏÃæ¶ÔPriorityQueue¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+								/**æ³¨æ„ï¼Œåœ¨ä¸Šé¢å¯¹PriorityQueueé˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 								if (index > -1){
 									PriorityQueue.remove(index);
 									PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborNetgrid, time));
@@ -979,14 +979,14 @@ public class CGR extends ActiveRouter{
 								}
 							}
 						}
-						/**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+						/**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
 					}
 					else{						
 						PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborNetgrid, time));
 						arrivalTime.put(eachNeighborNetgrid, time);
 						routerTable.put(eachNeighborNetgrid, path);
 					}
-					/**¶Ô¶ÓÁĞ½øĞĞÅÅĞò**/
+					/**å¯¹é˜Ÿåˆ—è¿›è¡Œæ’åº**/
 					sort(PriorityQueue);	
 					updateLabel = true;
 				}
@@ -994,19 +994,19 @@ public class CGR extends ActiveRouter{
 			iteratorTimes++;
 			for (int i = 0; i < PriorityQueue.size(); i++){
 				if (!sourceSet.contains(PriorityQueue.get(i).getKey())){
-					sourceSet.add(PriorityQueue.get(i).getKey());//½«ĞÂµÄ×î¶ÌÍø¸ñ¼ÓÈë
+					sourceSet.add(PriorityQueue.get(i).getKey());//å°†æ–°çš„æœ€çŸ­ç½‘æ ¼åŠ å…¥
 					break;
 				}
 			}
 				
-//			if (routerTable.containsKey(msg.getTo()))//Èç¹ûÖĞÍ¾ÕÒµ½ĞèÒªµÄÂ·½£¬¾ÍÖ±½ÓÍË³öËÑË÷
+//			if (routerTable.containsKey(msg.getTo()))//å¦‚æœä¸­é€”æ‰¾åˆ°éœ€è¦çš„è·¯å¾‘ï¼Œå°±ç›´æ¥é€€å‡ºæœç´¢
 //				break;
 		}
 		routerTableUpdateLabel = true;
 			
-//		this.getHost().increaseRoutingRunningCount();//ºËĞÄÂ·ÓÉËã·¨µ÷ÓÃ´ÎÊı¼ÆÊıÆ÷
+//		this.getHost().increaseRoutingRunningCount();//æ ¸å¿ƒè·¯ç”±ç®—æ³•è°ƒç”¨æ¬¡æ•°è®¡æ•°å™¨
 		
-//		double t1 = System.nanoTime();//ÓÃÓÚÍ³¼ÆÂ·ÓÉËã·¨µÄÔËĞĞÊ±¼ä
+//		double t1 = System.nanoTime();//ç”¨äºç»Ÿè®¡è·¯ç”±ç®—æ³•çš„è¿è¡Œæ—¶é—´
 //		System.out.println("cost: "+ (t1-t0)+" TGMCostTime: "+TGMCostTime+"  "+count+ "  AlgorithmCost: "+(t1-t0-TGMCostTime)+" Count1: "+executeCount1+" Count2: "+executeCount2);
 //		CostArray[0]+=(t1-t0-TGMCostTime);
 //		CostArray[1]+=executeCount1;
@@ -1017,7 +1017,7 @@ public class CGR extends ActiveRouter{
 //		}
 		
 		if (routerTable.containsKey(msg.getTo())){
-			return routerTable.get(msg.getTo());//·µ»Ø×î¶ÌÂ·¾¶
+			return routerTable.get(msg.getTo());//è¿”å›æœ€çŸ­è·¯å¾„
 		}
 		else{
 			return null;
@@ -1027,12 +1027,12 @@ public class CGR extends ActiveRouter{
 	}
 	
 
-	public int transmitFeasible(DTNHost destination){//´«Êä¿ÉĞĞĞÔ,ÅĞ¶ÏÊÇ²»ÊÇÒÑÓĞµ½Ä¿µÄ½ÚµãµÄÂ·¾¶£¬Í¬Ê±»¹Òª±£Ö¤´ËÂ·¾¶µÄ´æÔÚÊ±¼ä´óÓÚ´«ÊäËùĞèÊ±¼ä
+	public int transmitFeasible(DTNHost destination){//ä¼ è¾“å¯è¡Œæ€§,åˆ¤æ–­æ˜¯ä¸æ˜¯å·²æœ‰åˆ°ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„ï¼ŒåŒæ—¶è¿˜è¦ä¿è¯æ­¤è·¯å¾„çš„å­˜åœ¨æ—¶é—´å¤§äºä¼ è¾“æ‰€éœ€æ—¶é—´
 		if (this.routerTable.containsKey(destination)){
 			if (this.transmitDelay[destination.getAddress()] > this.endTime[destination.getAddress()] -SimClock.getTime())
 				return 0;
 			else
-				return 1;//Ö»ÓĞ´ËÊ±¼ÈÕÒµ½ÁËÍ¨ÍùÄ¿µÄ½ÚµãµÄÂ·¾¶£¬Í¬Ê±Â·¾¶ÉÏµÄÁ´Â·´æÔÚÊ±¼ä¿ÉÒÔÂú×ã´«ÊäÑÓÊ±
+				return 1;//åªæœ‰æ­¤æ—¶æ—¢æ‰¾åˆ°äº†é€šå¾€ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„ï¼ŒåŒæ—¶è·¯å¾„ä¸Šçš„é“¾è·¯å­˜åœ¨æ—¶é—´å¯ä»¥æ»¡è¶³ä¼ è¾“å»¶æ—¶
 		}
 		return 2;
 		
@@ -1040,7 +1040,7 @@ public class CGR extends ActiveRouter{
 
 
 	/**
-	 * ¶ÔĞÅÏ¢msgÍ·²¿½øĞĞ¸ÄĞ´²Ù×÷£¬¶ÔÔ¤²â½ÚµãµÄµÈ´ı±êÖ¾½øĞĞÖÃÎ»
+	 * å¯¹ä¿¡æ¯msgå¤´éƒ¨è¿›è¡Œæ”¹å†™æ“ä½œï¼Œå¯¹é¢„æµ‹èŠ‚ç‚¹çš„ç­‰å¾…æ ‡å¿—è¿›è¡Œç½®ä½
 	 * @param fromHost
 	 * @param host
 	 * @param msg
@@ -1051,7 +1051,7 @@ public class CGR extends ActiveRouter{
 		Tuple<DTNHost, Double> waitLabel = new Tuple<DTNHost, Double>(host, startTime);
 		
 		if (msg.getProperty(MSG_WAITLABEL) == null){					
-			waitList.put(fromHost, waitLabel);//fromHostÎªĞèÒªµÈ´ıµÄ½Úµã£¬hostÎªÏÂÒ»ÌøµÄÔ¤²â½Úµã
+			waitList.put(fromHost, waitLabel);//fromHostä¸ºéœ€è¦ç­‰å¾…çš„èŠ‚ç‚¹ï¼Œhostä¸ºä¸‹ä¸€è·³çš„é¢„æµ‹èŠ‚ç‚¹
 			msg.addProperty(MSG_WAITLABEL, waitList);
 		}else{
 			waitList.putAll((HashMap<DTNHost, Tuple<DTNHost, Double>>)msg.getProperty(MSG_WAITLABEL));
@@ -1061,19 +1061,19 @@ public class CGR extends ActiveRouter{
 	}
 	
 	/**
-	 * Í¨¹ıĞÅÏ¢Í·²¿ÄÚµÄÂ·¾¶ĞÅÏ¢(½ÚµãµØÖ·)ÕÒµ½¶ÔÓ¦µÄ½Úµã£¬DTNHostÀà
+	 * é€šè¿‡ä¿¡æ¯å¤´éƒ¨å†…çš„è·¯å¾„ä¿¡æ¯(èŠ‚ç‚¹åœ°å€)æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹ï¼ŒDTNHostç±»
 	 * @param path
 	 * @return
 	 */
 	public List<DTNHost> getHostListFromPath(List<Integer> path){
 		List<DTNHost> hostsOfPath = new ArrayList<DTNHost>();
 		for (int i = 0; i < path.size(); i++){
-			hostsOfPath.add(this.getHostFromAddress(path.get(i)));//¸ù¾İ½ÚµãµØÖ·ÕÒµ½DTNHost 
+			hostsOfPath.add(this.getHostFromAddress(path.get(i)));//æ ¹æ®èŠ‚ç‚¹åœ°å€æ‰¾åˆ°DTNHost 
 		}
 		return hostsOfPath;
 	}
 	/**
-	 * Í¨¹ı½ÚµãµØÖ·ÕÒµ½¶ÔÓ¦µÄ½Úµã£¬DTNHostÀà
+	 * é€šè¿‡èŠ‚ç‚¹åœ°å€æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹ï¼ŒDTNHostç±»
 	 * @param address
 	 * @return
 	 */
@@ -1085,7 +1085,7 @@ public class CGR extends ActiveRouter{
 		return null;
 	}
 	/**
-	 * ÔÚËãÂ·ÓÉ±íÊ±£¬Ô¤²âÖ¸¶¨Â·¾¶ÉÏµÄÁ´Â·´æÔÚÊ±¼ä
+	 * åœ¨ç®—è·¯ç”±è¡¨æ—¶ï¼Œé¢„æµ‹æŒ‡å®šè·¯å¾„ä¸Šçš„é“¾è·¯å­˜åœ¨æ—¶é—´
 	 * @param formerLiveTime
 	 * @param host
 	 * @param path
@@ -1100,9 +1100,9 @@ public class CGR extends ActiveRouter{
 
 		existTime = this.neighborsList.get(host).get(nextHost)[1] - SimClock.getTime();
 		minTime = formerLiveTime > existTime ? existTime : formerLiveTime;			
-		if (path.size() > 1){//ÖÁÉÙ³¤¶ÈÎª2
+		if (path.size() > 1){//è‡³å°‘é•¿åº¦ä¸º2
 			for (int i = 1; i < path.size() - 1; i++){
-				if (i > path.size() -1)//³¬¹ı³¤¶È£¬×Ô¶¯·µ»Ø
+				if (i > path.size() -1)//è¶…è¿‡é•¿åº¦ï¼Œè‡ªåŠ¨è¿”å›
 					return minTime;
 				formerHost = nextHost;
 				nextHost = this.getHostFromAddress(path.get(i));
@@ -1115,7 +1115,7 @@ public class CGR extends ActiveRouter{
 	return minTime;
 	}
 	/**
-	 * ¼ÆËãÍ¨¹ıÔ¤²â½Úµãµ½´ï£¬ËùĞèµÄ´«ÊäÊ±¼ä(¼´´«ÊäÊ±¼ä¼ÓÉÏµÈ´ıÊ±¼ä)
+	 * è®¡ç®—é€šè¿‡é¢„æµ‹èŠ‚ç‚¹åˆ°è¾¾ï¼Œæ‰€éœ€çš„ä¼ è¾“æ—¶é—´(å³ä¼ è¾“æ—¶é—´åŠ ä¸Šç­‰å¾…æ—¶é—´)
 	 * @param msgSize
 	 * @param startTime
 	 * @param host
@@ -1127,16 +1127,16 @@ public class CGR extends ActiveRouter{
 			double waitTime;
 			waitTime = startTime - SimClock.getTime() + msgSize/((nei.getInterface(1).getTransmitSpeed() > 
 									host.getInterface(1).getTransmitSpeed()) ? host.getInterface(1).getTransmitSpeed() : 
-										nei.getInterface(1).getTransmitSpeed()) + this.transmitRange*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ;
+										nei.getInterface(1).getTransmitSpeed()) + this.transmitRange*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡;
 			return waitTime;
 		}
 		else{
-			assert false :"Ô¤²â½á¹ûÊ§Ğ§ ";
+			assert false :"é¢„æµ‹ç»“æœå¤±æ•ˆ ";
 			return -1;
 		}
 	}
 	/**
-	 * ¼ÆËãÖ¸¶¨Á´Â·(Á½¸ö½ÚµãÖ®¼ä)ËùĞèµÄ´«ÊäÊ±¼ä
+	 * è®¡ç®—æŒ‡å®šé“¾è·¯(ä¸¤ä¸ªèŠ‚ç‚¹ä¹‹é—´)æ‰€éœ€çš„ä¼ è¾“æ—¶é—´
 	 * @param msgSize
 	 * @param nei
 	 * @param host
@@ -1145,23 +1145,23 @@ public class CGR extends ActiveRouter{
 	public double calculateDelay(int msgSize, DTNHost nei , DTNHost host){
 		double transmitDelay = msgSize/((nei.getInterface(1).getTransmitSpeed() > host.getInterface(1).getTransmitSpeed()) ? 
 				host.getInterface(1).getTransmitSpeed() : nei.getInterface(1).getTransmitSpeed()) + 
-				this.transmitDelay[host.getAddress()] + getDistance(nei, host)*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ
+				this.transmitDelay[host.getAddress()] + getDistance(nei, host)*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡
 		return transmitDelay;
 	}
 	/**
-	 * ¼ÆËãµ±Ç°½ÚµãÓëÒ»ÌøÁÚ¾ÓµÄ´«ÊäÑÓÊ±
+	 * è®¡ç®—å½“å‰èŠ‚ç‚¹ä¸ä¸€è·³é‚»å±…çš„ä¼ è¾“å»¶æ—¶
 	 * @param msgSize
 	 * @param host
 	 * @return
 	 */
 	public double calculateNeighborsDelay(int msgSize, DTNHost host){
 		double transmitDelay = msgSize/((this.getHost().getInterface(1).getTransmitSpeed() > host.getInterface(1).getTransmitSpeed()) ? 
-				host.getInterface(1).getTransmitSpeed() : this.getHost().getInterface(1).getTransmitSpeed()) + getDistance(this.getHost(), host)*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ
+				host.getInterface(1).getTransmitSpeed() : this.getHost().getInterface(1).getTransmitSpeed()) + getDistance(this.getHost(), host)*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡
 		return transmitDelay;
 	}
 	
 	/**
-	 * ¼ÆËãÁ½¸ö½ÚµãÖ®¼äµÄ¾àÀë
+	 * è®¡ç®—ä¸¤ä¸ªèŠ‚ç‚¹ä¹‹é—´çš„è·ç¦»
 	 * @param a
 	 * @param b
 	 * @return
@@ -1180,7 +1180,7 @@ public class CGR extends ActiveRouter{
 		return distance;
 	}
 	/**
-	 * ¸ù¾İ½ÚµãµØÖ·ÕÒµ½£¬Óë´Ë½ÚµãÏàÁ¬µÄÁ¬½Ó
+	 * æ ¹æ®èŠ‚ç‚¹åœ°å€æ‰¾åˆ°ï¼Œä¸æ­¤èŠ‚ç‚¹ç›¸è¿çš„è¿æ¥
 	 * @param address
 	 * @return
 	 */
@@ -1191,10 +1191,10 @@ public class CGR extends ActiveRouter{
 				return c;
 			}
 		}
-		return null;//Ã»ÓĞÔÚÒÑÓĞÁ¬½ÓÖĞÕÒµ½Í¨¹ıÖ¸¶¨½ÚµãµÄÂ·¾¶
+		return null;//æ²¡æœ‰åœ¨å·²æœ‰è¿æ¥ä¸­æ‰¾åˆ°é€šè¿‡æŒ‡å®šèŠ‚ç‚¹çš„è·¯å¾„
 	}
 	/**
-	 * ·¢ËÍÒ»¸öĞÅÏ¢µ½ÌØ¶¨µÄÏÂÒ»Ìø
+	 * å‘é€ä¸€ä¸ªä¿¡æ¯åˆ°ç‰¹å®šçš„ä¸‹ä¸€è·³
 	 * @param t
 	 * @return
 	 */
@@ -1207,42 +1207,42 @@ public class CGR extends ActiveRouter{
 		int retVal = startTransfer(m, con);
 		 if (retVal == RCV_OK) {  //accepted a message, don't try others
 	            return m;     
-	        } else if (retVal > 0) { //ÏµÍ³¶¨Òå£¬Ö»ÓĞTRY_LATER_BUSY´óÓÚ0£¬¼´Îª1
+	        } else if (retVal > 0) { //ç³»ç»Ÿå®šä¹‰ï¼Œåªæœ‰TRY_LATER_BUSYå¤§äº0ï¼Œå³ä¸º1
 	            return null;          // should try later -> don't bother trying others
 	        }
 		 return null;
 	}
 
 	/**
-	 * ÓÃÓÚÅĞ¶ÏÏÂÒ»Ìø½ÚµãÊÇ·ñ´¦ÓÚ·¢ËÍ»ò½ÓÊÜ×´Ì¬
+	 * ç”¨äºåˆ¤æ–­ä¸‹ä¸€è·³èŠ‚ç‚¹æ˜¯å¦å¤„äºå‘é€æˆ–æ¥å—çŠ¶æ€
 	 * @param t
 	 * @return
 	 */
 	public boolean hostIsBusyOrNot(Tuple<Message, Connection> t){
 		
 		Connection con = t.getValue();
-		/**¼ì²éËù¾­¹ıÂ·¾¶µÄÇé¿ö£¬Èç¹ûÏÂÒ»ÌøµÄÁ´Â·ÒÑ¾­±»Õ¼ÓÃ£¬ÔòĞèÒªµÈ´ı**/
+		/**æ£€æŸ¥æ‰€ç»è¿‡è·¯å¾„çš„æƒ…å†µï¼Œå¦‚æœä¸‹ä¸€è·³çš„é“¾è·¯å·²ç»è¢«å ç”¨ï¼Œåˆ™éœ€è¦ç­‰å¾…**/
 		if (con.isTransferring() || ((CGR)con.getOtherNode(this.getHost()).getRouter()).isTransferring()){				
-			return true;//ËµÃ÷Ä¿µÄ½ÚµãÕıÃ¦
+			return true;//è¯´æ˜ç›®çš„èŠ‚ç‚¹æ­£å¿™
 		}
 		return false;
-		/**ÖÁÓÚ¼ì²éËùÓĞµÄÁ´Â·Õ¼ÓÃÇé¿ö£¬¿´±¾½ÚµãÊÇ·ñÔÚ¶ÔÍâ·¢ËÍµÄÇé¿ö£¬ÔÚupdateº¯ÊıÖĞÒÑ¾­¼ì²é¹ıÁË£¬ÔÚ´ËÎŞĞèÖØ¸´¼ì²é**/
+		/**è‡³äºæ£€æŸ¥æ‰€æœ‰çš„é“¾è·¯å ç”¨æƒ…å†µï¼Œçœ‹æœ¬èŠ‚ç‚¹æ˜¯å¦åœ¨å¯¹å¤–å‘é€çš„æƒ…å†µï¼Œåœ¨updateå‡½æ•°ä¸­å·²ç»æ£€æŸ¥è¿‡äº†ï¼Œåœ¨æ­¤æ— éœ€é‡å¤æ£€æŸ¥**/
 	}
 	/**
-	 * ´Ó¸ø¶¨ÏûÏ¢ºÍÖ¸¶¨Á´Â·£¬³¢ÊÔ·¢ËÍÏûÏ¢
+	 * ä»ç»™å®šæ¶ˆæ¯å’ŒæŒ‡å®šé“¾è·¯ï¼Œå°è¯•å‘é€æ¶ˆæ¯
 	 * @param t
 	 * @return
 	 */
 	public boolean sendMsg(Tuple<Message, Connection> t){
 		if (t == null){	
-			assert false : "error!";//Èç¹ûÈ·ÊµÊÇĞèÒªµÈ´ıÎ´À´µÄÒ»¸ö½Úµã¾ÍµÈ£¬ÏÈ´«ÏÂÒ»¸ö,´ıĞŞ¸Ä!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			assert false : "error!";//å¦‚æœç¡®å®æ˜¯éœ€è¦ç­‰å¾…æœªæ¥çš„ä¸€ä¸ªèŠ‚ç‚¹å°±ç­‰ï¼Œå…ˆä¼ ä¸‹ä¸€ä¸ª,å¾…ä¿®æ”¹!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return false;
 		}
 		else{
-			if (hostIsBusyOrNot(t) == true)//¼ÙÉèÄ¿µÄ½Úµã´¦ÓÚÃ¦µÄ×´Ì¬
-				return false;//·¢ËÍÊ§°Ü£¬ĞèÒªµÈ´ı
-			if (tryMessageToConnection(t) != null)//ÁĞ±íµÚÒ»¸öÔªËØ´Ó0Ö¸Õë¿ªÊ¼£¡£¡£¡	
-				return true;//Ö»Òª³É¹¦´«Ò»´Î£¬¾ÍÌø³öÑ­»·
+			if (hostIsBusyOrNot(t) == true)//å‡è®¾ç›®çš„èŠ‚ç‚¹å¤„äºå¿™çš„çŠ¶æ€
+				return false;//å‘é€å¤±è´¥ï¼Œéœ€è¦ç­‰å¾…
+			if (tryMessageToConnection(t) != null)//åˆ—è¡¨ç¬¬ä¸€ä¸ªå…ƒç´ ä»0æŒ‡é’ˆå¼€å§‹ï¼ï¼ï¼	
+				return true;//åªè¦æˆåŠŸä¼ ä¸€æ¬¡ï¼Œå°±è·³å‡ºå¾ªç¯
 			else
 				return false;
 		}
@@ -1254,30 +1254,30 @@ public class CGR extends ActiveRouter{
 	 */
 	@Override
 	public boolean isTransferring() {
-		//ÅĞ¶Ï¸Ã½ÚµãÄÜ·ñ½øĞĞ´«ÊäÏûÏ¢£¬´æÔÚÒÔÏÂÇé¿öÒ»ÖÖÒÔÉÏµÄ£¬Ö±½Ó·µ»Ø£¬²»¸üĞÂ,¼´ÏÖÔÚĞÅµÀÒÑ±»Õ¼ÓÃ£º
-		//ÇéĞÎ1£º±¾½ÚµãÕıÔÚÏòÍâ´«Êä
+		//åˆ¤æ–­è¯¥èŠ‚ç‚¹èƒ½å¦è¿›è¡Œä¼ è¾“æ¶ˆæ¯ï¼Œå­˜åœ¨ä»¥ä¸‹æƒ…å†µä¸€ç§ä»¥ä¸Šçš„ï¼Œç›´æ¥è¿”å›ï¼Œä¸æ›´æ–°,å³ç°åœ¨ä¿¡é“å·²è¢«å ç”¨ï¼š
+		//æƒ…å½¢1ï¼šæœ¬èŠ‚ç‚¹æ­£åœ¨å‘å¤–ä¼ è¾“
 		if (this.sendingConnections.size() > 0) {//protected ArrayList<Connection> sendingConnections;
 			return true; // sending something
 		}
 		
 		List<Connection> connections = getConnections();
-		//ÇéĞÍ2£ºÃ»ÓĞÁÚ¾Ó½Úµã
+		//æƒ…å‹2ï¼šæ²¡æœ‰é‚»å±…èŠ‚ç‚¹
 		if (connections.size() == 0) {
 			return false; // not connected
 		}
-		//ÇéĞÍ3£ºÓĞÁÚ¾Ó½Úµã£¬µ«×ÔÉíÓëÖÜÎ§½ÚµãÕıÔÚ´«Êä
-		//Ä£ÄâÁËÎŞÏß¹ã²¥Á´Â·£¬¼´ÁÚ¾Ó½ÚµãÖ®¼äÍ¬Ê±Ö»ÄÜÓĞÒ»¶Ô½Úµã´«ÊäÊı¾İ!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		//ĞèÒªĞŞ¸Ä!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//æƒ…å‹3ï¼šæœ‰é‚»å±…èŠ‚ç‚¹ï¼Œä½†è‡ªèº«ä¸å‘¨å›´èŠ‚ç‚¹æ­£åœ¨ä¼ è¾“
+		//æ¨¡æ‹Ÿäº†æ— çº¿å¹¿æ’­é“¾è·¯ï¼Œå³é‚»å±…èŠ‚ç‚¹ä¹‹é—´åŒæ—¶åªèƒ½æœ‰ä¸€å¯¹èŠ‚ç‚¹ä¼ è¾“æ•°æ®!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//éœ€è¦ä¿®æ”¹!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		for (int i=0, n=connections.size(); i<n; i++) {
 			Connection con = connections.get(i);
-			if (!con.isReadyForTransfer()) {//isReadyForTransfer·µ»ØfalseÔò±íÊ¾ÓĞĞÅµÀÔÚ±»Õ¼ÓÃ£¬Òò´Ë¶ÔÓÚ¹ã²¥ĞÅµÀ¶øÑÔ²»ÄÜ´«Êä
+			if (!con.isReadyForTransfer()) {//isReadyForTransferè¿”å›falseåˆ™è¡¨ç¤ºæœ‰ä¿¡é“åœ¨è¢«å ç”¨ï¼Œå› æ­¤å¯¹äºå¹¿æ’­ä¿¡é“è€Œè¨€ä¸èƒ½ä¼ è¾“
 				return true;	// a connection isn't ready for new transfer
 			}
 		}		
 		return false;		
 	}
 	/**
-	 * ´ËÖØĞ´º¯Êı±£Ö¤ÔÚ´«ÊäÍê³ÉÖ®ºó£¬Ô´½ÚµãµÄĞÅÏ¢´Ómessages»º´æÖĞÉ¾³ı
+	 * æ­¤é‡å†™å‡½æ•°ä¿è¯åœ¨ä¼ è¾“å®Œæˆä¹‹åï¼ŒæºèŠ‚ç‚¹çš„ä¿¡æ¯ä»messagesç¼“å­˜ä¸­åˆ é™¤
 	 */
 	@Override
 	protected void transferDone(Connection con){

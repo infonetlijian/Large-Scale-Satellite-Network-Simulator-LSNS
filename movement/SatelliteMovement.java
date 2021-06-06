@@ -10,12 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import core.*;
 import routing.SatelliteInterLinkInfo;
 import satellite_orbit.SatelliteOrbit;
-import core.Coord;
-import core.DTNHost;
-import core.Settings;
-import core.SimError;
 
 public class SatelliteMovement extends MovementModel {
     /**
@@ -49,27 +46,40 @@ public class SatelliteMovement extends MovementModel {
 	/** Container for generic message properties. Note that all values
 	 * stored in the properties should be immutable because only a shallow
 	 * copy of the properties is made when replicating messages */
-	private Map<String, Object> properties;//ÉèÖÃÎÀĞÇµÄ×Ô¶¨ÒåÊôĞÔ
+	private Map<String, Object> properties;//è®¾ç½®å«æ˜Ÿçš„è‡ªå®šä¹‰å±æ€§
 	
 	private SatelliteInterLinkInfo satelliteLinkInfo;
 
+	private Double stationaryTimeSetting;
+	private double[] stationaryLocation;
+
 	/** dynamic clustering by MEO or static clustering by MEO */
 	private static boolean dynamicClustering;
+    /** set static topology status in the network for testing */
+	private static boolean stationaryTestMode;
 	
     public SatelliteMovement(Settings settings) {
         super(settings);
         Settings s0 = new Settings("Interface");
 		dynamicClustering = s0.getBoolean("DynamicClustering");
+		Settings s1 = new Settings("userSetting");
+		stationaryTestMode = s1.getBoolean("stationaryTestMode");
+        stationaryTimeSetting = s1.getDouble("stationaryTimeSetting");
     }
 
     protected SatelliteMovement(SatelliteMovement rwp) {
         super(rwp);
+        Settings s0 = new Settings("Interface");
+        dynamicClustering = s0.getBoolean("DynamicClustering");
+        Settings s1 = new Settings("userSetting");
+        stationaryTestMode = s1.getBoolean("stationaryTestMode");
+        stationaryTimeSetting = s1.getDouble("stationaryTimeSetting");
     }
     /**
-     * ÔÚ½Ó¿Ú½¨Á¢Á¬½ÓµÄÊ±ºòµ÷ÓÃ£¬È·¶¨Ã¿¸ö½ÚµãµÄÁ¬½Ó½¨Á¢
+     * åœ¨æ¥å£å»ºç«‹è¿æ¥çš„æ—¶å€™è°ƒç”¨ï¼Œç¡®å®šæ¯ä¸ªèŠ‚ç‚¹çš„è¿æ¥å»ºç«‹
      */
     public List<DTNHost> updateSatelliteLinkInfo(){
-    	//Í¬²ãÖ®¼äÔÊĞí½¨Á¢µÄÁ´Â·¹æÔò(4ÌõÁ´Â·)
+    	//åŒå±‚ä¹‹é—´å…è®¸å»ºç«‹çš„é“¾è·¯è§„åˆ™(4æ¡é“¾è·¯)
     	List<DTNHost> allowConnectedListInSameLayer = new ArrayList<DTNHost>();
     	switch(this.getSatelliteType()){
     	case "LEO":{
@@ -77,13 +87,13 @@ public class SatelliteMovement extends MovementModel {
     			break;
     		allowConnectedListInSameLayer.addAll(this.satelliteLinkInfo.getLEOci().getAllowConnectLEOHostsInLEOSamePlane());
     		//allowConnectedListInSameLayer.addAll(this.satelliteLinkInfo.getLEOci().updateAllowConnectLEOHostsInNeighborPlane());
-    		//Ö»ÓĞÍ¨ĞÅ½Úµã²ÅÄÜºÍMEO½Úµã½øĞĞÍ¨ĞÅ
+    		//åªæœ‰é€šä¿¡èŠ‚ç‚¹æ‰èƒ½å’ŒMEOèŠ‚ç‚¹è¿›è¡Œé€šä¿¡
     		if (this.getHost().getRouter().CommunicationSatellitesLabel){
     			List<DTNHost> MEOLists = new ArrayList<DTNHost>();
     			if (getDynamicClustering())
     				MEOLists.addAll(this.satelliteLinkInfo.findAllMEOHosts());
     			else{
-    				//Ìí¼Ó¾²Ì¬·Ö´ØÖ¸¶¨µÄ¹ÜÀí½Úµã£¬ÓÉinitStaticClustering()³õÊ¼»¯£¬ÔÚSimScenario.javaÖĞµ÷ÓÃ
+    				//æ·»åŠ é™æ€åˆ†ç°‡æŒ‡å®šçš„ç®¡ç†èŠ‚ç‚¹ï¼Œç”±initStaticClustering()åˆå§‹åŒ–ï¼Œåœ¨SimScenario.javaä¸­è°ƒç”¨
     				MEOLists.addAll(this.getSatelliteLinkInfo().getLEOci().getManageHosts());
     				//System.out.println(this.getHost()+" mh: "+this.getSatelliteLinkInfo().getLEOci().getManageHosts());
     			}
@@ -97,7 +107,7 @@ public class SatelliteMovement extends MovementModel {
     			break;
     		allowConnectedListInSameLayer.addAll(this.satelliteLinkInfo.getMEOci().updateAllowConnectMEOHostsInNeighborPlane());
     		allowConnectedListInSameLayer.addAll(this.satelliteLinkInfo.getMEOci().getAllowConnectMEOHostsInSamePlane());
-    		//Ìí¼Ó¾²Ì¬·Ö´ØÖ¸¶¨µÄLEO´ØÄÚ½Úµã
+    		//æ·»åŠ é™æ€åˆ†ç°‡æŒ‡å®šçš„LEOç°‡å†…èŠ‚ç‚¹
 //        	if (!dynamicClustering){
 //        		allowConnectedListInSameLayer.addAll(this.satelliteLinkInfo.getMEOci().getClusterList());
 //        		System.out.println(this.getHost()+" cluster "+this.satelliteLinkInfo.getMEOci().getClusterList());
@@ -216,7 +226,7 @@ public class SatelliteMovement extends MovementModel {
      * be careful with the initialization time
      */
     public void initSatelliteInfo(){
-    	//´Ë³õÊ¼»¯º¯Êı£¬ÔÚSimScenarioÖĞ±»µ÷ÓÃ
+    	//æ­¤åˆå§‹åŒ–å‡½æ•°ï¼Œåœ¨SimScenarioä¸­è¢«è°ƒç”¨
     	if (this.satelliteLinkInfo != null)
     		return;
     	this.satelliteLinkInfo = new SatelliteInterLinkInfo(this.getHost(), satelliteType);
@@ -228,6 +238,9 @@ public class SatelliteMovement extends MovementModel {
      * @return
      */
     public double[] getSatelliteCoordinate(double time) {
+        if (stationaryTestMode & SimClock.getTime() >= stationaryTimeSetting & stationaryLocation != null)
+            return stationaryLocation;
+
         double[][] coordinate = new double[1][3];
         double[] xyz = new double[3];
 
@@ -235,14 +248,19 @@ public class SatelliteMovement extends MovementModel {
         int worldSize[] = s.getCsvInts("worldSize");
 
         coordinate = satelliteOrbit.getSatelliteCoordinate(time);
-        /**ONEÖĞµÄ¾àÀëµ¥Î»Îªmeter£¬µ«ÊÇJATÖĞµÄ¹ìµÀ°ë¾¶µ¥Î»Îªkm£¬Òò´ËÔÚµÃµ½µÄ×ø±êÖĞÓ¦¸Ã*1000½øĞĞ×ª»»**/
-//		xyz[0] = (coordinate[0][0]*1000 + worldSize/2);//×ø˜ËİSÆ½ÒÆ
+        /**ONEä¸­çš„è·ç¦»å•ä½ä¸ºmeterï¼Œä½†æ˜¯JATä¸­çš„è½¨é“åŠå¾„å•ä½ä¸ºkmï¼Œå› æ­¤åœ¨å¾—åˆ°çš„åæ ‡ä¸­åº”è¯¥*1000è¿›è¡Œè½¬æ¢**/
+//		xyz[0] = (coordinate[0][0]*1000 + worldSize/2);//åæ¨™è»¸å¹³ç§»
 //		xyz[1] = (coordinate[0][1]*1000 + worldSize/2);
 //		xyz[2] = (coordinate[0][2]*1000 + worldSize/2);
-        /**ONEÖĞµÄ¾àÀëµ¥Î»Îªmeter£¬µ«ÊÇJATÖĞµÄ¹ìµÀ°ë¾¶µ¥Î»Îªkm£¬Òò´Ë´Ë×öÍ³Ò»Ëõ·Å£¬½«ONEÖĞµÄ¾àÀëµ¥Î»Ò²ÊÓ×÷km£¬Í¬Ê±×ø±êÆ½ÒÆÁ¿±£³ÖÎªworld´óĞ¡µÄÒ»°ë**/
+        /**ONEä¸­çš„è·ç¦»å•ä½ä¸ºmeterï¼Œä½†æ˜¯JATä¸­çš„è½¨é“åŠå¾„å•ä½ä¸ºkmï¼Œå› æ­¤æ­¤åšç»Ÿä¸€ç¼©æ”¾ï¼Œå°†ONEä¸­çš„è·ç¦»å•ä½ä¹Ÿè§†ä½œkmï¼ŒåŒæ—¶åæ ‡å¹³ç§»é‡ä¿æŒä¸ºworldå¤§å°çš„ä¸€åŠ**/
         xyz[0] = (coordinate[0][0] + worldSize[0] / 2);// move the coordinate axis
         xyz[1] = (coordinate[0][1] + worldSize[0] / 2);
         xyz[2] = (coordinate[0][2] + worldSize[0] / 2);
+
+        if (stationaryTestMode & SimClock.getTime() >= stationaryTimeSetting) {
+            stationaryLocation = xyz;
+            return stationaryLocation;
+        }
 
         return xyz;
     }
@@ -255,6 +273,10 @@ public class SatelliteMovement extends MovementModel {
      * @return
      */
     public double[] calculateOrbitCoordinate(double[] parameters, double time) {
+        if (stationaryTestMode & SimClock.getTime() >= stationaryTimeSetting & stationaryLocation != null) {
+            return stationaryLocation;
+        }
+
         double[][] coordinate = new double[1][3];
         double[] xyz = new double[3];
         SatelliteOrbit so = new SatelliteOrbit(parameters);
@@ -262,10 +284,15 @@ public class SatelliteMovement extends MovementModel {
         
         Settings s = new Settings("MovementModel");
         int worldSize[] = s.getCsvInts("worldSize");
-        /**ONEÖĞµÄ¾àÀëµ¥Î»Îªmeter£¬µ«ÊÇJATÖĞµÄ¹ìµÀ°ë¾¶µ¥Î»Îªkm£¬Òò´Ë´Ë×öÍ³Ò»Ëõ·Å£¬½«ONEÖĞµÄ¾àÀëµ¥Î»Ò²ÊÓ×÷km£¬Í¬Ê±×ø±êÆ½ÒÆÁ¿±£³ÖÎªworld´óĞ¡µÄÒ»°ë**/
+        /**ONEä¸­çš„è·ç¦»å•ä½ä¸ºmeterï¼Œä½†æ˜¯JATä¸­çš„è½¨é“åŠå¾„å•ä½ä¸ºkmï¼Œå› æ­¤æ­¤åšç»Ÿä¸€ç¼©æ”¾ï¼Œå°†ONEä¸­çš„è·ç¦»å•ä½ä¹Ÿè§†ä½œkmï¼ŒåŒæ—¶åæ ‡å¹³ç§»é‡ä¿æŒä¸ºworldå¤§å°çš„ä¸€åŠ**/
         xyz[0] = (coordinate[0][0] + worldSize[0] / 2);// move the coordinate axis
         xyz[1] = (coordinate[0][1] + worldSize[0] / 2);
         xyz[2] = (coordinate[0][2] + worldSize[0] / 2);
+
+        if (stationaryTestMode & SimClock.getTime() >= stationaryTimeSetting) {
+            stationaryLocation = xyz;
+            return stationaryLocation;
+        }
 
         return xyz;
     }

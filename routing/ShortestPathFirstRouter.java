@@ -52,7 +52,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
      */
     public static final String TRANSMIT_RANGE_S = "transmitRange";
     
-    /** light speed£¬approximate 3*10^8m/s */
+    /** light speedï¼Œapproximate 3*10^8m/s */
     private static final double LIGHTSPEED = 299792458;
     /** the interval of each hello process -setting id ({@value} */
     private double helloInterval;
@@ -82,7 +82,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
     
     private List<Message> helloMessages;
     
-	/** ÓÃÓÚÅĞ¶Ï°üµÄÀàĞÍ */
+	/** ç”¨äºåˆ¤æ–­åŒ…çš„ç±»å‹ */
 	public String SelectLabel;
 	/** Queue mode for sending messages */
 	protected int sendQueueMode;
@@ -120,7 +120,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
     }
     
     /**
-     * ÔÚNetworkinterfaceÀàÖĞÖ´ĞĞÁ´Â·ÖĞ¶Ïº¯Êıdisconnect()ºó£¬¶ÔÓ¦½ÚµãµÄrouterµ÷ÓÃ´Ëº¯Êı
+     * åœ¨Networkinterfaceç±»ä¸­æ‰§è¡Œé“¾è·¯ä¸­æ–­å‡½æ•°disconnect()åï¼Œå¯¹åº”èŠ‚ç‚¹çš„routerè°ƒç”¨æ­¤å‡½æ•°
      */
     @Override
     public void changedConnection(Connection con) {
@@ -130,7 +130,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
 //			if(con.isTransferring()){
 //				if (con.getOtherNode(this.getHost()).getRouter().isIncomingMessage(con.getMessage().getId()))
 //					con.getOtherNode(this.getHost()).getRouter().removeFromIncomingBuffer(con.getMessage().getId(), this.getHost());
-//				super.addToMessages(con.getMessage(), false);//¶ÔÓÚÒòÎªÁ´Â·ÖĞ¶Ï¶ø¶ªÊ§µÄÏûÏ¢£¬ÖØĞÂ·Å»Ø·¢ËÍ·½µÄ¶ÓÁĞÖĞ£¬²¢ÇÒÉ¾³ı¶Ô·½½ÚµãµÄincomingĞÅÏ¢
+//				super.addToMessages(con.getMessage(), false);//å¯¹äºå› ä¸ºé“¾è·¯ä¸­æ–­è€Œä¸¢å¤±çš„æ¶ˆæ¯ï¼Œé‡æ–°æ”¾å›å‘é€æ–¹çš„é˜Ÿåˆ—ä¸­ï¼Œå¹¶ä¸”åˆ é™¤å¯¹æ–¹èŠ‚ç‚¹çš„incomingä¿¡æ¯
 //				System.out.println("message: "+con.getMessage());
 //			}
 //		}
@@ -145,8 +145,8 @@ public class ShortestPathFirstRouter extends ActiveRouter {
         if (isTransferring()) { 	// judge the link is occupied or not
             return; 				// can't start a new transfer
         }
-        if (connections.size() > 0) {//ÓĞÁÚ¾ÓÊ±ĞèÒª½øĞĞhello°ü·¢ËÍĞ­Òé
-            //helloProtocol();//Ö´ĞĞhello°üµÄÎ¬»¤¹¤×÷
+        if (connections.size() > 0) {//æœ‰é‚»å±…æ—¶éœ€è¦è¿›è¡ŒhelloåŒ…å‘é€åè®®
+            //helloProtocol();//æ‰§è¡ŒhelloåŒ…çš„ç»´æŠ¤å·¥ä½œ
         }
         if (!canStartTransfer())
             return;
@@ -173,7 +173,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
     
     public List<Message> CollectionToList(Collection<Message> messages){
     	List<Message> forMsg = new ArrayList<Message>();
-        for (Message msg : messages) {	//³¢ÊÔ·¢ËÍ¶ÓÁĞÀïµÄÏûÏ¢
+        for (Message msg : messages) {	//å°è¯•å‘é€é˜Ÿåˆ—é‡Œçš„æ¶ˆæ¯
         	forMsg.add(msg);
         }
     	return forMsg;
@@ -205,7 +205,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
      */
     public boolean broadcastHelloMessage(List<Tuple<Message, Connection>> Collections){
     	boolean tryLabel = false;
-    	//TODO deleteMessage·½·¨ÔÚstartTransfer·½·¨ÄÚ²¿ÓĞÓÃ¹ı
+    	//TODO deleteMessageæ–¹æ³•åœ¨startTransferæ–¹æ³•å†…éƒ¨æœ‰ç”¨è¿‡
     	//deleteMessage(m.getId(), true);
     	for (Tuple<Message, Connection> t : Collections){
     		if (sendMsg(t)){
@@ -305,7 +305,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
         	//routing path will be calculated in each hop
             Tuple<Message, Connection> t =
                     findPathFromRouterTabel(msg);
-//            System.out.println("ÏûÏ¢´«ÊäÔª×éÎª£º"+t);
+//            System.out.println("æ¶ˆæ¯ä¼ è¾“å…ƒç»„ä¸ºï¼š"+t);
             return sendMsg(t);
         }
     }
@@ -336,8 +336,8 @@ public class ShortestPathFirstRouter extends ActiveRouter {
         boolean waitLable = false;
         for (int i = 0; i < routerPath.size(); i++) {
             if (routerPath.get(i).getKey() == thisAddress) {
-                nextHopAddress = routerPath.get(i + 1).getKey();//ÕÒµ½ÏÂÒ»Ìø½ÚµãµØÖ·
-                waitLable = routerPath.get(i + 1).getValue();//ÕÒµ½ÏÂÒ»ÌøÊÇ·ñĞèÒªµÈ´ıµÄ±êÖ¾Î»
+                nextHopAddress = routerPath.get(i + 1).getKey();//æ‰¾åˆ°ä¸‹ä¸€è·³èŠ‚ç‚¹åœ°å€
+                waitLable = routerPath.get(i + 1).getValue();//æ‰¾åˆ°ä¸‹ä¸€è·³æ˜¯å¦éœ€è¦ç­‰å¾…çš„æ ‡å¿—ä½
                 break;
             }
         }
@@ -494,6 +494,8 @@ public class ShortestPathFirstRouter extends ActiveRouter {
      * @param msg
      */
     public void shortestPathSearch(Message msg) {
+        double t0 = System.nanoTime();
+        System.out.println("start: "+t0);//ç”¨äºç»Ÿè®¡è·¯ç”±ç®—æ³•çš„è¿è¡Œæ—¶é—´
         HashMap<DTNHost, List<DTNHost>> topologyInfo = temporalGraphCaluculation();//update the current topology information
 
         //TODO special situation
@@ -508,45 +510,45 @@ public class ShortestPathFirstRouter extends ActiveRouter {
             return;
         }
 
-        if (routerTableUpdateLabel == true)		//routerTableUpdateLabel == trueÔò´ú±í´Ë´Î¸üĞÂÂ·ÓÉ±íÒÑ¾­¸üĞÂ¹ıÁË£¬ËùÒÔ²»ÒªÖØ¸´¼ÆËã
+        if (routerTableUpdateLabel == true)		//routerTableUpdateLabel == trueåˆ™ä»£è¡¨æ­¤æ¬¡æ›´æ–°è·¯ç”±è¡¨å·²ç»æ›´æ–°è¿‡äº†ï¼Œæ‰€ä»¥ä¸è¦é‡å¤è®¡ç®—
             return;
         this.routerTable.clear();
         this.arrivalTime.clear();
 
-        /**È«ÍøµÄ´«ÊäËÙÂÊ¼Ù¶¨ÎªÒ»ÑùµÄ**/
+        /**å…¨ç½‘çš„ä¼ è¾“é€Ÿç‡å‡å®šä¸ºä¸€æ ·çš„**/
         double transmitSpeed = this.getHost().getInterface(1).getTransmitSpeed();
-        /**±íÊ¾Â·ÓÉ¿ªÊ¼µÄÊ±¼ä**/
+        /**è¡¨ç¤ºè·¯ç”±å¼€å§‹çš„æ—¶é—´**/
 
-        /**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/
+        /**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/
         List<DTNHost> searchedSet = new ArrayList<DTNHost>();
         List<DTNHost> sourceSet = new ArrayList<DTNHost>();
-        sourceSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½ÚµãËù
-        searchedSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½Úµã
+        sourceSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹æ‰€
+        searchedSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹
 
-        for (Connection con : this.getHost().getConnections()) {//Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í
+        for (Connection con : this.getHost().getConnections()) {//æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨
             DTNHost neiHost = con.getOtherNode(this.getHost());
-            sourceSet.add(neiHost);//³õÊ¼Ê±Ö»ÓĞ±¾½ÚµãºÍÁ´Â·ÁÚ¾Ó
+            sourceSet.add(neiHost);//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹å’Œé“¾è·¯é‚»å±…
             Double time = getTime() + msg.getSize() / this.getHost().getInterface(1).getTransmitSpeed();
             List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
             Tuple<Integer, Boolean> hop = new Tuple<Integer, Boolean>(neiHost.getAddress(), false);
-            path.add(hop);//×¢ÒâË³Ğò
+            path.add(hop);//æ³¨æ„é¡ºåº
             arrivalTime.put(neiHost, time);
             routerTable.put(neiHost, path);
         }
-        /**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/
+        /**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/
 
         int iteratorTimes = 0;
         int size = getHosts().size();
         boolean updateLabel = true;
         boolean predictLable = false;
 
-        arrivalTime.put(this.getHost(), SimClock.getTime());//³õÊ¼»¯µ½´ïÊ±¼ä
+        arrivalTime.put(this.getHost(), SimClock.getTime());//åˆå§‹åŒ–åˆ°è¾¾æ—¶é—´
 
-        /**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+        /**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
         List<Tuple<DTNHost, Double>> PriorityQueue = new ArrayList<Tuple<DTNHost, Double>>();
-        /**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+        /**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
         
-        while (true) {//DijsktraËã·¨Ë¼Ïë£¬Ã¿´ÎÀú±éÈ«¾Ö£¬ÕÒÊ±ÑÓ×îĞ¡µÄ¼ÓÈëÂ·ÓÉ±í£¬±£Ö¤Â·ÓÉ±íÖĞÓÀÔ¶ÊÇÊ±ÑÓ×îĞ¡µÄÂ·¾¶
+        while (true) {//Dijsktraç®—æ³•æ€æƒ³ï¼Œæ¯æ¬¡å†éå…¨å±€ï¼Œæ‰¾æ—¶å»¶æœ€å°çš„åŠ å…¥è·¯ç”±è¡¨ï¼Œä¿è¯è·¯ç”±è¡¨ä¸­æ°¸è¿œæ˜¯æ—¶å»¶æœ€å°çš„è·¯å¾„
             if (iteratorTimes >= size)//|| updateLabel == false)
                 break;
             updateLabel = false;
@@ -554,37 +556,37 @@ public class ShortestPathFirstRouter extends ActiveRouter {
             for (DTNHost c : sourceSet) {
                 List<DTNHost> neiList = topologyInfo.get(c);//get neighbor nodes from topology info
 
-                /**ÅĞ¶ÏÊÇ·ñÒÑ¾­ÊÇËÑË÷¹ıµÄÔ´Íø¸ñ¼¯ºÏÖĞµÄÍø¸ñ**/
+                /**åˆ¤æ–­æ˜¯å¦å·²ç»æ˜¯æœç´¢è¿‡çš„æºç½‘æ ¼é›†åˆä¸­çš„ç½‘æ ¼**/
                 if (searchedSet.contains(c) || neiList == null)
                     continue;
                 
                 searchedSet.add(c);
-                for (DTNHost eachNeighborNetgrid : neiList) {//startTime.keySet()°üº¬ÁËËùÓĞµÄÁÚ¾Ó½Úµã£¬°üº¬Î´À´µÄÁÚ¾Ó½Úµã
-                    if (sourceSet.contains(eachNeighborNetgrid))//È·±£²»»ØÍ·
+                for (DTNHost eachNeighborNetgrid : neiList) {//startTime.keySet()åŒ…å«äº†æ‰€æœ‰çš„é‚»å±…èŠ‚ç‚¹ï¼ŒåŒ…å«æœªæ¥çš„é‚»å±…èŠ‚ç‚¹
+                    if (sourceSet.contains(eachNeighborNetgrid))//ç¡®ä¿ä¸å›å¤´
                         continue;
                     
                     double time = arrivalTime.get(c) + msg.getSize() / transmitSpeed;
-                    /**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
+                    /**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
                     List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
                     if (this.routerTable.containsKey(c))
                         path.addAll(this.routerTable.get(c));
                     Tuple<Integer, Boolean> thisHop = new Tuple<Integer, Boolean>(eachNeighborNetgrid.getAddress(), predictLable);
-                    path.add(thisHop);//×¢ÒâË³Ğò
-                    /**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
-                    /**Î¬»¤×îĞ¡´«ÊäÊ±¼äµÄ¶ÓÁĞ**/
+                    path.add(thisHop);//æ³¨æ„é¡ºåº
+                    /**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
+                    /**ç»´æŠ¤æœ€å°ä¼ è¾“æ—¶é—´çš„é˜Ÿåˆ—**/
                     if (arrivalTime.containsKey(eachNeighborNetgrid)) {
-                        /**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+                        /**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
                         if (time <= arrivalTime.get(eachNeighborNetgrid)) {
-//                            if (random.nextBoolean() == true && time - arrivalTime.get(eachNeighborNetgrid) < 0.1) {//Èç¹ûÊ±¼äÏàµÈ£¬×öËæ»ú»¯Ñ¡Ôñ
+//                            if (random.nextBoolean() == true && time - arrivalTime.get(eachNeighborNetgrid) < 0.1) {//å¦‚æœæ—¶é—´ç›¸ç­‰ï¼ŒåšéšæœºåŒ–é€‰æ‹©
 //
-//                                /**×¢Òâ£¬ÔÚ¶Ô¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+//                                /**æ³¨æ„ï¼Œåœ¨å¯¹é˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 //                                int index = -1;
 //                                for (Tuple<DTNHost, Double> t : PriorityQueue) {
 //                                    if (t.getKey() == eachNeighborNetgrid) {
 //                                        index = PriorityQueue.indexOf(t);
 //                                    }
 //                                }
-//                                /**×¢Òâ£¬ÔÚÉÏÃæ¶ÔPriorityQueue¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+//                                /**æ³¨æ„ï¼Œåœ¨ä¸Šé¢å¯¹PriorityQueueé˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 //                                if (index > -1) {
 //                                    PriorityQueue.remove(index);
 //                                    PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborNetgrid, time));
@@ -593,14 +595,14 @@ public class ShortestPathFirstRouter extends ActiveRouter {
 //                                }
 //                            }
 
-                            /**×¢Òâ£¬ÔÚ¶Ô¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+                            /**æ³¨æ„ï¼Œåœ¨å¯¹é˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
                             int index = -1;
                             for (Tuple<DTNHost, Double> t : PriorityQueue) {
                                 if (t.getKey() == eachNeighborNetgrid) {
                                     index = PriorityQueue.indexOf(t);
                                 }
                             }
-                            /**×¢Òâ£¬ÔÚÉÏÃæ¶ÔPriorityQueue¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+                            /**æ³¨æ„ï¼Œåœ¨ä¸Šé¢å¯¹PriorityQueueé˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
                             if (index > -1) {
                                 PriorityQueue.remove(index);
                                 PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborNetgrid, time));
@@ -608,13 +610,13 @@ public class ShortestPathFirstRouter extends ActiveRouter {
                                 routerTable.put(eachNeighborNetgrid, path);
                             }
                         }
-                        /**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+                        /**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
                     } else {
                         PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborNetgrid, time));
                         arrivalTime.put(eachNeighborNetgrid, time);
                         routerTable.put(eachNeighborNetgrid, path);
                     }
-                    /**¶Ô¶ÓÁĞ½øĞĞÅÅĞò**/
+                    /**å¯¹é˜Ÿåˆ—è¿›è¡Œæ’åº**/
                     sort(PriorityQueue);
                     updateLabel = true;
                 }
@@ -622,14 +624,16 @@ public class ShortestPathFirstRouter extends ActiveRouter {
             iteratorTimes++;
             for (int i = 0; i < PriorityQueue.size(); i++) {
                 if (!sourceSet.contains(PriorityQueue.get(i).getKey())) {
-                    sourceSet.add(PriorityQueue.get(i).getKey());//½«ĞÂµÄ×î¶ÌÍø¸ñ¼ÓÈë
+                    sourceSet.add(PriorityQueue.get(i).getKey());//å°†æ–°çš„æœ€çŸ­ç½‘æ ¼åŠ å…¥
                     break;
                 }
             }
-//			if (routerTable.containsKey(msg.getTo()))//Èç¹ûÖĞÍ¾ÕÒµ½ĞèÒªµÄÂ·½£¬¾ÍÖ±½ÓÍË³öËÑË÷
+//			if (routerTable.containsKey(msg.getTo()))//å¦‚æœä¸­é€”æ‰¾åˆ°éœ€è¦çš„è·¯å¾‘ï¼Œå°±ç›´æ¥é€€å‡ºæœç´¢
 //				break;
         }
-        routerTableUpdateLabel = true;       
+        routerTableUpdateLabel = true;
+        double t1 = System.nanoTime();//ç”¨äºç»Ÿè®¡è·¯ç”±ç®—æ³•çš„è¿è¡Œæ—¶é—´
+        System.out.println("Total Cost: "+ (t1-t0));
     }
 
     /**
@@ -640,12 +644,12 @@ public class ShortestPathFirstRouter extends ActiveRouter {
     public List<Tuple<DTNHost, Double>> sort(List<Tuple<DTNHost, Double>> distanceList) {
         for (int j = 0; j < distanceList.size(); j++) {
             for (int i = 0; i < distanceList.size() - j - 1; i++) {
-                if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()) {//´ÓĞ¡µ½´ó£¬´óµÄÖµ·ÅÔÚ¶ÓÁĞÓÒ²à
+                if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()) {//ä»å°åˆ°å¤§ï¼Œå¤§çš„å€¼æ”¾åœ¨é˜Ÿåˆ—å³ä¾§
                     Tuple<DTNHost, Double> var1 = distanceList.get(i);
                     Tuple<DTNHost, Double> var2 = distanceList.get(i + 1);
                     distanceList.remove(i);
-                    distanceList.remove(i);//×¢Òâ£¬Ò»µ©Ö´ĞĞremoveÖ®ºó£¬Õû¸öListµÄ´óĞ¡¾Í±äÁË£¬ËùÒÔÔ­±¾i+1µÄÎ»ÖÃÏÖÔÚ±ä³ÉÁËi
-                    //×¢ÒâË³Ğò
+                    distanceList.remove(i);//æ³¨æ„ï¼Œä¸€æ—¦æ‰§è¡Œremoveä¹‹åï¼Œæ•´ä¸ªListçš„å¤§å°å°±å˜äº†ï¼Œæ‰€ä»¥åŸæœ¬i+1çš„ä½ç½®ç°åœ¨å˜æˆäº†i
+                    //æ³¨æ„é¡ºåº
                     distanceList.add(i, var2);
                     distanceList.add(i + 1, var1);
                 }
@@ -663,7 +667,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
     public List<DTNHost> getHostListFromPath(List<Integer> path) {
         List<DTNHost> hostsOfPath = new ArrayList<DTNHost>();
         for (int i = 0; i < path.size(); i++) {
-            hostsOfPath.add(this.getHostFromAddress(path.get(i)));//¸ù¾İ½ÚµãµØÖ·ÕÒµ½DTNHost
+            hostsOfPath.add(this.getHostFromAddress(path.get(i)));//æ ¹æ®èŠ‚ç‚¹åœ°å€æ‰¾åˆ°DTNHost
         }
         return hostsOfPath;
     }
@@ -731,7 +735,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
         int retVal = startTransfer(m, con);
         if (retVal == RCV_OK) {  	//accepted a message, don't try others
             return m;
-        } else if (retVal > 0) { 	//ÏµÍ³¶¨Òå£¬Ö»ÓĞTRY_LATER_BUSY´óÓÚ0£¬¼´Îª1
+        } else if (retVal > 0) { 	//ç³»ç»Ÿå®šä¹‰ï¼Œåªæœ‰TRY_LATER_BUSYå¤§äº0ï¼Œå³ä¸º1
             return null;          	// should try later -> don't bother trying others
         }
         return null;
@@ -748,12 +752,12 @@ public class ShortestPathFirstRouter extends ActiveRouter {
         Connection con = t.getValue();
         if (con == null)
         	return false;
-        /**¼ì²éËù¾­¹ıÂ·¾¶µÄÇé¿ö£¬Èç¹ûÏÂÒ»ÌøµÄÁ´Â·ÒÑ¾­±»Õ¼ÓÃ£¬ÔòĞèÒªµÈ´ı**/
+        /**æ£€æŸ¥æ‰€ç»è¿‡è·¯å¾„çš„æƒ…å†µï¼Œå¦‚æœä¸‹ä¸€è·³çš„é“¾è·¯å·²ç»è¢«å ç”¨ï¼Œåˆ™éœ€è¦ç­‰å¾…**/
         if (con.isTransferring() || ((ShortestPathFirstRouter) con.getOtherNode(this.getHost()).getRouter()).isTransferring()) {
-            return true;//ËµÃ÷Ä¿µÄ½ÚµãÕıÃ¦
+            return true;//è¯´æ˜ç›®çš„èŠ‚ç‚¹æ­£å¿™
         }
         return false;
-        /**ÖÁÓÚ¼ì²éËùÓĞµÄÁ´Â·Õ¼ÓÃÇé¿ö£¬¿´±¾½ÚµãÊÇ·ñÔÚ¶ÔÍâ·¢ËÍµÄÇé¿ö£¬ÔÚupdateº¯ÊıÖĞÒÑ¾­¼ì²é¹ıÁË£¬ÔÚ´ËÎŞĞèÖØ¸´¼ì²é**/
+        /**è‡³äºæ£€æŸ¥æ‰€æœ‰çš„é“¾è·¯å ç”¨æƒ…å†µï¼Œçœ‹æœ¬èŠ‚ç‚¹æ˜¯å¦åœ¨å¯¹å¤–å‘é€çš„æƒ…å†µï¼Œåœ¨updateå‡½æ•°ä¸­å·²ç»æ£€æŸ¥è¿‡äº†ï¼Œåœ¨æ­¤æ— éœ€é‡å¤æ£€æŸ¥**/
     }
 
     /**
@@ -785,22 +789,22 @@ public class ShortestPathFirstRouter extends ActiveRouter {
      */
     @Override
     public boolean isTransferring() {
-        //ÅĞ¶Ï¸Ã½ÚµãÄÜ·ñ½øĞĞ´«ÊäÏûÏ¢£¬´æÔÚÒÔÏÂÇé¿öÒ»ÖÖÒÔÉÏµÄ£¬Ö±½Ó·µ»Ø£¬²»¸üĞÂ,¼´ÏÖÔÚĞÅµÀÒÑ±»Õ¼ÓÃ£º
-        //ÇéĞÎ1£º±¾½ÚµãÕıÔÚÏòÍâ´«Êä
+        //åˆ¤æ–­è¯¥èŠ‚ç‚¹èƒ½å¦è¿›è¡Œä¼ è¾“æ¶ˆæ¯ï¼Œå­˜åœ¨ä»¥ä¸‹æƒ…å†µä¸€ç§ä»¥ä¸Šçš„ï¼Œç›´æ¥è¿”å›ï¼Œä¸æ›´æ–°,å³ç°åœ¨ä¿¡é“å·²è¢«å ç”¨ï¼š
+        //æƒ…å½¢1ï¼šæœ¬èŠ‚ç‚¹æ­£åœ¨å‘å¤–ä¼ è¾“
         if (this.sendingConnections.size() > 0) {//protected ArrayList<Connection> sendingConnections;
             return true; // sending something
         }
 
         List<Connection> connections = getConnections();
-        //ÇéĞÍ2£ºÃ»ÓĞÁÚ¾Ó½Úµã
+        //æƒ…å‹2ï¼šæ²¡æœ‰é‚»å±…èŠ‚ç‚¹
         if (connections.size() == 0) {
             return false; // not connected
         }
-        //ÇéĞÍ3£ºÓĞÁÚ¾Ó½Úµã£¬µ«×ÔÉíÓëÖÜÎ§½ÚµãÕıÔÚ´«Êä
-        //Ä£ÄâÁËÎŞÏß¹ã²¥Á´Â·£¬¼´ÁÚ¾Ó½ÚµãÖ®¼äÍ¬Ê±Ö»ÄÜÓĞÒ»¶Ô½Úµã´«ÊäÊı¾İ!
+        //æƒ…å‹3ï¼šæœ‰é‚»å±…èŠ‚ç‚¹ï¼Œä½†è‡ªèº«ä¸å‘¨å›´èŠ‚ç‚¹æ­£åœ¨ä¼ è¾“
+        //æ¨¡æ‹Ÿäº†æ— çº¿å¹¿æ’­é“¾è·¯ï¼Œå³é‚»å±…èŠ‚ç‚¹ä¹‹é—´åŒæ—¶åªèƒ½æœ‰ä¸€å¯¹èŠ‚ç‚¹ä¼ è¾“æ•°æ®!
         for (int i = 0, n = connections.size(); i < n; i++) {
             Connection con = connections.get(i);
-            //isReadyForTransfer·µ»ØfalseÔò±íÊ¾ÓĞĞÅµÀÔÚ±»Õ¼ÓÃ£¬Òò´Ë¶ÔÓÚ¹ã²¥ĞÅµÀ¶øÑÔ²»ÄÜ´«Êä
+            //isReadyForTransferè¿”å›falseåˆ™è¡¨ç¤ºæœ‰ä¿¡é“åœ¨è¢«å ç”¨ï¼Œå› æ­¤å¯¹äºå¹¿æ’­ä¿¡é“è€Œè¨€ä¸èƒ½ä¼ è¾“
             if (!con.isReadyForTransfer()) {
                 return true;    // a connection isn't ready for new transfer
             }
@@ -809,7 +813,7 @@ public class ShortestPathFirstRouter extends ActiveRouter {
     }
 
     /**
-     * ´ËÖØĞ´º¯Êı±£Ö¤ÔÚ´«ÊäÍê³ÉÖ®ºó£¬Ô´½ÚµãµÄĞÅÏ¢´Ómessages»º´æÖĞÉ¾³ı
+     * æ­¤é‡å†™å‡½æ•°ä¿è¯åœ¨ä¼ è¾“å®Œæˆä¹‹åï¼ŒæºèŠ‚ç‚¹çš„ä¿¡æ¯ä»messagesç¼“å­˜ä¸­åˆ é™¤
      */
     @Override
     protected void transferDone(Connection con) {

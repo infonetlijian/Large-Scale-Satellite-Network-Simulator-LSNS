@@ -77,14 +77,14 @@ public class SimpleSatelliteInterface extends NetworkInterface {
 				&& (this.interfaceType == anotherInterface.getInterfaceType())) {
 			// new contact within range
 			// connection speed is the lower one of the two speeds 
-			int conSpeed = anotherInterface.getTransmitSpeed();//Á¬½ÓÁ½¶ËµÄÁ¬½ÓËÙÂÊÓÉ½ÏĞ¡µÄÒ»¸ö¾ö¶¨			
+			int conSpeed = anotherInterface.getTransmitSpeed();//è¿æ¥ä¸¤ç«¯çš„è¿æ¥é€Ÿç‡ç”±è¾ƒå°çš„ä¸€ä¸ªå†³å®š			
 			if (conSpeed > this.transmitSpeed) {
 				conSpeed = this.transmitSpeed; 
 			}
 
 			Connection con = new CBRConnection(this.host, this, 
 					anotherInterface.getHost(), anotherInterface, conSpeed);
-			connect(con,anotherInterface);//»á·ÃÎÊÁ¬½ÓË«·½µÄhost½Úµã£¬°ÑÕâ¸öĞÂÉú³ÉµÄÁ¬½Ócon¼ÓÈëÁ¬½ÓÁĞ±íÖĞ
+			connect(con,anotherInterface);//ä¼šè®¿é—®è¿æ¥åŒæ–¹çš„hostèŠ‚ç‚¹ï¼ŒæŠŠè¿™ä¸ªæ–°ç”Ÿæˆçš„è¿æ¥conåŠ å…¥è¿æ¥åˆ—è¡¨ä¸­
 		}
 	}
 
@@ -136,7 +136,7 @@ public class SimpleSatelliteInterface extends NetworkInterface {
 			// all connections should be up at this stage
 			assert con.isUp() : "Connection " + con + " was down!";
 
-			if (!isWithinRange(anotherInterface)) {//¸üĞÂ½ÚµãÎ»ÖÃºó£¬¼ì²éÖ®Ç°Î¬»¤µÄÁ¬½ÓÊÇ·ñ»áÒòÎªÌ«Ô¶¶ø¶Ïµô
+			if (!isWithinRange(anotherInterface)) {//æ›´æ–°èŠ‚ç‚¹ä½ç½®åï¼Œæ£€æŸ¥ä¹‹å‰ç»´æŠ¤çš„è¿æ¥æ˜¯å¦ä¼šå› ä¸ºå¤ªè¿œè€Œæ–­æ‰
 				disconnect(con,anotherInterface);
 				connections.remove(i);
 			}
@@ -163,20 +163,20 @@ public class SimpleSatelliteInterface extends NetworkInterface {
 			}		
 			
 			for (NetworkInterface i : interfaces) {	
-				/*¼ì²éÊÇ·ñ´¦ÔÚÔÊĞí½¨Á´µÄÁĞ±íµ±ÖĞ£¬·ñÔò²»ÔÊĞí½¨Á¢Á´Â·*/
+				/*æ£€æŸ¥æ˜¯å¦å¤„åœ¨å…è®¸å»ºé“¾çš„åˆ—è¡¨å½“ä¸­ï¼Œå¦åˆ™ä¸å…è®¸å»ºç«‹é“¾è·¯*/
 				boolean allowConnection = false;
 				switch(this.getHost().getSatelliteType()){
-				/*Èç¹ûÔÚ·¶Î§ÄÚµÄÕâ¸ö½Úµã¼È²»ÊÇÍ¬Ò»Æ½ÃæÄÚµÄ£¬ÓÖ²»ÊÇÍ¨Ñ¶½Úµã£¬¾Í²»½øĞĞÁ¬½Ó£¬½ÚÊ¡¿ªÏú**/
+				/*å¦‚æœåœ¨èŒƒå›´å†…çš„è¿™ä¸ªèŠ‚ç‚¹æ—¢ä¸æ˜¯åŒä¸€å¹³é¢å†…çš„ï¼Œåˆä¸æ˜¯é€šè®¯èŠ‚ç‚¹ï¼Œå°±ä¸è¿›è¡Œè¿æ¥ï¼ŒèŠ‚çœå¼€é”€**/
 					case "LEO":{						
-						//Ö»ÓÃLEOÍ¨ĞÅ½Úµã²ÅÔÊĞíºÍMEO²ã½¨Á¢Á´Â·
+						//åªç”¨LEOé€šä¿¡èŠ‚ç‚¹æ‰å…è®¸å’ŒMEOå±‚å»ºç«‹é“¾è·¯
 						if (allowConnectedList.contains(i.getHost()))
-							allowConnection = true;//¼´½øĞĞÁ¬½Ó
+							allowConnection = true;//å³è¿›è¡Œè¿æ¥
 						break;
 					}
 					case "MEO":{
-						//MEOÖ»ÔÊĞíºÍLEOÍ¨ĞÅ½ÚµãÍ¨ĞÅºÍGEO²ã½¨Á¢Á´Â·
+						//MEOåªå…è®¸å’ŒLEOé€šä¿¡èŠ‚ç‚¹é€šä¿¡å’ŒGEOå±‚å»ºç«‹é“¾è·¯
 						if (allowConnectedList.contains(i.getHost()))
-							allowConnection = true;//¼´½øĞĞÁ¬½Ó
+							allowConnection = true;//å³è¿›è¡Œè¿æ¥
 						break;
 					}
 					case "GEO":{
@@ -185,12 +185,12 @@ public class SimpleSatelliteInterface extends NetworkInterface {
 							break;
 						}
 						if (allowConnectedList.contains(i.getHost()))
-							allowConnection = true;//¼´½øĞĞÁ¬½Ó
+							allowConnection = true;//å³è¿›è¡Œè¿æ¥
 						break;
 					}
 				}
 				
-				if (allowConnection){//²»±»ÖÃÎ»£¬²Å½øĞĞÁ¬½Ó
+				if (allowConnection){//ä¸è¢«ç½®ä½ï¼Œæ‰è¿›è¡Œè¿æ¥
 					connect(i);
 				}
 			}

@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import core.ConnectionListener;
 import core.DTNHost;
+import core.SimClock;
 
 /**
  * Generates Graphviz compatible graph from connections.
@@ -69,13 +70,13 @@ public class AdjacencyGraphvizReport extends Report implements ConnectionListene
 		
 		for (ConnectionInfo ci : cons.values()) {
 			int weight = ci.nrofConnections;
-			write(ci.h1 + "--" + ci.h2 + " [weight=" + weight + "];");
+			write(ci.h1 + "--" + ci.h2 + " time: "+ SimClock.getTime() +" [weight=" + weight + "];");
 		}
 		
 		// mention all hosts in the graph at least once
 		if (this.allHosts != null) {
 			for (DTNHost h : allHosts) {
-				write(h+ ";");
+				write(h+ " time: "+ SimClock.getTime() +";");
 			}
 		}
 		
