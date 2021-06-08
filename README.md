@@ -1,12 +1,12 @@
 # Large-Scale Satellite Network Simulator (LSNS)
 
-LSNS is an open-source network simulator based on [ONE][1] simulator, it tries to better support large-scale satellite networks and achieve friendly interactive interface.   
+LSNS is an open-source network simulator based on [ONE][1] simulator, it is designed to better support simulations under large-scale satellite networks and provide friendly interactive GUI.   
 ![LSNS](https://github.com/infonetlijian/ONE-Extended-Simulator/raw/gh-pages/images/icon.png)  
 <br>
 LSNS is developed and maintained by Infonet, USTC.
 # How often will we update?
 
-Since the program is sponsored, LSNS will not be updated very often on Github, some functions will only be avaiable in our internal version. If you want to have further questions, you can send your requirements to e-mail: lijian9@mail.ustc.edu.cn and hclu@ustc.edu.cn.
+Since the program is sponsored, LSNS will not be updated very often on Github, some functions will only be avaiable in our group. If you have further questions, you are welcome to send your questions to the following e-mail: lijian9@ustc.edu.cn and hclu@ustc.edu.cn.
 
 # Contributing
 
@@ -14,7 +14,13 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/infone
 
 # Development
 
-We develop LSNS simulator based on [ONE][1] simulator, you can modify the code and develop your own function by using IDE such as Eclipse or Intellij idea (preferred). You can find the main function in "ONE-Extended-Simulator/core/DTNSim.java". Currently, we offer two GUI options: 1. default 2D GUI as the same in ONE simulator by change "userSetting.GUI = false" in "default_settings.txt"; 2. 3D GUI which can display the orbit of satellites by setting "userSetting.GUI = true" in "default_settings.txt" (We are still working on 3D GUI but it's not our primary task, if you have experience in developing 3D GUI, you are welcome to be our contributor and commit your code).
+We develop LSNS simulator based on [ONE][1] simulator, you can use the architecture built by LSNS and develop your own function by using IDE such as Eclipse or Intellij idea (preferred). You can find the main function in "ONE-Extended-Simulator/core/DTNSim.java". Currently, we offer two GUI options: 
+<br>
+1. default 2D GUI as the same in ONE simulator by change "userSetting.GUI = false" in "default_settings.txt"; 
+<br>
+2. 3D GUI which can display the orbit of satellites by setting "userSetting.GUI = true" in "default_settings.txt".
+<br>
+We are still working on 3D GUI, but it's not our primary task, if you have experience in developing 3D GUI, you are welcome to be our contributor and commit your code.
 
 # How do I use LSNS?
 
@@ -33,7 +39,7 @@ If you have more questions about the mechanism of the simulator, you can also re
 # Update Log
 **v0.1**
 <br>
-1.Add 3D GUI; 
+1.Support 3D GUI; 
 <br>
 2.Support multi-layer satellite networks;
 <br>
@@ -50,10 +56,18 @@ If you have more questions about the mechanism of the simulator, you can also re
 <br>
 1.Add wireless channel module;
 <br>
-2.Add ground-satellite relay scenario;
+2.Add ground-satellite relay routing module;
 <br>
 3.Fix bugs;
 <br>
+
+**v0.12**
+<br>
+1.Support neural network-based routing;
+<br>
+2.Add GNN-based routing module (Maven and Tensorflow required);
+<br>
+2.Format update;
 
 [1]:https://akeranen.github.io/the-one/
 [2]:https://stackoverflow.com/questions/20170470/importing-class-java-files-in-eclipse
