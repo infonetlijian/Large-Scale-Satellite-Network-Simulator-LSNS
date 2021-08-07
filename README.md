@@ -10,11 +10,11 @@ Since the program is sponsored, LSNS will not be updated very often on Github, s
 
 ## Related Academic Paper
 
-> **[1]Li, J., Lu, H., Xue, K., & Zhang, Y. (2019). Temporal netgrid model-based dynamic routing in large-scale small satellite networks. IEEE Transactions on Vehicular Technology, 68(6), 6009-6021**
+> **[1]. Li, J., Lu, H., Xue, K., & Zhang, Y. (2019). Temporal netgrid model-based dynamic routing in large-scale small satellite networks. IEEE Transactions on Vehicular Technology, 68(6), 6009-6021**
 
-> **[2]Li, J., Xue, K., Liu, J., & Zhang, Y. (2020). A user-centric handover scheme for ultra-dense LEO satellite networks. IEEE Wireless Communications Letters, 9(11), 1904-1908.**
+> **[2]. Li, J., Xue, K., Liu, J., & Zhang, Y. (2020). A user-centric handover scheme for ultra-dense LEO satellite networks. IEEE Wireless Communications Letters, 9(11), 1904-1908.**
 
-> **[3]Liu, M., Gui, Y., Li, J., & Lu, H. (2020, December). Large-Scale Small Satellite Network Simulator: Design and Evaluation. In 2020 3rd International Conference on Hot Information-Centric Networking (HotICN) (pp. 194-199). IEEE.**
+> **[3]. Liu, M., Gui, Y., Li, J., & Lu, H. (2020, December). Large-Scale Small Satellite Network Simulator: Design and Evaluation. In 2020 3rd International Conference on Hot Information-Centric Networking (HotICN) (pp. 194-199). IEEE.**
 
 ## Contributing
 
@@ -24,7 +24,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/infone
 
 We develop LSNS simulator based on [ONE][1] simulator, you can use the architecture built by LSNS and develop your own function by using IDE such as Eclipse or Intellij idea (preferred). You can find the main function in "ONE-Extended-Simulator/core/DTNSim.java". Currently, we offer two GUI options: 
 
-> **1. default 2D GUI as the same in ONE simulator by change "userSetting.GUI = false" in "default_settings.txt"** 
+> **default 2D GUI as the same in ONE simulator by change "userSetting.GUI = false" in "default_settings.txt"** 
 > **3D GUI which can display the orbit of satellites by setting "userSetting.GUI = true" in "default_settings.txt"**
 
 <br>
