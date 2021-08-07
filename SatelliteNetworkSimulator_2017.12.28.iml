@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <libelement value="file://$MODULE_DIR$/../../Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/jfreechart-1.0.10-swt.jar" />
+    <libelement value="jar://$MODULE_DIR$/lib/DTNConsoleConnection.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/ECLA.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/gnujaxp.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/iText-2.1.1.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/j3dcore.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/j3dutils.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jcommon-1.0.13.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jfreechart-1.0.10-experimental.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jfreechart-1.0.10-swt.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jfreechart-1.0.10.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/junit.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/servlet.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/swtgraphics2d.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/vecmath.jar!/" />
+    <src_description expected_position="0">
+      <src_folder value="file://$MODULE_DIR$" expected_position="0" />
+    </src_description>
+  </component>
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="jfreechart-1.0.10-swt.jar">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../../Users/Ive/Workspaces/MyEclipse 2015 CI/SatelliteNetworkSimulationPlatform/lib/jfreechart-1.0.10-swt.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="DTNConsoleConnection.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/DTNConsoleConnection.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="ECLA.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/ECLA.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gnujaxp.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/gnujaxp.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="iText-2.1.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/iText-2.1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="j3dcore.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/j3dcore.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="j3dutils.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/j3dutils.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jcommon-1.0.13.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jcommon-1.0.13.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jfreechart-1.0.10-experimental.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jfreechart-1.0.10-experimental.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="lib/jfreechart-1.0.10-swt.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jfreechart-1.0.10-swt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jfreechart-1.0.10.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jfreechart-1.0.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="junit.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/junit.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="servlet.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/servlet.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="swtgraphics2d.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/swtgraphics2d.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="vecmath.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/vecmath.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
+  </component>
+</module>
