@@ -24,8 +24,9 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/infone
 
 We develop LSNS simulator based on [ONE][1] simulator, you can use the architecture built by LSNS and develop your own function by using IDE such as Eclipse or Intellij idea (preferred). You can find the main function in "ONE-Extended-Simulator/core/DTNSim.java". Currently, we offer two GUI options: 
 
-> **default 2D GUI as the same in ONE simulator by change "userSetting.GUI = false" in "default_settings.txt"** 
-> **3D GUI which can display the orbit of satellites by setting "userSetting.GUI = true" in "default_settings.txt"**
+> **[1]. default 2D GUI as the same in ONE simulator by change "userSetting.GUI = false" in "default_settings.txt"** 
+
+> **[2]. 3D GUI which can display the orbit of satellites by setting "userSetting.GUI = true" in "default_settings.txt"**
 
 <br>
 We are still working on 3D GUI, but it's not our primary task, if you have experience in developing 3D GUI, you are welcome to be our contributor and commit your code.
