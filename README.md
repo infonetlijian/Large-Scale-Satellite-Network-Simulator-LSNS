@@ -1,6 +1,6 @@
 # Large-Scale Satellite Network Simulator (LSNS)
 
-LSNS is an open-source network simulator based on [ONE][1] simulator, it is designed to better support simulations under large-scale satellite networks and provide friendly interactive GUI.   
+LSNS is an open-source network simulator based on [ONE simulator][1], it is designed to better support simulations under large-scale satellite networks and provide friendly interactive GUI.   
 ![LSNS](https://github.com/infonetlijian/ONE-Extended-Simulator/raw/gh-pages/images/icon.png)  
 <br>
 LSNS is developed and maintained by Infonet, USTC.
@@ -10,9 +10,11 @@ Since the program is sponsored, LSNS will not be updated very often on Github, s
 
 ## Related Academic Paper
 
-> **Li, J., Lu, H., Xue, K., & Zhang, Y. (2019). Temporal netgrid model-based dynamic routing in large-scale small satellite networks. IEEE Transactions on Vehicular Technology, 68(6), 6009-6021**
-> **Li, J., Xue, K., Liu, J., & Zhang, Y. (2020). A user-centric handover scheme for ultra-dense LEO satellite networks. IEEE Wireless Communications Letters, 9(11), 1904-1908.**
-> **Liu, M., Gui, Y., Li, J., & Lu, H. (2020, December). Large-Scale Small Satellite Network Simulator: Design and Evaluation. In 2020 3rd International Conference on Hot Information-Centric Networking (HotICN) (pp. 194-199). IEEE.**
+> **[1]Li, J., Lu, H., Xue, K., & Zhang, Y. (2019). Temporal netgrid model-based dynamic routing in large-scale small satellite networks. IEEE Transactions on Vehicular Technology, 68(6), 6009-6021**
+
+> **[2]Li, J., Xue, K., Liu, J., & Zhang, Y. (2020). A user-centric handover scheme for ultra-dense LEO satellite networks. IEEE Wireless Communications Letters, 9(11), 1904-1908.**
+
+> **[3]Liu, M., Gui, Y., Li, J., & Lu, H. (2020, December). Large-Scale Small Satellite Network Simulator: Design and Evaluation. In 2020 3rd International Conference on Hot Information-Centric Networking (HotICN) (pp. 194-199). IEEE.**
 
 ## Contributing
 
@@ -36,8 +38,7 @@ You can download our code and import it as a new Java project in Eclipse or Inte
 
 > **For Intellij idea: Please refer to [website][3] (choose "Create project from existing sources" and add library in "ONE-Extended-Simulator/lib" folder)**
 
-<br>
-LSNS will read "ONE-Extended-Simulator/default_settings.txt" file as its simulation setting, you can change "default_settings.txt" to realize your own simulation. Original setting file in ONE simulator is located in "ONE-Extended-Simulator/default_settings_ONE_backup.txt", you can compare these two files and find the difference of settings between ONE and LSNS.
+**LSNS will read "ONE-Extended-Simulator/default_settings.txt" file as its simulation setting, you can change "default_settings.txt" to realize your own simulation. Original setting file in ONE simulator is located in "ONE-Extended-Simulator/default_settings_ONE_backup.txt", you can compare these two files and find the difference of settings between ONE and LSNS.**
 
 **We are trying to improve our code and make a stable version, but you can still build the program and have your own executable Jar file based on our current version.**
 
