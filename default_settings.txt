@@ -150,7 +150,7 @@
 			#Group.router = SPNRmodify
 			#Group.router = SourceRoutingDijsktraSearchBasedonTemporalGraph
 			#Group.router = DirectDeliveryRouter
-			#Group.router = ShortestPathFirstRouter
+			Group.router = ShortestPathFirstRouter
 			#Group.router = OptimizedClusteringRouter
 			#Group.router = DynamicMultiLayerSatelliteRouter
 			#Group.router = RelayRouterforInternetAccess
@@ -185,7 +185,7 @@
 			Group.router.CGRLinkDurationTimesOfUpdateInterval = 10
 
             # 4.1.2.4 GNN-based routing
-            Group.router = gnn_router
+            #Group.router = gnn_router
             Group.model_path = data/NeuralNetworkModel/pb_model_all_160
 
 		## 4.1.3 Default settings for some routers settings
