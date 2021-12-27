@@ -84,8 +84,8 @@
 
 		# 太阳同步轨道倾角参考ODIN卫星轨道倾角为97.8度
 		# LEO卫星节点参数
-			Group.nrofCommunicationNodesInEachPlane = 12
-			Group.nrofLEO = 192
+			Group.nrofCommunicationNodesInEachPlane = 10
+			Group.nrofLEO = 160
 			Group.nrofLEOPlanes = 16
 			Group.LEO_OrbitPlaneAngle = 53
 			Group.LEO_Eccentricity = 0
@@ -357,9 +357,9 @@
 			Events2.size = 2M,5M
 		# range of message source/destination addresses
 		#Events1.hosts = [0,9;0,19;0,29;0,39;0,49]修改，注意hosts和tohosts包括下界但不包括上界，即[0, 9)
-			Events1.hosts = [193,193]
-			Events1.tohosts = [192,192]
-			Events2.hosts = [0,128]
+			Events1.hosts = [0,10]
+			Events1.tohosts = [0,10]
+			Events2.hosts = [0,10]
 		# Message ID prefix
 			Events1.prefix = RadioM
 			Events2.prefix = LaserM
