@@ -24,12 +24,12 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/infone
 
 We develop LSNS simulator based on [ONE][1] simulator, you can use the architecture built by LSNS and develop your own function by using IDE such as Eclipse or Intellij idea (preferred). You can find the main function in "ONE-Extended-Simulator/core/DTNSim.java". Currently, we offer two GUI options: 
 
-> **[1]. default 2D GUI as the same in ONE simulator by change "userSetting.GUI = false" in "default_settings.txt"** 
+> **[1]. To enable default 2D GUI (developed by ONE simulator), setting "userSetting.GUI = false" in "default_settings.txt"** 
 
-> **[2]. 3D GUI which can display the orbit of satellites by setting "userSetting.GUI = true" in "default_settings.txt"**
+> **[2]. To 3D GUI which can display the orbit of satellites,  setting "userSetting.GUI = true" in "default_settings.txt"**
 
 <br>
-We are still working on 3D GUI, but it's not our primary task, if you have experience in developing 3D GUI, you are welcome to be our contributor and commit your code.
+We are still working on 3D GUI, but it's not our primary task, if you have experience in developing 3D GUI, you are very welcome to be our contributor and commit your code.
 
 ## How to install and use LSNS?
 
@@ -41,9 +41,8 @@ You can download our code and import it as a new Java project in Eclipse or Inte
 
 **LSNS will read "ONE-Extended-Simulator/default_settings.txt" file as its simulation setting, you can change "default_settings.txt" to realize your own simulation. Original setting file in ONE simulator is located in "ONE-Extended-Simulator/default_settings_ONE_backup.txt", you can compare these two files and find the difference of settings between ONE and LSNS.**
 
-**We are trying to improve our code and make a stable version, but you can still build the program and have your own executable Jar file based on our current version.**
+**We are trying to improve our code and make a stable version, but you can still build the program and have your own executable Jar file based on our current version.**<br>
 
-<br>
 If you have more questions about the mechanism of the simulator, you can also refer to [Q&A][4] of ONE simulator and other specific blogs like [Spark & Shine][5].
 
 ## Update Log
