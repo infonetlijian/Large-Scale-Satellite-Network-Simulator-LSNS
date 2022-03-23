@@ -3,15 +3,16 @@
 #
 
 ## 0. Scenario and Overall settings
-	Scenario.name = satellite network simulation
-	Scenario.simulateConnections = true
+    #仿真名称
+	    Scenario.name = satellite network simulation
+	#是否启用节点之间的链路连接
+	    Scenario.simulateConnections = true
 	#仿真引擎的单次更新间隔，值越小，执行精度越高，但效率越低
-	Scenario.updateInterval = 0.1
+	    Scenario.updateInterval = 0.1
 	# 43200s == 12h
-	Scenario.endTime = 600
-
+	    Scenario.endTime = 600
 	#是否启用多线程
-	userSetting.multiThread = false
+	    userSetting.multiThread = false
 
 ## 1. GUI settings
 	# decide to use new GUI or not, used in DTNSim.java
@@ -256,17 +257,17 @@
 		Group.interface1 = Interface1
 		Group.interface2 = Interface2
 
-		#Interface1.type = SimpleSatelliteInterface
-		Interface1.type = SatelliteWithChannelModelInterface
+		Interface1.type = SimpleSatelliteInterface
+		#Interface1.type = SatelliteWithChannelModelInterface
 
 		Interface1.linkDelayRange = 0,0
 		Interface1.transmitSpeed = 1M
-		Interface1.transmitRange = 6000
+		Interface1.transmitRange = 2000
 		Interface1.nrofRadioInterface = 1
 		Interface2.type = SatelliteLaserInterface
 		Interface2.linkDelayRange = 1,5
 		Interface2.transmitSpeed = 200M
-		Interface2.transmitRange = 30000
+		Interface2.transmitRange = 3000
 
 	# Transmit speed of 2 Mbps (bit/s) = 250kBps (Byte/s), transmit speed unit in ONE is Byte
 		Interface.transmitSpeed = 1M
