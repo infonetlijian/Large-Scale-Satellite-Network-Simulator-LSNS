@@ -10,11 +10,16 @@ Since the program is sponsored, LSNS will not be updated very often on Github, s
 
 ## Related Academic Paper
 
-> **[1]. Li, J., Lu, H., Xue, K., & Zhang, Y. (2019). Temporal netgrid model-based dynamic routing in large-scale small satellite networks. IEEE Transactions on Vehicular Technology, 68(6), 6009-6021**
+> **[1]. Li, J., Lu, H., Xue, K., & Zhang, Y. (2019). Temporal netgrid model-based dynamic routing in large-scale small satellite networks. IEEE Transactions on Vehicular Technology, 68(6), 6009-6021**<br>
+Usage Note: Please enable **Group.router = NetgridShortestPathRouter** in simulation setting file
 
-> **[2]. Li, J., Xue, K., Liu, J., & Zhang, Y. (2020). A user-centric handover scheme for ultra-dense LEO satellite networks. IEEE Wireless Communications Letters, 9(11), 1904-1908.**
+> **[2]. Li, J., Xue, K., Liu, J., & Zhang, Y. (2021). A user-centric handover scheme for ultra-dense LEO satellite networks. IEEE Wireless Communications Letters, 9(11), 1904-1908.**<br>
+Usage Note: Please enable **Group.router = RelayRouterforInternetAccess**, **Interface.type = SatelliteWithChannelModelInterface** and find other settings from **5.2 Settings for satellite-terrestrial communication** in simulation setting file
 
-> **[3]. Liu, M., Gui, Y., Li, J., & Lu, H. (2020, December). Large-Scale Small Satellite Network Simulator: Design and Evaluation. In 2020 3rd International Conference on Hot Information-Centric Networking (HotICN) (pp. 194-199). IEEE.**
+> **[3]. Liu, M., Gui, Y., Li, J., & Lu, H. (2020). Large-Scale Small Satellite Network Simulator: Design and Evaluation. In 2020 3rd International Conference on Hot Information-Centric Networking (HotICN) (pp. 194-199). IEEE.**
+
+> **[4]Li J., Lu H., Wang Y. (2017). Temporal netgrid model based routing optimization in satellite networks[C]//2017 IEEE International Conference on Communications (ICC). IEEE, 2017: 1-6.**<br>
+Usage Note: Please enable **Group.router = EASRRouter** in simulation setting file
 
 ## Contributing
 
