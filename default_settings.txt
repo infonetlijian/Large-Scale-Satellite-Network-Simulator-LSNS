@@ -288,7 +288,7 @@
 		Group.msgPathLabel = false
 
 	# 5.2 Settings for satellite-terrestrial communication
-	#星地接入添加的设置选项，用于''RelayRouterforInternetAccess.java''
+	#星地接入添加的设置选项，用于''RelayRouterforInternetAccess.java''，当没有启用此Router时，5.2项所用到的设置可忽略
 		userSetting.enableBackupSatellite = true
 		userSetting.transmissionMode = enableBackupSatellite
 		#userSetting.transmissionMode = preMigrationHandover

@@ -18,7 +18,7 @@ Usage Note: Please enable **Group.router = RelayRouterforInternetAccess**, **Int
 
 > **[3]. Liu, M., Gui, Y., Li, J., & Lu, H. (2020). Large-Scale Small Satellite Network Simulator: Design and Evaluation. In 2020 3rd International Conference on Hot Information-Centric Networking (HotICN) (pp. 194-199). IEEE.**
 
-> **[4]Li J., Lu H., Wang Y. (2017). Temporal netgrid model based routing optimization in satellite networks[C]//2017 IEEE International Conference on Communications (ICC). IEEE, 2017: 1-6.**<br>
+> **[4]. Li J., Lu H., Wang Y. (2017). Temporal netgrid model based routing optimization in satellite networks[C]//2017 IEEE International Conference on Communications (ICC). IEEE, 2017: 1-6.**<br>
 Usage Note: Please enable **Group.router = EASRRouter** in simulation setting file
 
 ## Contributing
