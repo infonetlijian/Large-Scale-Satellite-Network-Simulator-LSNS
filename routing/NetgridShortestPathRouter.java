@@ -1,12 +1,11 @@
 package routing;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import routing.SPNRmodify.GridNeighbors.GridCell;
+import routing.NetgridShortestPathRouter.GridNeighbors.GridCell;
 import movement.MovementModel;
 import movement.SatelliteMovement;
 import util.Tuple;
@@ -14,7 +13,6 @@ import core.Connection;
 import core.Coord;
 import core.DTNHost;
 import core.Message;
-import core.Neighbors;
 import core.NetworkInterface;
 import core.Settings;
 import core.SimClock;
@@ -22,12 +20,13 @@ import core.SimError;
 
 /**
  * Project Name:Large-scale Satellite Networks Simulator (LSNS)
- * File SPNRmodify.java
+ * File NetgridShortestPathRouter.java
+ * This is Netgrid-based Shortest-path Routing algorithm
  * Package Name:routing
  * Copyright 2017 University of Science and Technology of China , Infonet
  * lijian9@mail.ustc.mail.cn. All Rights Reserved.
  */
-public class SPNRmodify extends ActiveRouter{
+public class NetgridShortestPathRouter  extends ActiveRouter{
 	/**自己定义的变量和映射等
 	 * 
 	 */
@@ -75,14 +74,14 @@ public class SPNRmodify extends ActiveRouter{
 	 * 初始化
 	 * @param s
 	 */
-	public SPNRmodify(Settings s){
+	public NetgridShortestPathRouter(Settings s){
 		super(s);
 	}
 	/**
 	 * 初始化
 	 * @param r
 	 */
-	protected SPNRmodify(SPNRmodify r) {
+	protected NetgridShortestPathRouter(NetgridShortestPathRouter r) {
 		super(r);
 		this.GN = new GridNeighbors(this.getHost());//不放在这的原因是，当执行这一步初始化的时候，host和router还没有完成绑定操作
 	}
@@ -92,7 +91,7 @@ public class SPNRmodify extends ActiveRouter{
 	@Override
 	public MessageRouter replicate() {
 		//this.GN = new GridNeighbors(this.getHost());
-		return new SPNRmodify(this);
+		return new NetgridShortestPathRouter(this);
 	}
 	/**
 	 * 执行路由的初始化操作
@@ -496,7 +495,7 @@ public class SPNRmodify extends ActiveRouter{
 
 	/**
 	 * 通过同一网格中含有多个节点的网格时，可以采用多路径，通过此函数找到此多路径
-	 * @param routerPath
+	 * @param hostAddress
 	 * @return
 	 */
 	public Connection NetgridMultiPathMatchingProcess(int hostAddress){
@@ -611,7 +610,7 @@ public class SPNRmodify extends ActiveRouter{
 
 	/**
 	 * 更新路由表，包括1、更新已有链路的路径；2、进行全局预测
-	 * @param m
+	 * @param msg
 	 * @return
 	 */
 	public boolean updateRouterTable(Message msg){
@@ -810,11 +809,11 @@ public class SPNRmodify extends ActiveRouter{
 				//List<DTNHost> neighborHostsList = GN.getNeighborsHostsNow(GN.getGridCellFromCoordNow(c));//获取源集合中host节点的邻居节点(当前的邻居网格)
 				List<DTNHost> neighborHostsList = GN.getNeighborsHostsNow(GN.cellFromCoord(c.getLocation()));//获取源集合中host节点的邻居节点(当前的邻居网格)
 				/**添加同一轨道内的相邻节点，以及相邻轨道内的最近的相邻节点**/
-				neighborHostsList.removeAll(((SPNRmodify)c.getRouter()).neighborHostsInSamePlane);//去重复
-				neighborHostsList.addAll(((SPNRmodify)c.getRouter()).neighborHostsInSamePlane);//添加同一轨道内的相邻节点
-				if (!((SPNRmodify)c.getRouter()).neighborPlaneHosts.isEmpty()){
-					neighborHostsList.removeAll(((SPNRmodify)c.getRouter()).neighborPlaneHosts);//去重复
-					neighborHostsList.addAll(((SPNRmodify)c.getRouter()).neighborPlaneHosts);//添加相邻轨道内的最近的相邻节点
+				neighborHostsList.removeAll(((NetgridShortestPathRouter)c.getRouter()).neighborHostsInSamePlane);//去重复
+				neighborHostsList.addAll(((NetgridShortestPathRouter)c.getRouter()).neighborHostsInSamePlane);//添加同一轨道内的相邻节点
+				if (!((NetgridShortestPathRouter)c.getRouter()).neighborPlaneHosts.isEmpty()){
+					neighborHostsList.removeAll(((NetgridShortestPathRouter)c.getRouter()).neighborPlaneHosts);//去重复
+					neighborHostsList.addAll(((NetgridShortestPathRouter)c.getRouter()).neighborPlaneHosts);//添加相邻轨道内的最近的相邻节点
 				}
 				//System.out.println("RoutingHost and time :  "+this.getHost()+this.RoutingTimeNow+"  thisHostGrid:  "+thisHostGrid  +"  SourceNetgird:  "+c+"  contains:  "+GN.getHostsFromNetgridNow(c, this.RoutingTimeNow)+"  NeighborNetgrid:  "+neighborNetgridsList.keySet()+" contains: "+neighborNetgridsList.values()+"  sourceSet:  "+sourceSet);
 				
@@ -1101,7 +1100,7 @@ public class SPNRmodify extends ActiveRouter{
 	}
 	/**
 	 * 根据这一跳的可选节点地址集合，选择一个最合适的下一跳节点并找到对应的connection进行发送
-	 * @param address
+	 * @param msg, hostsInThisHop
 	 * @return
 	 */
 	public Connection findConnectionFromHosts(Message msg, List<Integer> hostsInThisHop){
@@ -1173,7 +1172,7 @@ public class SPNRmodify extends ActiveRouter{
 		
 		Connection con = t.getValue();
 		/**检查所经过路径的情况，如果下一跳的链路已经被占用，则需要等待**/
-		if (con.isTransferring() || ((SPNRmodify)con.getOtherNode(this.getHost()).getRouter()).isTransferring()){	
+		if (con.isTransferring() || ((NetgridShortestPathRouter)con.getOtherNode(this.getHost()).getRouter()).isTransferring()){
 			return true;//说明目的节点正忙
 		}
 		return false;
@@ -1476,7 +1475,6 @@ public class SPNRmodify extends ActiveRouter{
 		/**
 		 * 找到host节点在当前时间对应所在的网格
 		 * @param host
-		 * @param time
 		 * @return
 		 */
 		public GridCell getGridCellFromCoordNow(DTNHost host){
@@ -1499,7 +1497,6 @@ public class SPNRmodify extends ActiveRouter{
 		/**
 		 * 获取指定时间点，指定网格的邻居网格
 		 * @param source
-		 * @param time
 		 * @return
 		 */
 		public HashMap<GridCell, Tuple<GridCell, List<DTNHost>>> getNeighborsNetgridsNow(GridCell source){//获取指定时间的邻居节点(同时包含预测到TTL时间内的邻居)	
@@ -1532,7 +1529,6 @@ public class SPNRmodify extends ActiveRouter{
 		/**
 		 * 获取当前仿真时间下，指定网格的邻居网格内所含有的所有邻居节点
 		 * @param source
-		 * @param time
 		 * @return
 		 */
 		public List<DTNHost> getNeighborsHostsNow(GridCell source){//获取指定时间的邻居节点(同时包含预测到TTL时间内的邻居)	
@@ -1889,7 +1885,6 @@ public class SPNRmodify extends ActiveRouter{
 		
 		/**
 		 * 测试新的网格获取方式下，路由算法的性能
-		 * @param simClock
 		 */
 		public void updateNetGridInfo_without_OrbitCalculation_without_gridTable(){
 			//if (gridLocation.isEmpty())//初始化只执行一次

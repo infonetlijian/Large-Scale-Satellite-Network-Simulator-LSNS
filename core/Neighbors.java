@@ -25,12 +25,12 @@ public class Neighbors {
 	private DTNHost host;
 	private double simEndTime;
 	private double msgTtl;
-	private double	transmitRange;//ÉèÖÃµÄ¿ÉÍ¨ĞĞ¾àÀëãĞÖµ
+	private double	transmitRange;//è®¾ç½®çš„å¯é€šè¡Œè·ç¦»é˜ˆå€¼
 	private HashMap<DTNHost, double[]> neighborsLiveTime= new HashMap<DTNHost, double[]>();
 	private HashMap<DTNHost, double[]> potentialNeighborsStartTime= new HashMap<DTNHost, double[]>();
 	
-	private List<DTNHost> neighbors = new ArrayList<DTNHost>();//ÁÚ¾Ó½ÚµãÁĞ±í 
-	private List<DTNHost> hosts = new ArrayList<DTNHost>();//È«¾ÖÎÀĞÇ½ÚµãÁĞ±í
+	private List<DTNHost> neighbors = new ArrayList<DTNHost>();//é‚»å±…èŠ‚ç‚¹åˆ—è¡¨ 
+	private List<DTNHost> hosts = new ArrayList<DTNHost>();//å…¨å±€å«æ˜ŸèŠ‚ç‚¹åˆ—è¡¨
 	private List<NetworkInterface> potentialNeighbors = new ArrayList<NetworkInterface>();
 	
 	HashMap<DTNHost, List<Double>> leaveTime = new HashMap<DTNHost, List<Double>>();
@@ -41,27 +41,27 @@ public class Neighbors {
 		int num = (int)((time-SimClock.getTime())/updateInterval);
 		time = SimClock.getTime()+num*updateInterval;
 		
-		List<DTNHost> neiHost = new ArrayList<DTNHost>();//ÁÚ¾ÓÁĞ±í
+		List<DTNHost> neiHost = new ArrayList<DTNHost>();//é‚»å±…åˆ—è¡¨
 		
 		HashMap<DTNHost, Coord> loc = new HashMap<DTNHost, Coord>();
 		loc.clear();
 		Coord location = new Coord(0,0); 	// where is the host
 		if (!(time == SimClock.getTime())){
-			for (DTNHost h : hosts){//¸üĞÂÖ¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+			for (DTNHost h : hosts){//æ›´æ–°æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 				//location.my_Test(time, 0, h.getParameters());
 				//Coord xyz = new Coord(location.getX(), location.getY(), location.getZ());
 				Coord xyz = h.getCoordinate(time);
-				loc.put(h, xyz);//¼ÇÂ¼Ö¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+				loc.put(h, xyz);//è®°å½•æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 			}
 		}
 		else{
-			for (DTNHost h : hosts){//¸üĞÂÖ¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
-				loc.put(h, h.getLocation());//¼ÇÂ¼Ö¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+			for (DTNHost h : hosts){//æ›´æ–°æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
+				loc.put(h, h.getLocation());//è®°å½•æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 			}
 		}
 		
 		Coord myLocation = loc.get(host);
-		for (DTNHost h : hosts){//ÔÙ·Ö±ğ¼°¼ÆËã
+		for (DTNHost h : hosts){//å†åˆ†åˆ«åŠè®¡ç®—
 			if (h == host)
 				continue;
 			if (JudgeNeighbors(myLocation, loc.get(h)) == true){
@@ -74,7 +74,7 @@ public class Neighbors {
 	}
 	
 	
-	public Tuple<HashMap<DTNHost, List<Double>>, //neiList ÎªÒÑ¾­¼ÆËã³öµÄµ±Ç°ÁÚ¾Ó½ÚµãÁĞ±í
+	public Tuple<HashMap<DTNHost, List<Double>>, //neiList ä¸ºå·²ç»è®¡ç®—å‡ºçš„å½“å‰é‚»å±…èŠ‚ç‚¹åˆ—è¡¨
 			HashMap<DTNHost, List<Double>>> getFutureNeighbors(List<DTNHost> neiList, DTNHost host, double time){
 		int num = (int)((time-SimClock.getTime())/updateInterval);
 		time = SimClock.getTime()+num*updateInterval;
@@ -84,62 +84,62 @@ public class Neighbors {
 		for (DTNHost neiHost : neiList){
 			List<Double> t= new ArrayList<Double>();
 			t.add(SimClock.getTime());
-			startTime.put(neiHost, t);//Ìí¼ÓÒÑ´æÔÚÁÚ¾Ó½ÚµãµÄ¿ªÊ¼Ê±¼ä
+			startTime.put(neiHost, t);//æ·»åŠ å·²å­˜åœ¨é‚»å±…èŠ‚ç‚¹çš„å¼€å§‹æ—¶é—´
 		}
 		
-		List<DTNHost> futureList = new ArrayList<DTNHost>();//(ÁÚ¾ÓÍø¸ñÄÚµÄ½Úµã¼¯ºÏ)
+		List<DTNHost> futureList = new ArrayList<DTNHost>();//(é‚»å±…ç½‘æ ¼å†…çš„èŠ‚ç‚¹é›†åˆ)
 		
 		for (; time < SimClock.getTime() + msgTtl*60; time += updateInterval){
 			List<DTNHost> neighborList = getNeighbors(host, time);
 			
 			for (DTNHost ni : neighborList){
-				if (ni == this.host)//ÅÅ³ı×ÔÉí½Úµã
+				if (ni == this.host)//æ’é™¤è‡ªèº«èŠ‚ç‚¹
 					continue;
-				if (!neiList.contains(ni))//Èç¹ûÏÖÓĞÁÚ¾ÓÖĞÃ»ÓĞ£¬ÔòÒ»¶¨ÊÇÎ´À´½«µ½´ïµÄÁÚ¾Ó					
-					futureList.add(ni); //´ËÎªÎ´À´½«»áµ½´ïµÄÁÚ¾Ó(µ±È»¶ÔÓÚµ±Ç°ÒÑÓĞµÄÁÚ¾Ó£¬Ò²¿ÉÄÜ»áÖĞÍ¾Àë¿ª£¬È»ºóÔÙ»ØÀ´)
+				if (!neiList.contains(ni))//å¦‚æœç°æœ‰é‚»å±…ä¸­æ²¡æœ‰ï¼Œåˆ™ä¸€å®šæ˜¯æœªæ¥å°†åˆ°è¾¾çš„é‚»å±…					
+					futureList.add(ni); //æ­¤ä¸ºæœªæ¥å°†ä¼šåˆ°è¾¾çš„é‚»å±…(å½“ç„¶å¯¹äºå½“å‰å·²æœ‰çš„é‚»å±…ï¼Œä¹Ÿå¯èƒ½ä¼šä¸­é€”ç¦»å¼€ï¼Œç„¶åå†å›æ¥)
 				
-				/**Èç¹ûÊÇÎ´À´µ½´ïµÄÁÚ¾Ó£¬Ö±½Óget»á·µ»Ø¿ÕÖ¸Õë£¬ËùÒÔÒªÏÈ¼ÓstartTimeºÍleaveTimeÅĞ¶Ï**/
+				/**å¦‚æœæ˜¯æœªæ¥åˆ°è¾¾çš„é‚»å±…ï¼Œç›´æ¥getä¼šè¿”å›ç©ºæŒ‡é’ˆï¼Œæ‰€ä»¥è¦å…ˆåŠ startTimeå’ŒleaveTimeåˆ¤æ–­**/
 				if (startTime.containsKey(ni)){
-					/*if (leaveTime.containsKey(ni)){//ÓĞÁ½ÖÖÇé¿ö£¬Ò»ÖÖÔÚÔ¤²âÊ±¼ä¶ÎÄÚ´ËÁÚ¾Ó»áÀë¿ª£¬ÁíÒ»ÖÖÇé¿öÊÇ´ËÁÚ¾Ó²»½öÔÚ´ËÊ±¼ä¶ÎÄÚ»áÀë¿ª»¹»á»ØÀ´
-						if (startTime.get(ni).size() == leaveTime.get(ni).size()){//Èç¹û²»ÏàµÈÔòÒ»¶¨ÊÇÁÚ¾Ó½ÚµãÀë¿ªµÄÇé¿ö					
+					/*if (leaveTime.containsKey(ni)){//æœ‰ä¸¤ç§æƒ…å†µï¼Œä¸€ç§åœ¨é¢„æµ‹æ—¶é—´æ®µå†…æ­¤é‚»å±…ä¼šç¦»å¼€ï¼Œå¦ä¸€ç§æƒ…å†µæ˜¯æ­¤é‚»å±…ä¸ä»…åœ¨æ­¤æ—¶é—´æ®µå†…ä¼šç¦»å¼€è¿˜ä¼šå›æ¥
+						if (startTime.get(ni).size() == leaveTime.get(ni).size()){//å¦‚æœä¸ç›¸ç­‰åˆ™ä¸€å®šæ˜¯é‚»å±…èŠ‚ç‚¹ç¦»å¼€çš„æƒ…å†µ					
 							List<Double> mutipleTime= leaveTime.get(ni);
 							mutipleTime.add(time);
-							startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+							startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 						}
 						else{
 							List<Double> mutipleTime= leaveTime.get(ni);
 							mutipleTime.add(time);
-							leaveTime.put(ni, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+							leaveTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 						}	
 					}
 					else{
 						List<Double> mutipleTime= new ArrayList<Double>();
 						mutipleTime.add(time);
-						leaveTime.put(ni, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+						leaveTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 					}*/
 				}
 				else{
-					//System.out.println(this.host+" ³öÏÖÔ¤²â½Úµã: "+ni+" Ê±¼ä  "+time);
+					//System.out.println(this.host+" å‡ºç°é¢„æµ‹èŠ‚ç‚¹: "+ni+" æ—¶é—´  "+time);
 					List<Double> mutipleTime= new ArrayList<Double>();
 					mutipleTime.add(time);
-					startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+					startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 				}
-				/**Èç¹ûÊÇÎ´À´µ½´ïµÄÁÚ¾Ó£¬Ö±½Óget»á·µ»Ø¿ÕÖ¸Õë£¬ËùÒÔÒªÏÈ¼ÓstartTimeºÍleaveTimeÅĞ¶Ï**/
+				/**å¦‚æœæ˜¯æœªæ¥åˆ°è¾¾çš„é‚»å±…ï¼Œç›´æ¥getä¼šè¿”å›ç©ºæŒ‡é’ˆï¼Œæ‰€ä»¥è¦å…ˆåŠ startTimeå’ŒleaveTimeåˆ¤æ–­**/
 			}	
 		}
-		Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime= //¶şÔª×éºÏ²¢¿ªÊ¼ºÍ½áÊøÊ±¼ä
+		Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime= //äºŒå…ƒç»„åˆå¹¶å¼€å§‹å’Œç»“æŸæ—¶é—´
 				new Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>>(startTime, leaveTime); 
 		return predictTime;
 	}
 	
 	/**
-	 * ³õÊ¼»¯º¯Êı
+	 * åˆå§‹åŒ–å‡½æ•°
 	 * @param host
 	 */
 	public Neighbors(DTNHost host){
 		this.host = host;
 		Settings s = new Settings(INTERFACENAME_S);
-		transmitRange = s.getDouble(TRANSMIT_RANGE_S);//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡´«ÊäËÙÂÊ
+		transmitRange = s.getDouble(TRANSMIT_RANGE_S);//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–ä¼ è¾“é€Ÿç‡
 		Settings set = new Settings(SCENARIONAME_S);
 		simEndTime = set.getDouble(SIMULATION_END_TIME);
 		Settings se = new Settings("Group");
@@ -151,49 +151,49 @@ public class Neighbors {
 		this.hosts=hosts;
 	}
 	/**
-	 * ·µ»ØÈ«¾Ö½ÚµãÁĞ±í
+	 * è¿”å›å…¨å±€èŠ‚ç‚¹åˆ—è¡¨
 	 * @return
 	 */
 	public List<DTNHost> getHosts(){
 		return this.hosts;
 	}
 	/**
-	 * ĞŞ¸ÄÇ±ÔÚÁÚ¾Ó½Úµã(¼´Î´À´¿ÉÄÜ³ÉÎªÁÚ¾ÓµÄ½Úµã)ÁĞ±í£¬½öÓÉConnectivityGrid.javaÖĞµÄgetNearInterfaces()º¯Êıµ÷ÓÃ
+	 * ä¿®æ”¹æ½œåœ¨é‚»å±…èŠ‚ç‚¹(å³æœªæ¥å¯èƒ½æˆä¸ºé‚»å±…çš„èŠ‚ç‚¹)åˆ—è¡¨ï¼Œä»…ç”±ConnectivityGrid.javaä¸­çš„getNearInterfaces()å‡½æ•°è°ƒç”¨
 	 * @param potentialNeighbors
 	 */
 	public void changePotentialNeighbors(List<NetworkInterface> potentialNeighbors){
 		this.potentialNeighbors = potentialNeighbors;
 	}
 	/**
-	 * ¸ü¸ÄÈ«¾Ö½ÚµãÁĞ±í
+	 * æ›´æ”¹å…¨å±€èŠ‚ç‚¹åˆ—è¡¨
 	 * @param hosts
 	 */
 	public void changeHostsList(List<DTNHost> hosts){
 		this.hosts=hosts;
 	}
 	/**
-	 * ·µ»Øµ±Ç°½ÚµãµÄËùÓĞÁÚ¾Ó½ÚµãÁĞ±í
+	 * è¿”å›å½“å‰èŠ‚ç‚¹çš„æ‰€æœ‰é‚»å±…èŠ‚ç‚¹åˆ—è¡¨
 	 * @return
 	 */
 	public List<DTNHost> getNeighbors(){
 		return this.neighbors;
 	}
 	/**
-	 * ·µ»ØÔ¤²âÁÚ¾Ó½Úµãµ½´ïÁÚ¾Ó·¶Î§µÄÊ±¼ä
+	 * è¿”å›é¢„æµ‹é‚»å±…èŠ‚ç‚¹åˆ°è¾¾é‚»å±…èŒƒå›´çš„æ—¶é—´
 	 * @return
 	 */
 	public HashMap<DTNHost, double[]> getPotentialNeighborsStartTime(){
 		return this.potentialNeighborsStartTime;
 	}
 	/**
-	 * ·µ»ØÁÚ¾Ó½ÚµãµÄ´æÔÚÊ±¼ä
+	 * è¿”å›é‚»å±…èŠ‚ç‚¹çš„å­˜åœ¨æ—¶é—´
 	 * @return
 	 */
 	public HashMap<DTNHost, double[]> getNeighborsLiveTime(){
 		return this.neighborsLiveTime;
 	}
 	/**
-	 * ĞŞ¸ÄÁÚ¾Ó½ÚµãÁĞ±í£¬ÒÔ¼°ÏàÓ¦µÄÉú´æÊ±¼ä
+	 * ä¿®æ”¹é‚»å±…èŠ‚ç‚¹åˆ—è¡¨ï¼Œä»¥åŠç›¸åº”çš„ç”Ÿå­˜æ—¶é—´
 	 * @param nei
 	 */
 	public void changeNeighbors(List<DTNHost> nei){
@@ -203,11 +203,11 @@ public class Neighbors {
 			double[] liveTime = new double[2];
 			liveTime[0] = SimClock.getTime();
 			liveTime[1] = SimClock.getTime();
-			this.neighborsLiveTime.put(host, liveTime);//°ÑĞÂµ½À´µÄÁÚ¾Ó½Úµã¼ÓÈëÁĞ±íÖĞ	
+			this.neighborsLiveTime.put(host, liveTime);//æŠŠæ–°åˆ°æ¥çš„é‚»å±…èŠ‚ç‚¹åŠ å…¥åˆ—è¡¨ä¸­	
 		}
 	}
 	/**
-	 * ÔÚSatelliteLaserInterface.javaÀïÓÃÓÚÎ¬»¤Àë¿ªµÄÁÚ¾Ó½Úµã
+	 * åœ¨SatelliteLaserInterface.javaé‡Œç”¨äºç»´æŠ¤ç¦»å¼€çš„é‚»å±…èŠ‚ç‚¹
 	 * @param host
 	 */
 	public void removeNeighbor(DTNHost host){
@@ -215,7 +215,7 @@ public class Neighbors {
 		this.neighborsLiveTime.remove(host);
 	}
 	/**
-	 * Ìí¼Óµ±Ç°½ÚµãµÄÁÚ¾Ó½Úµã
+	 * æ·»åŠ å½“å‰èŠ‚ç‚¹çš„é‚»å±…èŠ‚ç‚¹
 	 * @param host
 	 */
 	public void addNeighbor(DTNHost host){
@@ -230,12 +230,12 @@ public class Neighbors {
 				double[] liveTime = new double[2];
 				liveTime[0] = SimClock.getTime();
 				liveTime[1] = SimClock.getTime();
-				this.neighborsLiveTime.put(host, liveTime);//°ÑĞÂµ½À´µÄÁÚ¾Ó½Úµã¼ÓÈëÁĞ±íÖĞ				
+				this.neighborsLiveTime.put(host, liveTime);//æŠŠæ–°åˆ°æ¥çš„é‚»å±…èŠ‚ç‚¹åŠ å…¥åˆ—è¡¨ä¸­				
 				}
 		}
 	}
 	/**
-	 * ÁÚ¾Ó½Úµã¸üĞÂµÄÈë¿Ú£¬ÊµÊ±¸üĞÂ½ÚµãµÄÁÚ¾Ó£¬²¢Ô¤²âÆäËü·ÇÁÚ¾Ó½Úµã
+	 * é‚»å±…èŠ‚ç‚¹æ›´æ–°çš„å…¥å£ï¼Œå®æ—¶æ›´æ–°èŠ‚ç‚¹çš„é‚»å±…ï¼Œå¹¶é¢„æµ‹å…¶å®ƒéé‚»å±…èŠ‚ç‚¹
 	 * @param ni
 	 * @param connections
 	 */
@@ -255,7 +255,7 @@ public class Neighbors {
 	*/
 	}
 	/**
-	 * ¼ÆËãÁÚ¾Ó½ÚµãÎ´À´Àë¿ªµÄÊ±¼ä
+	 * è®¡ç®—é‚»å±…èŠ‚ç‚¹æœªæ¥ç¦»å¼€çš„æ—¶é—´
 	 * @param host
 	 * @return
 	 */
@@ -263,17 +263,17 @@ public class Neighbors {
 		if (this.potentialNeighborsStartTime.containsKey(host)){
 			double[] liveTime = this.potentialNeighborsStartTime.get(host);
 			if (liveTime[0] != liveTime[1] && liveTime[1] > SimClock.getTime()){
-				changeNeighborsLiveTime(host, liveTime[1]);//Èç¹û´Ë½ÚµãµÄµ½À´Ö®Ç°ÒÑ¾­Ô¤²â¹ı¾ÍÖ±½Ó°ÑËü¶Á³öÀ´
+				changeNeighborsLiveTime(host, liveTime[1]);//å¦‚æœæ­¤èŠ‚ç‚¹çš„åˆ°æ¥ä¹‹å‰å·²ç»é¢„æµ‹è¿‡å°±ç›´æ¥æŠŠå®ƒè¯»å‡ºæ¥
 			}
 		}
 		
 		double timeNow = SimClock.getTime();
-		for (double time = timeNow; time < SimClock.getTime()+msgTtl*60; time += INTERVAL){//´ÖËÑË÷£¬ËÑË÷²½³¤´ó
-			if (JudgeNeighbors(this.host.getCoordinate(time), host.getCoordinate(time)) == false){//Èç¹ûÈÔÈ»ÔÚÁÚ¾Ó·¶Î§ÄÚ¾Í¼ÌĞøÔö¼ÓÊ±¼ä£¬±©Á¦ËÑË÷
-				for (double var = time - INTERVAL; var <= time; var += 0.1){//ÕÒµ½ÁË´ó¸Å·¶Î§Ö®ºó¸ÄÎªÏ¸ËÑË÷£¬°´ÕÕÏµÍ³µÄupdateInterval×÷ÎªËÑË÷²½³¤
+		for (double time = timeNow; time < SimClock.getTime()+msgTtl*60; time += INTERVAL){//ç²—æœç´¢ï¼Œæœç´¢æ­¥é•¿å¤§
+			if (JudgeNeighbors(this.host.getCoordinate(time), host.getCoordinate(time)) == false){//å¦‚æœä»ç„¶åœ¨é‚»å±…èŒƒå›´å†…å°±ç»§ç»­å¢åŠ æ—¶é—´ï¼Œæš´åŠ›æœç´¢
+				for (double var = time - INTERVAL; var <= time; var += 0.1){//æ‰¾åˆ°äº†å¤§æ¦‚èŒƒå›´ä¹‹åæ”¹ä¸ºç»†æœç´¢ï¼ŒæŒ‰ç…§ç³»ç»Ÿçš„updateIntervalä½œä¸ºæœç´¢æ­¥é•¿
 					if (JudgeNeighbors(this.host.getCoordinate(var), host.getCoordinate(var)) == false){
 						changeNeighborsLiveTime(host, var);
-						return true;//Ìø³öÑ­»·
+						return true;//è·³å‡ºå¾ªç¯
 					}
 				}
 			}
@@ -281,7 +281,7 @@ public class Neighbors {
 		return false;
 	}
 	/**
-	 * ¼ÆËãÁÚ¾Ó½ÚµãµÄÀë¿ªÊ±¼ä
+	 * è®¡ç®—é‚»å±…èŠ‚ç‚¹çš„ç¦»å¼€æ—¶é—´
 	 * @param neighborsLiveTime
 	 */
 	public void updateNeighborsEndTime(HashMap<DTNHost, double[]> neighborsLiveTime){
@@ -290,11 +290,11 @@ public class Neighbors {
 			for (DTNHost host : this.neighbors){
 				double[] Time = neighborsLiveTime.get(host);
 				//double timeNow = SimClock.getTime();
-				if (Time[0] != Time[1] || Time[1] == this.simEndTime)//ÒòÎª²»ĞèÒªÖØ¸´Ô¤²â£¬ËùÒÔÂú×ãÌõ¼ş²»ÓÃÔò¸üĞÂÔ¤²âÊ±¼ä£¬¼õÉÙÔËËãÁ¿
+				if (Time[0] != Time[1] || Time[1] == this.simEndTime)//å› ä¸ºä¸éœ€è¦é‡å¤é¢„æµ‹ï¼Œæ‰€ä»¥æ»¡è¶³æ¡ä»¶ä¸ç”¨åˆ™æ›´æ–°é¢„æµ‹æ—¶é—´ï¼Œå‡å°‘è¿ç®—é‡
 					continue;
 				else{
 					if (getNeighborsLeaveTime(host) == false)
-						changeNeighborsLiveTime(host, this.simEndTime);//Èç¹ûËÑË÷ÁËÈ«¾ÖÊ±¼ä¶¼Ã»ÄÜÕÒµ½Àë¿ªÊ±¼ä£¬±íÃæ´Ë½ÚµãÒ»Ö±ÔÚÁÚ¾Ó·¶Î§ÄÚ
+						changeNeighborsLiveTime(host, this.simEndTime);//å¦‚æœæœç´¢äº†å…¨å±€æ—¶é—´éƒ½æ²¡èƒ½æ‰¾åˆ°ç¦»å¼€æ—¶é—´ï¼Œè¡¨é¢æ­¤èŠ‚ç‚¹ä¸€ç›´åœ¨é‚»å±…èŒƒå›´å†…
 					else
 						continue;
 				}	
@@ -303,17 +303,17 @@ public class Neighbors {
 		}
 	}
 	/**
-	 * ĞŞ¸ÄÁÚ¾ÓÉú´æÊ±¼äÀï£¬Àë¿ªµÄÊ±¼ä
+	 * ä¿®æ”¹é‚»å±…ç”Ÿå­˜æ—¶é—´é‡Œï¼Œç¦»å¼€çš„æ—¶é—´
 	 * @param time
 	 */
 	public void changeNeighborsLiveTime(DTNHost host, double time){
 		double[] liveTime = new double[2];
 		liveTime[0] = SimClock.getTime();
 		liveTime[1] = time;
-		this.neighborsLiveTime.put(host, liveTime);//¸ü¸ÄÔ­ÏÈhost¶ÔÓ¦µÄliveTimeÖµ
+		this.neighborsLiveTime.put(host, liveTime);//æ›´æ”¹åŸå…ˆhostå¯¹åº”çš„liveTimeå€¼
 	}
 	/**
-	 * ĞŞ¸Äµ±Ç°²»ÊÇÁÚ¾ÓµÄ½Úµã£¬Æäµ½´ïºÍ½áÊøµÄÊ±¼ä
+	 * ä¿®æ”¹å½“å‰ä¸æ˜¯é‚»å±…çš„èŠ‚ç‚¹ï¼Œå…¶åˆ°è¾¾å’Œç»“æŸçš„æ—¶é—´
 	 * @param time
 	 */
 	public void changePotentialNeighborsTime(DTNHost host, double time1, double time2){
@@ -323,48 +323,48 @@ public class Neighbors {
 		this.potentialNeighborsStartTime.put(host, liveTime);
 	}
 	/**
-	 * °ÑÔ¤²âµ½´ïµÄ½Úµã¼¯ºÏÖĞ£¬ÒÑ¾­³ÉÎªÁÚ¾ÓµÄ½ÚµãÒÆ³ı
+	 * æŠŠé¢„æµ‹åˆ°è¾¾çš„èŠ‚ç‚¹é›†åˆä¸­ï¼Œå·²ç»æˆä¸ºé‚»å±…çš„èŠ‚ç‚¹ç§»é™¤
 	 */
 	public void removeExistNeighbors(){
 		List<DTNHost> existNeighbors = new ArrayList<DTNHost>();
 		existNeighbors.clear();
 		Collection<DTNHost> potentialNeighborsStartTime = this.potentialNeighborsStartTime.keySet();
 		for (DTNHost host : potentialNeighborsStartTime){
-			if (this.potentialNeighborsStartTime.get(host)[0] <= SimClock.getTime())//¶ÔÓÚµ½´ïÔ¤²âÊ±¼äÇÒÒÑ³ÉÎªÁÚ¾ÓµÄ½Úµã¾ÍÒÆ³ı
+			if (this.potentialNeighborsStartTime.get(host)[0] <= SimClock.getTime())//å¯¹äºåˆ°è¾¾é¢„æµ‹æ—¶é—´ä¸”å·²æˆä¸ºé‚»å±…çš„èŠ‚ç‚¹å°±ç§»é™¤
 				if (this.neighbors.contains(host))
 					existNeighbors.add(host);
 				else
-					assert false : this.host+" µ½´ïÔ¤²âÊ±¼äµ«ÊÇ»¹Ã»ÓĞ³ÉÎªÁÚ¾Ó½Úµã "+ host;
+					assert false : this.host+" åˆ°è¾¾é¢„æµ‹æ—¶é—´ä½†æ˜¯è¿˜æ²¡æœ‰æˆä¸ºé‚»å±…èŠ‚ç‚¹ "+ host;
 		}
 		for (DTNHost host : existNeighbors){
 			this.potentialNeighborsStartTime.remove(host);
 		}
 	}
 	/**
-	 * ÓÃÓÚÔ¤²âÈ«²¿½Úµã³ÉÎªÁÚ¾ÓµÄÊ±¼ä
+	 * ç”¨äºé¢„æµ‹å…¨éƒ¨èŠ‚ç‚¹æˆä¸ºé‚»å±…çš„æ—¶é—´
 	 */
 	public void predictAllStartTime(){
 
 		//List<DTNHost> hosts = new ArrayList<DTNHost>(); 
 		//hosts = this.hosts;
-		//hosts.removeAll(this.neighbors);//È¥µôÁÚ¾Ó½Úµã
+		//hosts.removeAll(this.neighbors);//å»æ‰é‚»å±…èŠ‚ç‚¹
 		
-		removeExistNeighbors();//È¥µôÒÑ³ÉÎªÁÚ¾ÓµÄÔ¤²â½Úµã!!!
+		removeExistNeighbors();//å»æ‰å·²æˆä¸ºé‚»å±…çš„é¢„æµ‹èŠ‚ç‚¹!!!
 		
 		boolean findLabel = false;
 		for (DTNHost host : this.hosts){
 			findLabel = false;
-			if (this.neighbors.contains(host) || host.getAddress() == this.host.getAddress()){//ÒÑ¾­ÊÇÁÚ¾Ó½ÚµãÎŞĞèÔ¤²â
+			if (this.neighbors.contains(host) || host.getAddress() == this.host.getAddress()){//å·²ç»æ˜¯é‚»å±…èŠ‚ç‚¹æ— éœ€é¢„æµ‹
 				continue;
 			}
 			else{
-				if (this.potentialNeighborsStartTime.containsKey(host) == false){//ÒÑ¾­Ô¤²â¹ıµÄ¾Í²»ÓÃÔÙËãÁË	
+				if (this.potentialNeighborsStartTime.containsKey(host) == false){//å·²ç»é¢„æµ‹è¿‡çš„å°±ä¸ç”¨å†ç®—äº†	
 					for (double time = SimClock.getTime(); time < SimClock.getTime()+msgTtl*60; time += INTERVAL){
 						if (JudgeNeighbors(this.host.getCoordinate(time) , 
-								host.getCoordinate(time)) == true){//ÅĞ¶ÏÊ²Ã´Ê±ºò²Å»á³ÉÎªÁÚ¾Ó
+								host.getCoordinate(time)) == true){//åˆ¤æ–­ä»€ä¹ˆæ—¶å€™æ‰ä¼šæˆä¸ºé‚»å±…
 							for (double var = time - INTERVAL; var < time; var += 0.1){
 								if (JudgeNeighbors(this.host.getCoordinate(time) , 
-										host.getCoordinate(time)) == true){//ÅĞ¶ÏÊ²Ã´Ê±ºò²Å»á³ÉÎªÁÚ¾Ó
+										host.getCoordinate(time)) == true){//åˆ¤æ–­ä»€ä¹ˆæ—¶å€™æ‰ä¼šæˆä¸ºé‚»å±…
 									if (var > 0){
 										findLabel = true;
 										changePotentialNeighborsTime(host, time, time);
@@ -380,7 +380,7 @@ public class Neighbors {
 					if (findLabel == true)
 						continue;
 					else {
-						changePotentialNeighborsTime(host, -1, -1);//´ú±íÀú±éÈ«¾ÖÒ²Ã»ÕÒµ½£¬Òò´Ë²»¿ÉÄÜ³ÉÎªÁÚ¾Ó½Úµã
+						changePotentialNeighborsTime(host, -1, -1);//ä»£è¡¨å†éå…¨å±€ä¹Ÿæ²¡æ‰¾åˆ°ï¼Œå› æ­¤ä¸å¯èƒ½æˆä¸ºé‚»å±…èŠ‚ç‚¹
 						//System.out.println(this.host+"   "+host+"  NeighborsStartTime is -1  "+this.potentialNeighborsStartTime);
 					}
 				}
@@ -389,22 +389,22 @@ public class Neighbors {
 
 	}
 	/**
-	 * Ô¤²â¿ÉÄÜ³ÉÎªÁÚ¾ÓµÄ½ÚµãÆäÀë¿ªµÄÊ±¼ä
+	 * é¢„æµ‹å¯èƒ½æˆä¸ºé‚»å±…çš„èŠ‚ç‚¹å…¶ç¦»å¼€çš„æ—¶é—´
 	 */
 	public void predictAllEndTime(){
 		boolean findLabel = false;
 		for (DTNHost host : this.potentialNeighborsStartTime.keySet()){
 			findLabel = false;
-			assert !this.neighbors.contains(host) : "Ô¤²â½Úµã±»°üº¬ÔÚÁËÁÚ¾Ó½ÚµãÖĞ";
+			assert !this.neighbors.contains(host) : "é¢„æµ‹èŠ‚ç‚¹è¢«åŒ…å«åœ¨äº†é‚»å±…èŠ‚ç‚¹ä¸­";
 			if (this.potentialNeighborsStartTime.get(host)[0] == 
 					this.potentialNeighborsStartTime.get(host)[1] && 
-					this.potentialNeighborsStartTime.get(host)[0] > 0){//±£Ö¤¶ÔÎ´À´¿ÉÄÜ³ÉÎªÁÚ¾ÓµÄ½Úµã²»»áÖØ¸´Ô¤²â£¬Í¬Ê±Ò²ÒªÅÅ³ı²»¿ÉÄÜ³ÉÎªÁÚ¾ÓµÄ½Úµã
+					this.potentialNeighborsStartTime.get(host)[0] > 0){//ä¿è¯å¯¹æœªæ¥å¯èƒ½æˆä¸ºé‚»å±…çš„èŠ‚ç‚¹ä¸ä¼šé‡å¤é¢„æµ‹ï¼ŒåŒæ—¶ä¹Ÿè¦æ’é™¤ä¸å¯èƒ½æˆä¸ºé‚»å±…çš„èŠ‚ç‚¹
 				for (double time = this.potentialNeighborsStartTime.get(host)[0]; time < SimClock.getTime()+msgTtl*60; time += INTERVAL){
 					if (JudgeNeighbors(this.host.getCoordinate(time), 
-							host.getCoordinate(time)) == false){//ÅĞ¶ÏÊ²Ã´Ê±ºò²Å»áÀë¿ª
+							host.getCoordinate(time)) == false){//åˆ¤æ–­ä»€ä¹ˆæ—¶å€™æ‰ä¼šç¦»å¼€
 						for (double var = time - INTERVAL; var < time; var += 0.1){
 							if (JudgeNeighbors(this.host.getCoordinate(time), 
-									host.getCoordinate(time)) == false){//ÅĞ¶ÏÊ²Ã´Ê±ºò²Å»áÀë¿ª
+									host.getCoordinate(time)) == false){//åˆ¤æ–­ä»€ä¹ˆæ—¶å€™æ‰ä¼šç¦»å¼€
 								if (var > 0){
 									findLabel = true;
 									changePotentialNeighborsTime(host, 
@@ -421,20 +421,20 @@ public class Neighbors {
 					continue;
 				else 			
 					changePotentialNeighborsTime(host, 
-							this.potentialNeighborsStartTime.get(host)[0], simEndTime);//ËµÃ÷ÔÚÈ«¾ÖÊ±¼äÀïÆäÔÚÎ´À´Ä³¸öÊ±¼ä³ÉÎªÁÚ¾Óºó²»»áÔÙÀë¿ªÁË				
+							this.potentialNeighborsStartTime.get(host)[0], simEndTime);//è¯´æ˜åœ¨å…¨å±€æ—¶é—´é‡Œå…¶åœ¨æœªæ¥æŸä¸ªæ—¶é—´æˆä¸ºé‚»å±…åä¸ä¼šå†ç¦»å¼€äº†				
 			}
 		}
 	}
 	/**
-	 * Ô¤²âÄÇĞ©ÔÚÏàÁÚÍø¸ñÖĞµ«»¹²»ÊÇÁÚ¾Ó½ÚµãµÄÎÀĞÇ
+	 * é¢„æµ‹é‚£äº›åœ¨ç›¸é‚»ç½‘æ ¼ä¸­ä½†è¿˜ä¸æ˜¯é‚»å±…èŠ‚ç‚¹çš„å«æ˜Ÿ
 	 * @param potentialNeighbors
 	 */
 	public void updatePotentialNeighborsStartTime(List<NetworkInterface> potentialNeighbors){	
 		double endTime = SimClock.getTime() + PREDICT_TIME;
 		//for (DTNHost host : this.neighbors){
-		//	potentialNeighbors.remove(host.getInterface(0));//È¥µôÄÇĞ©ÒÑ¾­ÊÇÁÚ¾Ó½ÚµãµÄ
+		//	potentialNeighbors.remove(host.getInterface(0));//å»æ‰é‚£äº›å·²ç»æ˜¯é‚»å±…èŠ‚ç‚¹çš„
 		//}
-		Collection<DTNHost> potentialNeighborsStartTime = this.potentialNeighborsStartTime.keySet();//³¬Ê±µÄ¾Í°ÑËüÌŞ³ı 
+		Collection<DTNHost> potentialNeighborsStartTime = this.potentialNeighborsStartTime.keySet();//è¶…æ—¶çš„å°±æŠŠå®ƒå‰”é™¤ 
 		for (DTNHost host : potentialNeighborsStartTime){
 			if (this.potentialNeighborsStartTime.get(host)[0] > SimClock.getIntTime())
 				this.potentialNeighborsStartTime.remove(host);
@@ -442,10 +442,10 @@ public class Neighbors {
 		
 		for (NetworkInterface ni : potentialNeighbors){
 			if (!this.potentialNeighborsStartTime.containsKey(ni.getHost()) && 
-					!this.neighborsLiveTime.containsKey(ni.getHost())){//±£Ö¤Ã¿¸ö½ÚµãÖ»»áÔ¤²âÒ»´ÎÔ¤²â£¬ÇÒÒÑ¾­ÊÇÁÚ¾ÓµÄ½Úµã²»ÓÃÔ¤²â
+					!this.neighborsLiveTime.containsKey(ni.getHost())){//ä¿è¯æ¯ä¸ªèŠ‚ç‚¹åªä¼šé¢„æµ‹ä¸€æ¬¡é¢„æµ‹ï¼Œä¸”å·²ç»æ˜¯é‚»å±…çš„èŠ‚ç‚¹ä¸ç”¨é¢„æµ‹
 				for (double time = SimClock.getTime(); time < endTime; time += INTERVAL){
 					if (JudgeNeighbors(this.host.getCoordinate(time) , 
-							ni.getHost().getCoordinate(time))){//ÅĞ¶ÏÊ²Ã´Ê±ºò²Å»á³ÉÎªÁÚ¾Ó
+							ni.getHost().getCoordinate(time))){//åˆ¤æ–­ä»€ä¹ˆæ—¶å€™æ‰ä¼šæˆä¸ºé‚»å±…
 						for (double var = time - INTERVAL; var < time; var += 0.1){
 							if (JudgeNeighbors(this.host.getCoordinate(var) , 
 									ni.getHost().getCoordinate(var))){
@@ -455,22 +455,22 @@ public class Neighbors {
 								this.potentialNeighborsStartTime.put(ni.getHost(), liveTime);
 								System.out.print(this.host+"   "+ni.getHost()+"  potentialNeighborsStartTime is ");
 								System.out.println(liveTime[0]);
-								break;//Ìø³öÑ­»·
+								break;//è·³å‡ºå¾ªç¯
 							}
 						}
 					}
-					break;//Ìø³öµÚ¶ş²ãÑ­»·
+					break;//è·³å‡ºç¬¬äºŒå±‚å¾ªç¯
 				}
 			}	
 		}	
 		//HashMap<DTNHost,double[]> potentialNeighborsTime = new HashMap<DTNHost,double[]>();
 		for (DTNHost host : this.neighbors){
-			this.potentialNeighborsStartTime.remove(host);//ÒÑ¾­³ÉÎªÁÚ¾Ó½ÚµãµÄÔ¤²â¿ÉÒÔÉ¾³ı
+			this.potentialNeighborsStartTime.remove(host);//å·²ç»æˆä¸ºé‚»å±…èŠ‚ç‚¹çš„é¢„æµ‹å¯ä»¥åˆ é™¤
 			//System.out.println("test!");
 		}	
 	}	
 	/**
-	 * ¼ÆËãÔÚÊ±¿ÌtÊ±£¬ÎÀĞÇ½ÚµãµÄÁÚ¾Ó½Úµã²¢´æ´¢ÔÚneighborsÖĞ
+	 * è®¡ç®—åœ¨æ—¶åˆ»tæ—¶ï¼Œå«æ˜ŸèŠ‚ç‚¹çš„é‚»å±…èŠ‚ç‚¹å¹¶å­˜å‚¨åœ¨neighborsä¸­
 	 * @param parameters
 	 * @param t
 	 */
@@ -483,25 +483,25 @@ public class Neighbors {
 		int index=this.hosts.indexOf(host);
 		ChangeMyHost(index);
 		
-		for(int n=1;n<nrofhosts;n++){//ÁĞ±íÖĞ½ÚµãµÄ×ÜÊıÊÇnrofhosts¸ö£¬Ä©Î²ÄÇ¸öÊÇ±¾½Úµã£¬ËùÒÔ²»ÓÃËã
+		for(int n=1;n<nrofhosts;n++){//åˆ—è¡¨ä¸­èŠ‚ç‚¹çš„æ€»æ•°æ˜¯nrofhostsä¸ªï¼Œæœ«å°¾é‚£ä¸ªæ˜¯æœ¬èŠ‚ç‚¹ï¼Œæ‰€ä»¥ä¸ç”¨ç®—
 			if(JudgeNeighbors(GetCoordinate(hosts.get(n).getParameters(),t),myCoordinate)){
 				neighbors.add(hosts.get(n));
 			}
 		}
-		//System.out.print(hosts.get(index));//ÏµÍ³Êä³ö´òÓ¡ÊÇÁÚ¾ÓµÄ½Úµã
+		//System.out.print(hosts.get(index));//ç³»ç»Ÿè¾“å‡ºæ‰“å°æ˜¯é‚»å±…çš„èŠ‚ç‚¹
 		//System.out.println(neighbors);
 	}
 	/**
-	 * °ÑÁĞ±íÖĞ±¾DTNHost·Åµ½¶¯Ì¬Êı×éµÄÄ©Î²È¥£¬Ö»¼ÆËãÓëÆäËü½ÚµãÖ®¼äµÄ¾àÀë
+	 * æŠŠåˆ—è¡¨ä¸­æœ¬DTNHostæ”¾åˆ°åŠ¨æ€æ•°ç»„çš„æœ«å°¾å»ï¼Œåªè®¡ç®—ä¸å…¶å®ƒèŠ‚ç‚¹ä¹‹é—´çš„è·ç¦»
 	 * @param index
 	 */
 	public void ChangeMyHost(int index){
 		DTNHost host=this.hosts.get(index);
 		this.hosts.remove(index);
-		this.hosts.add(host);//¸Ä±ä±¾DTNHostÔÚ±íÖĞµÄË³Ğò
+		this.hosts.add(host);//æ”¹å˜æœ¬DTNHoståœ¨è¡¨ä¸­çš„é¡ºåº
 	}
 	/**
-	 * ÊäÈë¹ìµÀ²ÎÊıºÍÊ±¼ä£¬µÃµ½¶ÔÓ¦ÈıÎ¬×ø±êÎ»ÖÃ£¬¶şÎ¬Êı×é[1][3]
+	 * è¾“å…¥è½¨é“å‚æ•°å’Œæ—¶é—´ï¼Œå¾—åˆ°å¯¹åº”ä¸‰ç»´åæ ‡ä½ç½®ï¼ŒäºŒç»´æ•°ç»„[1][3]
 	 * @param parameters
 	 * @param t
 	 * @return
@@ -513,7 +513,7 @@ public class Neighbors {
 		return myCoordinate;
 	}
 	/**
-	 * ¶ÔCoordÀà×ø±ê½øĞĞ¾àÀë¼ÆËã
+	 * å¯¹Coordç±»åæ ‡è¿›è¡Œè·ç¦»è®¡ç®—
 	 * @param c1
 	 * @param c2
 	 * @return
@@ -527,7 +527,7 @@ public class Neighbors {
 			return false;
 	}	
 	/**
-	 * ·µ»Øtrue´ú±íÊÇÁÚ¾Ó½Úµã£¬ÔÚÍ¨ĞÅ·¶Î§ÄÚ£¬·µ»ØfalseÔòÔÚÍ¨ĞÅ·¶Î§Ö®Íâ
+	 * è¿”å›trueä»£è¡¨æ˜¯é‚»å±…èŠ‚ç‚¹ï¼Œåœ¨é€šä¿¡èŒƒå›´å†…ï¼Œè¿”å›falseåˆ™åœ¨é€šä¿¡èŒƒå›´ä¹‹å¤–
 	 * @param c1
 	 * @param c2
 	 * @return

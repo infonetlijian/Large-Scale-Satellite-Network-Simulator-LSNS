@@ -759,11 +759,11 @@ public class TwoBody implements Derivatives
 				dt = tf - t;
 			}
 			if(t==tf)
-				;//System.out.println("×îÖÕ×ø±ê  "+ temp[0]);
+				;//System.out.println("æœ€ç»ˆåæ ‡  "+ temp[0]);
 			//System.out.println("number "+ numbers);
 
 		}
-		//System.out.println("t Ê±¿Ì×ø±ê  "+ this.rv.x[0]);
+		//System.out.println("t æ—¶åˆ»åæ ‡  "+ this.rv.x[0]);
 		//System.out.println("numbers "+ numbers);
 	}
 
@@ -845,11 +845,11 @@ public class TwoBody implements Derivatives
 			{
 				dt = tf - t;
 			}
-			//System.out.println("×îÖÕ×ø±ê  "+ temp[0]);
+			//System.out.println("æœ€ç»ˆåæ ‡  "+ temp[0]);
 			//System.out.println("number "+ numbers);
 
 		}
-		//System.out.println("t Ê±¿Ì×ø±ê  "+ this.rv.x[0]);
+		//System.out.println("t æ—¶åˆ»åæ ‡  "+ this.rv.x[0]);
 		//System.out.println("numbers "+ numbers);
 	}
 	

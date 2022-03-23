@@ -110,7 +110,7 @@ public class SatelliteOrbit implements Printable {
         return this.satellitecoordinate;
 	}
 	/**
-	 * ·µ»Ø¹ìµÀµÄÖÜÆÚ
+	 * è¿”å›è½¨é“çš„å‘¨æœŸ
 	 * @return
 	 */
 	public double getPeriod(){

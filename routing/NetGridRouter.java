@@ -40,7 +40,7 @@ public class NetGridRouter extends ActiveRouter{
 	/** write the routing path into the message header */
 	public static final String MSG_ROUTERPATH = "routerPath"; 
 
-	/** light speed£¬approximate 3*10^8m/s */
+	/** light speedï¼Œapproximate 3*10^8m/s */
 	private static final double SPEEDOFLIGHT = 299792458;
 	
     /** indicate the transmission radius of each satellite */
@@ -54,7 +54,7 @@ public class NetGridRouter extends ActiveRouter{
     /** to make the random choice */
     private static Random random;	
     
-	/**¸ù¾İ»ùÓÚÍø¸ñµÄ×î¶ÌÂ·¾¶ËÑË÷½á¹û£¬´æ´¢·­Òë¹ıºóµÄµ½´ïÄ¿µÄ½ÚµãµÄ×î¶ÌÂ·¾¶£¬¹©Ñ¡ÔñÁ´Â·Ê±Ö±½ÓÊ¹ÓÃ**/
+	/**æ ¹æ®åŸºäºç½‘æ ¼çš„æœ€çŸ­è·¯å¾„æœç´¢ç»“æœï¼Œå­˜å‚¨ç¿»è¯‘è¿‡åçš„åˆ°è¾¾ç›®çš„èŠ‚ç‚¹çš„æœ€çŸ­è·¯å¾„ï¼Œä¾›é€‰æ‹©é“¾è·¯æ—¶ç›´æ¥ä½¿ç”¨**/
     /** the netgrid router table comes from routing algorithm */
 	private HashMap<DTNHost, List<Tuple<List<Integer>, Boolean>>> multiPathFromNetgridTable = new HashMap<DTNHost, List<Tuple<List<Integer>, Boolean>>>();	
 	/** maintain the earliest arrival time to other nodes */
@@ -72,8 +72,8 @@ public class NetGridRouter extends ActiveRouter{
 	private Connection finalHopConnection = null;
 
 	/** used as priori information for Walker constellation */
-	public List<DTNHost> neighborPlaneHosts = new ArrayList<DTNHost>();//ÏàÍ¬¹ìµÀÆ½ÃæÀïµÄÁ½¸öÁÚ¾Ó½Úµã
-	public List<DTNHost> neighborHostsInSamePlane = new ArrayList<DTNHost>();//ÏàÁÚ¹ìµÀÆ½ÃæÄÚµÄÁ½¸öÁÚ¾Ó½Úµã
+	public List<DTNHost> neighborPlaneHosts = new ArrayList<DTNHost>();//ç›¸åŒè½¨é“å¹³é¢é‡Œçš„ä¸¤ä¸ªé‚»å±…èŠ‚ç‚¹
+	public List<DTNHost> neighborHostsInSamePlane = new ArrayList<DTNHost>();//ç›¸é‚»è½¨é“å¹³é¢å†…çš„ä¸¤ä¸ªé‚»å±…èŠ‚ç‚¹
 	
 	/** Queue mode for sending messages */
 	protected int sendQueueMode;
@@ -103,17 +103,17 @@ public class NetGridRouter extends ActiveRouter{
             transmitRange = setting.getInt(TRANSMIT_RANGE_S);
             setting.setNameSpace(GROUPNAME_S);
             msgPathLabel = setting.getBoolean(MSG_PATHLABEL);
-            gridUpdateOption = setting.getSetting(GRIDUPDATEOPTION_S);//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡ÉèÖÃ£¬ÊÇ²ÉÓÃÔÚÔËĞĞ¹ı³ÌÖĞ²»¶Ï¼ÆËã¹ìµÀ×ø±êµÄ·½Ê½£¬»¹ÊÇÍ¨¹ıÌáÇ°ÀûÓÃÍø¸ñ±í´æ´¢¸÷¸ö½ÚµãµÄ¹ìµÀĞÅÏ¢
+            gridUpdateOption = setting.getSetting(GRIDUPDATEOPTION_S);//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–è®¾ç½®ï¼Œæ˜¯é‡‡ç”¨åœ¨è¿è¡Œè¿‡ç¨‹ä¸­ä¸æ–­è®¡ç®—è½¨é“åæ ‡çš„æ–¹å¼ï¼Œè¿˜æ˜¯é€šè¿‡æå‰åˆ©ç”¨ç½‘æ ¼è¡¨å­˜å‚¨å„ä¸ªèŠ‚ç‚¹çš„è½¨é“ä¿¡æ¯
             initLabel = true;
         }
     }
 	/**
-	 * Ö´ĞĞÂ·ÓÉµÄ³õÊ¼»¯²Ù×÷
+	 * æ‰§è¡Œè·¯ç”±çš„åˆå§‹åŒ–æ“ä½œ
 	 */
 	public void initialzation(){
-		GN.setHost(this.getHost());//ÎªÁËÊµÏÖGNºÍRouterÒÔ¼°HostÖ®¼äµÄ°ó¶¨£¬´ıĞŞ¸Ä£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
-		initInterSatelliteNeighbors();//³õÊ¼»¯¼ÇÂ¼½ÚµãÔÚÍ¬Ò»¸ö¹ìµÀÄÚµÄÏàÁÚ½Úµã£¬ÒÔ¼°ÏàÁÚÆ½ÃæµÄÁÚ¾Ó
-		//this.GN.initializeGridLocation();//³õÊ¼»¯ÌáÇ°¼ÆËãÍø¸ñ±í
+		GN.setHost(this.getHost());//ä¸ºäº†å®ç°GNå’ŒRouterä»¥åŠHostä¹‹é—´çš„ç»‘å®šï¼Œå¾…ä¿®æ”¹ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼
+		initInterSatelliteNeighbors();//åˆå§‹åŒ–è®°å½•èŠ‚ç‚¹åœ¨åŒä¸€ä¸ªè½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹ï¼Œä»¥åŠç›¸é‚»å¹³é¢çš„é‚»å±…
+		//this.GN.initializeGridLocation();//åˆå§‹åŒ–æå‰è®¡ç®—ç½‘æ ¼è¡¨
 	}	
 
 	@Override
@@ -124,33 +124,33 @@ public class NetGridRouter extends ActiveRouter{
 			if(con.isTransferring()){
 				if (con.getOtherNode(this.getHost()).getRouter().isIncomingMessage(con.getMessage().getId()))
 					con.getOtherNode(this.getHost()).getRouter().removeFromIncomingBuffer(con.getMessage().getId(), this.getHost());
-				super.addToMessages(con.getMessage(), false);//¶ÔÓÚÒòÎªÁ´Â·ÖĞ¶Ï¶ø¶ªÊ§µÄÏûÏ¢£¬ÖØĞÂ·Å»Ø·¢ËÍ·½µÄ¶ÓÁĞÖĞ£¬²¢ÇÒÉ¾³ı¶Ô·½½ÚµãµÄincomingĞÅÏ¢
+				super.addToMessages(con.getMessage(), false);//å¯¹äºå› ä¸ºé“¾è·¯ä¸­æ–­è€Œä¸¢å¤±çš„æ¶ˆæ¯ï¼Œé‡æ–°æ”¾å›å‘é€æ–¹çš„é˜Ÿåˆ—ä¸­ï¼Œå¹¶ä¸”åˆ é™¤å¯¹æ–¹èŠ‚ç‚¹çš„incomingä¿¡æ¯
 			}
 		}
 	}
 
 	/**
-	 * Â·ÓÉ¸üĞÂ£¬Ã¿´Îµ÷ÓÃÂ·ÓÉ¸üĞÂÊ±µÄÖ÷Èë¿Ú
+	 * è·¯ç”±æ›´æ–°ï¼Œæ¯æ¬¡è°ƒç”¨è·¯ç”±æ›´æ–°æ—¶çš„ä¸»å…¥å£
 	 */
 	@Override
 	public void update() {
 		super.update();
 		
-		/**¶¯Ì¬¸üĞÂÏàÁÚ¹ìµÀÆ½ÃæÄÚµÄÁÚ¾Ó½ÚµãÁĞ±í(ÒòÎªÔÚ±ßÔµ¹ìµÀÆ½ÃæÊ±»áÓĞÎÊÌâ)**/
-		List<DTNHost> neiList = getNeighbors(this.getHost(), SimClock.getTime());//Í¨¹ı¾àÀëÀ´ÅĞ¶ÏµÄÁÚ¾Ó£¬²»»áÊÜµ½Á´Â·ÖĞ¶ÏµÄÓ°Ïì	
-		neighborPlaneHosts.clear();//Çå¿ÕÏàÁÚ¹ìµÀÆ½ÃæÄÚµÄÁÚ¾Ó½ÚµãÁĞ±í(ÔÚ±ßÔµ¹ìµÀÆ½ÃæÊ±»áÓĞÎÊÌâ)
-		updateInterSatelliteNeighbors(neiList);//¶¯Ì¬¸üĞÂÏàÁÚ¹ìµÀÆ½ÃæÄÚµÄÁÚ¾Ó½ÚµãÁĞ±í
+		/**åŠ¨æ€æ›´æ–°ç›¸é‚»è½¨é“å¹³é¢å†…çš„é‚»å±…èŠ‚ç‚¹åˆ—è¡¨(å› ä¸ºåœ¨è¾¹ç¼˜è½¨é“å¹³é¢æ—¶ä¼šæœ‰é—®é¢˜)**/
+		List<DTNHost> neiList = getNeighbors(this.getHost(), SimClock.getTime());//é€šè¿‡è·ç¦»æ¥åˆ¤æ–­çš„é‚»å±…ï¼Œä¸ä¼šå—åˆ°é“¾è·¯ä¸­æ–­çš„å½±å“	
+		neighborPlaneHosts.clear();//æ¸…ç©ºç›¸é‚»è½¨é“å¹³é¢å†…çš„é‚»å±…èŠ‚ç‚¹åˆ—è¡¨(åœ¨è¾¹ç¼˜è½¨é“å¹³é¢æ—¶ä¼šæœ‰é—®é¢˜)
+		updateInterSatelliteNeighbors(neiList);//åŠ¨æ€æ›´æ–°ç›¸é‚»è½¨é“å¹³é¢å†…çš„é‚»å±…èŠ‚ç‚¹åˆ—è¡¨
 
-		List<Connection> connections = this.getConnections();  //È¡µÃËùÓĞÁÚ¾Ó½Úµã
+		List<Connection> connections = this.getConnections();  //å–å¾—æ‰€æœ‰é‚»å±…èŠ‚ç‚¹
 		List<Message> messages = new ArrayList<Message>(this.getMessageCollection());
 				
-		if (isTransferring()) {//ÅĞ¶ÏÁ´Â·ÊÇ·ñ±»Õ¼ÓÃ
+		if (isTransferring()) {//åˆ¤æ–­é“¾è·¯æ˜¯å¦è¢«å ç”¨
 			return; // can't start a new transfer
 		}
-		if (connections.size() > 0){//ÓĞÁÚ¾ÓÊ±ĞèÒª½øĞĞhello°ü·¢ËÍĞ­Òé
-			//helloProtocol();//Ö´ĞĞhello°üµÄÎ¬»¤¹¤×÷
+		if (connections.size() > 0){//æœ‰é‚»å±…æ—¶éœ€è¦è¿›è¡ŒhelloåŒ…å‘é€åè®®
+			//helloProtocol();//æ‰§è¡ŒhelloåŒ…çš„ç»´æŠ¤å·¥ä½œ
 		}
-		if (!canStartTransfer())//ÊÇ·ñÓĞÁÖ½Ü½ÚµãÇÒÓĞĞÅÏ¢ĞèÒª´«ËÍ
+		if (!canStartTransfer())//æ˜¯å¦æœ‰æ—æ°èŠ‚ç‚¹ä¸”æœ‰ä¿¡æ¯éœ€è¦ä¼ é€
 			return;
 
 		this.multiPathFromNetgridTable.clear();
@@ -158,7 +158,7 @@ public class NetGridRouter extends ActiveRouter{
 		if (messages.isEmpty())
 			return;
 		
-		//ÅĞ¶ÏÈç¹ûÎªÏÈ½øÏÈ³öÄ£Ê½£¬Ôò½øĞĞÅÅĞò
+		//åˆ¤æ–­å¦‚æœä¸ºå…ˆè¿›å…ˆå‡ºæ¨¡å¼ï¼Œåˆ™è¿›è¡Œæ’åº
 		Settings s = new Settings("Group");
 		if (s.contains(SEND_QUEUE_MODE_S)) {
 			this.sendQueueMode = s.getInt(SEND_QUEUE_MODE_S);
@@ -175,14 +175,14 @@ public class NetGridRouter extends ActiveRouter{
 	        /** sort the messages to transmit */
 	        List<Message> messageList = this.CollectionToList(this.getMessageCollection());
 	        List<Message> sortedMessages = sortByQueueMode(messageList);
-			for (Message msg : sortedMessages){	//³¢ÊÔ·¢ËÍ¶ÓÁĞÀïµÄÏûÏ¢	
+			for (Message msg : sortedMessages){	//å°è¯•å‘é€é˜Ÿåˆ—é‡Œçš„æ¶ˆæ¯	
 				if (findPathToSend(msg, connections) == true)
 					return;
 			}
 		} 
 		
 		else{
-			for (Message msg : messages){	//³¢ÊÔ·¢ËÍ¶ÓÁĞÀïµÄÏûÏ¢	
+			for (Message msg : messages){	//å°è¯•å‘é€é˜Ÿåˆ—é‡Œçš„æ¶ˆæ¯	
 				if (findPathToSend(msg, connections) == true)
 					return;
 			}
@@ -196,7 +196,7 @@ public class NetGridRouter extends ActiveRouter{
     
     public List<Message> CollectionToList(Collection<Message> messages){
     	List<Message> forMsg = new ArrayList<Message>();
-        for (Message msg : messages) {	//³¢ÊÔ·¢ËÍ¶ÓÁĞÀïµÄÏûÏ¢
+        for (Message msg : messages) {	//å°è¯•å‘é€é˜Ÿåˆ—é‡Œçš„æ¶ˆæ¯
         	forMsg.add(msg);
         }
     	return forMsg;
@@ -214,41 +214,41 @@ public class NetGridRouter extends ActiveRouter{
 		int num = (int)((time-SimClock.getTime())/updateInterval);
 		time = SimClock.getTime()+num*updateInterval;
 		
-		List<DTNHost> neiHost = new ArrayList<DTNHost>();//ÁÚ¾ÓÁĞ±í
+		List<DTNHost> neiHost = new ArrayList<DTNHost>();//é‚»å±…åˆ—è¡¨
 		
 		HashMap<DTNHost, Coord> loc = new HashMap<DTNHost, Coord>();
 		loc.clear();
 		
-		/**Ô­À´µÄ´úÂëÖĞ£¬ÓĞÓÅ»¯»úÖÆ£¬²»·ûºÏÊµ¼Ê£¬¹Ê¶øÉ¾³ı**/
+		/**åŸæ¥çš„ä»£ç ä¸­ï¼Œæœ‰ä¼˜åŒ–æœºåˆ¶ï¼Œä¸ç¬¦åˆå®é™…ï¼Œæ•…è€Œåˆ é™¤**/
 		/*
 		if (!(time == SimClock.getTime())){
-			for (DTNHost h : hosts){//¸üĞÂÖ¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+			for (DTNHost h : hosts){//æ›´æ–°æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 				//location.my_Test(time, 0, h.getParameters());
 				//Coord xyz = new Coord(location.getX(), location.getY(), location.getZ());
 				Coord xyz = h.getCoordinate(time);
-				loc.put(h, xyz);//¼ÇÂ¼Ö¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+				loc.put(h, xyz);//è®°å½•æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 			}
 		}
 		else{
-			for (DTNHost h : hosts){//¸üĞÂÖ¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
-				loc.put(h, h.getLocation());//¼ÇÂ¼Ö¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+			for (DTNHost h : hosts){//æ›´æ–°æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
+				loc.put(h, h.getLocation());//è®°å½•æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 			}
 		}*/
 		
-		/**ÊµÊ±¼ÆËãÈ«Íø½ÚµãµÄ×ø±ê¹¹³ÉÍØÆËÍ¼**/
-		for (DTNHost h : getHosts()){//¸üĞÂÖ¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+		/**å®æ—¶è®¡ç®—å…¨ç½‘èŠ‚ç‚¹çš„åæ ‡æ„æˆæ‹“æ‰‘å›¾**/
+		for (DTNHost h : getHosts()){//æ›´æ–°æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 			//location.my_Test(time, 0, h.getParameters());
 			//Coord xyz = new Coord(location.getX(), location.getY(), location.getZ());
-			/**¸ù¾İ¹ìµÀÄ£ĞÍ£¬ÊµÊ±¼ÆËã½Úµãµ±Ç°µÄÎ»ÖÃ£¬ÔËĞĞËÙ¶È½ÏÂı**/
+			/**æ ¹æ®è½¨é“æ¨¡å‹ï¼Œå®æ—¶è®¡ç®—èŠ‚ç‚¹å½“å‰çš„ä½ç½®ï¼Œè¿è¡Œé€Ÿåº¦è¾ƒæ…¢**/
 			//Coord xyz = h.getCoordinate(time);
-			/**Ö±½Ó»ñÈ¡µ±Ç°µÄ½ÚµãÎ»ÖÃ£¬¼ò»¯¼ÆËã¹ı³Ì£¬Ìá¸ß·ÂÕæÔËĞĞËÙ¶È**/
+			/**ç›´æ¥è·å–å½“å‰çš„èŠ‚ç‚¹ä½ç½®ï¼Œç®€åŒ–è®¡ç®—è¿‡ç¨‹ï¼Œæé«˜ä»¿çœŸè¿è¡Œé€Ÿåº¦**/
 			Coord xyz = h.getLocation();
-			/**Ö±½Ó»ñÈ¡µ±Ç°µÄ½ÚµãÎ»ÖÃ£¬¼ò»¯¼ÆËã¹ı³Ì**/
-			loc.put(h, xyz);//¼ÇÂ¼Ö¸¶¨Ê±¿ÌÈ«¾Ö½ÚµãµÄ×ø±ê
+			/**ç›´æ¥è·å–å½“å‰çš„èŠ‚ç‚¹ä½ç½®ï¼Œç®€åŒ–è®¡ç®—è¿‡ç¨‹**/
+			loc.put(h, xyz);//è®°å½•æŒ‡å®šæ—¶åˆ»å…¨å±€èŠ‚ç‚¹çš„åæ ‡
 		}
 		
 		Coord myLocation = loc.get(host);
-		for (DTNHost h : getHosts()){//ÔÙ·Ö±ğ¼°¼ÆËã
+		for (DTNHost h : getHosts()){//å†åˆ†åˆ«åŠè®¡ç®—
 			if (h == host)
 				continue;
 			if (JudgeNeighbors(myLocation, loc.get(h)) == true){
@@ -262,7 +262,7 @@ public class NetGridRouter extends ActiveRouter{
 		return neiHost;
 	}
 	/**
-	 * ¶ÔCoordÀà×ø±ê½øĞĞ¾àÀë¼ÆËã
+	 * å¯¹Coordç±»åæ ‡è¿›è¡Œè·ç¦»è®¡ç®—
 	 * @param c1
 	 * @param c2
 	 * @return
@@ -277,46 +277,46 @@ public class NetGridRouter extends ActiveRouter{
 	}	
 
 	/**
-	 * ¸üĞÂÂ·ÓÉ±í£¬Ñ°ÕÒÂ·¾¶²¢³¢ÊÔ×ª·¢ÏûÏ¢
+	 * æ›´æ–°è·¯ç”±è¡¨ï¼Œå¯»æ‰¾è·¯å¾„å¹¶å°è¯•è½¬å‘æ¶ˆæ¯
 	 * @param msg
 	 * @param connections
 	 * @param msgPathLabel
 	 * @return
 	 */
 	public boolean findPathToSend(Message msg, List<Connection> connections){
-		if (msgPathLabel == true){//Èç¹ûÔÊĞíÔÚÏûÏ¢ÖĞĞ´ÈëÂ·¾¶ÏûÏ¢
-			if (msg.getProperty(MSG_ROUTERPATH) == null){//Í¨¹ı°üÍ·ÊÇ·ñÒÑĞ´ÈëÂ·¾¶ĞÅÏ¢À´ÅĞ¶ÏÊÇ·ñĞèÒªµ¥¶À¼ÆËãÂ·ÓÉ(Í¬Ê±Ò²°üº¬ÁËÔ¤²âµÄ¿ÉÄÜ)
+		if (msgPathLabel == true){//å¦‚æœå…è®¸åœ¨æ¶ˆæ¯ä¸­å†™å…¥è·¯å¾„æ¶ˆæ¯
+			if (msg.getProperty(MSG_ROUTERPATH) == null){//é€šè¿‡åŒ…å¤´æ˜¯å¦å·²å†™å…¥è·¯å¾„ä¿¡æ¯æ¥åˆ¤æ–­æ˜¯å¦éœ€è¦å•ç‹¬è®¡ç®—è·¯ç”±(åŒæ—¶ä¹ŸåŒ…å«äº†é¢„æµ‹çš„å¯èƒ½)
 				Tuple<Message, Connection> t = 
 						findPathFromRouterTabel(msg, connections, msgPathLabel);
 				return sendMsg(t);
 			}
-			else{//Èç¹ûÊÇÖĞ¼Ì½Úµã£¬¾Í¼ì²éÏûÏ¢Ëù´øµÄÂ·¾¶ĞÅÏ¢
+			else{//å¦‚æœæ˜¯ä¸­ç»§èŠ‚ç‚¹ï¼Œå°±æ£€æŸ¥æ¶ˆæ¯æ‰€å¸¦çš„è·¯å¾„ä¿¡æ¯
 				Tuple<Message, Connection> t = 
 						findPathFromMessage(msg);
 				if (t == null){
 					//msg.removeProperty(MSG_ROUTERPATH);
-					throw new SimError("¶ÁÈ¡Â·¾¶ĞÅÏ¢Ê§°Ü£¡");	
+					throw new SimError("è¯»å–è·¯å¾„ä¿¡æ¯å¤±è´¥ï¼");	
 				}						
 				return sendMsg(t);
 			}
-		}else{//²»»áÔÙĞÅÏ¢ÖĞĞ´ÈëÂ·¾¶ĞÅÏ¢£¬Ã¿Ò»Ìø¶¼ĞèÒªÖØĞÂ¼ÆËãÂ·¾¶
+		}else{//ä¸ä¼šå†ä¿¡æ¯ä¸­å†™å…¥è·¯å¾„ä¿¡æ¯ï¼Œæ¯ä¸€è·³éƒ½éœ€è¦é‡æ–°è®¡ç®—è·¯å¾„
 			Tuple<Message, Connection> t = 
-					findPathFromRouterTabel(msg, connections, msgPathLabel);//°´´ı·¢ËÍÏûÏ¢Ë³ĞòÕÒÂ·¾¶£¬²¢³¢ÊÔ·¢ËÍ
+					findPathFromRouterTabel(msg, connections, msgPathLabel);//æŒ‰å¾…å‘é€æ¶ˆæ¯é¡ºåºæ‰¾è·¯å¾„ï¼Œå¹¶å°è¯•å‘é€
 			return sendMsg(t);
 		}
 	}
 	/**
-	 * Í¨¹ı¶ÁÈ¡ĞÅÏ¢msgÍ·²¿ÀïµÄÂ·¾¶ĞÅÏ¢£¬À´»ñÈ¡Â·ÓÉÂ·¾¶£¬Èç¹ûÊ§Ğ§£¬ÔòĞèÒªµ±Ç°½ÚµãÖØĞÂ¼ÆËãÂ·ÓÉ
+	 * é€šè¿‡è¯»å–ä¿¡æ¯msgå¤´éƒ¨é‡Œçš„è·¯å¾„ä¿¡æ¯ï¼Œæ¥è·å–è·¯ç”±è·¯å¾„ï¼Œå¦‚æœå¤±æ•ˆï¼Œåˆ™éœ€è¦å½“å‰èŠ‚ç‚¹é‡æ–°è®¡ç®—è·¯ç”±
 	 * @param msg
 	 * @return
 	 */
 	public Tuple<Message, Connection> findPathFromMessage(Message msg){
 		assert msg.getProperty(MSG_ROUTERPATH) != null : 
-			"message don't have routerPath";//ÏÈ²é¿´ĞÅÏ¢ÓĞÃ»ÓĞÂ·¾¶ĞÅÏ¢£¬Èç¹ûÓĞ¾Í°´ÕÕÒÑÓĞÂ·¾¶ĞÅÏ¢·¢ËÍ£¬Ã»ÓĞÔò²éÕÒÂ·ÓÉ±í½øĞĞ·¢ËÍ
+			"message don't have routerPath";//å…ˆæŸ¥çœ‹ä¿¡æ¯æœ‰æ²¡æœ‰è·¯å¾„ä¿¡æ¯ï¼Œå¦‚æœæœ‰å°±æŒ‰ç…§å·²æœ‰è·¯å¾„ä¿¡æ¯å‘é€ï¼Œæ²¡æœ‰åˆ™æŸ¥æ‰¾è·¯ç”±è¡¨è¿›è¡Œå‘é€
 		List<Tuple<Integer, Boolean>> routerPath = (List<Tuple<Integer, Boolean>>)msg.getProperty(MSG_ROUTERPATH);
 		
 		int thisAddress = this.getHost().getAddress();
-		//assert msg.getTo().getAddress() != thisAddress : "±¾½ÚµãÒÑÊÇÄ¿µÄ½Úµã£¬½ÓÊÕ´¦Àí¹ı³Ì´íÎó";
+		//assert msg.getTo().getAddress() != thisAddress : "æœ¬èŠ‚ç‚¹å·²æ˜¯ç›®çš„èŠ‚ç‚¹ï¼Œæ¥æ”¶å¤„ç†è¿‡ç¨‹é”™è¯¯";
 		int nextHopAddress = -1;
 		
 
@@ -324,7 +324,7 @@ public class NetGridRouter extends ActiveRouter{
 		boolean waitLable = false;
 		for (int i = 0; i < routerPath.size(); i++){
 			if (routerPath.get(i).getKey() == thisAddress){
-				/**²é¿´ÊÇ·ñĞ´ÈëµÄÂ·¾¶ÓĞÎó**/
+				/**æŸ¥çœ‹æ˜¯å¦å†™å…¥çš„è·¯å¾„æœ‰è¯¯**/
 				if (routerPath.size() == i + 1){
 					if (msg.getTo() != this.getHost()){
 						this.receiveMessage(msg, msg.getFrom());
@@ -333,14 +333,14 @@ public class NetGridRouter extends ActiveRouter{
 					else
 						return findPathFromRouterTabel(msg, this.getConnections(), msgPathLabel);
 				}
-				nextHopAddress = routerPath.get(i+1).getKey();//ÕÒµ½ÏÂÒ»Ìø½ÚµãµØÖ·
-				waitLable = routerPath.get(i+1).getValue();//ÕÒµ½ÏÂÒ»ÌøÊÇ·ñĞèÒªµÈ´ıµÄ±êÖ¾Î»
-				break;//Ìø³öÑ­»·
+				nextHopAddress = routerPath.get(i+1).getKey();//æ‰¾åˆ°ä¸‹ä¸€è·³èŠ‚ç‚¹åœ°å€
+				waitLable = routerPath.get(i+1).getValue();//æ‰¾åˆ°ä¸‹ä¸€è·³æ˜¯å¦éœ€è¦ç­‰å¾…çš„æ ‡å¿—ä½
+				break;//è·³å‡ºå¾ªç¯
 			}
 		}
 		
 	      if (nextHopAddress > -1) {
-	    	  Connection nextCon = NetgridMultiPathMatchingProcess(nextHopAddress);//Í¨¹ıÍ¬Ò»Íø¸ñÖĞº¬ÓĞ¶à¸ö½ÚµãµÄÍø¸ñÊ±£¬¿ÉÒÔ²ÉÓÃ¶àÂ·¾¶
+	    	  Connection nextCon = NetgridMultiPathMatchingProcess(nextHopAddress);//é€šè¿‡åŒä¸€ç½‘æ ¼ä¸­å«æœ‰å¤šä¸ªèŠ‚ç‚¹çš„ç½‘æ ¼æ—¶ï¼Œå¯ä»¥é‡‡ç”¨å¤šè·¯å¾„
 	            //the routing path in the message header could be invaild
 	            if (nextCon == null) {
 	                if (!waitLable) {
@@ -360,7 +360,7 @@ public class NetGridRouter extends ActiveRouter{
 	}
 
 	/**
-	 * Í¨¹ıÍ¬Ò»Íø¸ñÖĞº¬ÓĞ¶à¸ö½ÚµãµÄÍø¸ñÊ±£¬¿ÉÒÔ²ÉÓÃ¶àÂ·¾¶£¬Í¨¹ı´Ëº¯ÊıÕÒµ½´Ë¶àÂ·¾¶
+	 * é€šè¿‡åŒä¸€ç½‘æ ¼ä¸­å«æœ‰å¤šä¸ªèŠ‚ç‚¹çš„ç½‘æ ¼æ—¶ï¼Œå¯ä»¥é‡‡ç”¨å¤šè·¯å¾„ï¼Œé€šè¿‡æ­¤å‡½æ•°æ‰¾åˆ°æ­¤å¤šè·¯å¾„
 	 * @param routerPath
 	 * @return
 	 */
@@ -376,11 +376,11 @@ public class NetGridRouter extends ActiveRouter{
 			for (int i = 0; i < 1;){
 				//System.out.println(multiHostsList + "  " + this.GridCellhasMultiDTNHosts.get(firstGridCell));
 				if (multiHostsList.size() == 1)
-					return findConnection(hostAddress);//È¡µÚÒ»ÌøµÄ½ÚµãµØÖ·
+					return findConnection(hostAddress);//å–ç¬¬ä¸€è·³çš„èŠ‚ç‚¹åœ°å€
 				if (multiHostsList.isEmpty() || multiHostsList.size() <= 0){
 					return con;
 				}				
-				//×¢£ºRandom.nextInt(n)·½·¨£¬·µ»ØµÄÖµ½éÓÚ[0,n)Ö®¼ä£¬µ«²»°üº¬n
+				//æ³¨ï¼šRandom.nextInt(n)æ–¹æ³•ï¼Œè¿”å›çš„å€¼ä»‹äº[0,n)ä¹‹é—´ï¼Œä½†ä¸åŒ…å«n
 				selectedHost = multiHostsList.get(Math.abs(this.random.nextInt(multiHostsList.size())));
 				
 				con = findConnection(selectedHost.getAddress());
@@ -392,10 +392,10 @@ public class NetGridRouter extends ActiveRouter{
 			return con;
 		}
 		else
-			return findConnection(hostAddress);//È¡µÚÒ»ÌøµÄ½ÚµãµØÖ·
+			return findConnection(hostAddress);//å–ç¬¬ä¸€è·³çš„èŠ‚ç‚¹åœ°å€
 	}
 	/**
-	 * Í¨¹ı¸üĞÂÂ·ÓÉ±í£¬ÕÒµ½µ±Ç°ĞÅÏ¢Ó¦µ±×ª·¢µÄÏÂÒ»Ìø½Úµã£¬²¢ÇÒ¸ù¾İÔ¤ÏÈÉèÖÃ¾ö¶¨´Ë¼ÆËãµÃµ½µÄÂ·¾¶ĞÅÏ¢ÊÇ·ñĞèÒªĞ´ÈëĞÅÏ¢msgÍ·²¿µ±ÖĞ
+	 * é€šè¿‡æ›´æ–°è·¯ç”±è¡¨ï¼Œæ‰¾åˆ°å½“å‰ä¿¡æ¯åº”å½“è½¬å‘çš„ä¸‹ä¸€è·³èŠ‚ç‚¹ï¼Œå¹¶ä¸”æ ¹æ®é¢„å…ˆè®¾ç½®å†³å®šæ­¤è®¡ç®—å¾—åˆ°çš„è·¯å¾„ä¿¡æ¯æ˜¯å¦éœ€è¦å†™å…¥ä¿¡æ¯msgå¤´éƒ¨å½“ä¸­
 	 * @param message
 	 * @param connections
 	 * @param msgPathLabel
@@ -403,27 +403,27 @@ public class NetGridRouter extends ActiveRouter{
 	 */
 	public Tuple<Message, Connection> findPathFromRouterTabel(Message message, List<Connection> connections, boolean msgPathLabel){
 		
-		if (updateRouterTable(message) == false){//ÔÚ´«ÊäÖ®Ç°£¬ÏÈ¸üĞÂÂ·ÓÉ±í
-			return null;//ÈôÃ»ÓĞ·µ»ØËµÃ÷Ò»¶¨ÕÒµ½ÁË¶ÔÓ¦Â·¾¶
+		if (updateRouterTable(message) == false){//åœ¨ä¼ è¾“ä¹‹å‰ï¼Œå…ˆæ›´æ–°è·¯ç”±è¡¨
+			return null;//è‹¥æ²¡æœ‰è¿”å›è¯´æ˜ä¸€å®šæ‰¾åˆ°äº†å¯¹åº”è·¯å¾„
 		}
 		List<Tuple<Integer, Boolean>> routerPath = this.routerTable.get(message.getTo());
 		
-		if (msgPathLabel == true){//Èç¹ûĞ´ÈëÂ·¾¶ĞÅÏ¢±êÖ¾Î»Õæ£¬¾ÍĞ´ÈëÂ·¾¶ÏûÏ¢
+		if (msgPathLabel == true){//å¦‚æœå†™å…¥è·¯å¾„ä¿¡æ¯æ ‡å¿—ä½çœŸï¼Œå°±å†™å…¥è·¯å¾„æ¶ˆæ¯
 			message.updateProperty(MSG_ROUTERPATH, routerPath);
 		}
 				
-		//Connection path = findConnection(routerPath.get(0).getKey());//È¡µÚÒ»ÌøµÄ½ÚµãµØÖ·
+		//Connection path = findConnection(routerPath.get(0).getKey());//å–ç¬¬ä¸€è·³çš„èŠ‚ç‚¹åœ°å€
 		
-		/**È·±£×îºóÒ»ÌøÖ±½ÓËÍ´ï**/
+		/**ç¡®ä¿æœ€åä¸€è·³ç›´æ¥é€è¾¾**/
 		if (finalHopLabel == true){
-			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, finalHopConnection);//ÕÒµ½ÓëµÚÒ»Ìø½ÚµãµÄÁ¬½Ó
+			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, finalHopConnection);//æ‰¾åˆ°ä¸ç¬¬ä¸€è·³èŠ‚ç‚¹çš„è¿æ¥
 			return t;
 		}
 		
-		Connection path = NetgridMultiPathMatchingProcess(routerPath.get(0).getKey());//Í¨¹ıÍ¬Ò»Íø¸ñÖĞº¬ÓĞ¶à¸ö½ÚµãµÄÍø¸ñÊ±£¬¿ÉÒÔ²ÉÓÃ¶àÂ·¾¶
+		Connection path = NetgridMultiPathMatchingProcess(routerPath.get(0).getKey());//é€šè¿‡åŒä¸€ç½‘æ ¼ä¸­å«æœ‰å¤šä¸ªèŠ‚ç‚¹çš„ç½‘æ ¼æ—¶ï¼Œå¯ä»¥é‡‡ç”¨å¤šè·¯å¾„
 		
 		if (path != null){
-			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, path);//ÕÒµ½ÓëµÚÒ»Ìø½ÚµãµÄÁ¬½Ó
+			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, path);//æ‰¾åˆ°ä¸ç¬¬ä¸€è·³èŠ‚ç‚¹çš„è¿æ¥
 			return t;
 		}
 		else{			
@@ -432,7 +432,7 @@ public class NetGridRouter extends ActiveRouter{
 				
 				return null;
 				//DTNHost nextHop = this.getHostFromAddress(routerPath.get(0).getKey()); 
-				//this.busyLabel.put(message.getId(), startTime);//ÉèÖÃÒ»¸öµÈ´ı
+				//this.busyLabel.put(message.getId(), startTime);//è®¾ç½®ä¸€ä¸ªç­‰å¾…
 			}
 			else{
 //				throw new SimError("No such connection: "+ routerPath.get(0) + 
@@ -445,7 +445,7 @@ public class NetGridRouter extends ActiveRouter{
 	}
 
 	/**
-	 * ÓÉ½ÚµãµØÖ·ÕÒµ½¶ÔÓ¦µÄ½ÚµãDTNHost
+	 * ç”±èŠ‚ç‚¹åœ°å€æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹DTNHost
 	 * @param address
 	 * @return
 	 */
@@ -457,7 +457,7 @@ public class NetGridRouter extends ActiveRouter{
 		return null;
 	}
 	/**
-	 * ÓÉÏÂÒ»Ìø½ÚµãµØÖ·Ñ°ÕÒ¶ÔÓ¦µÄÁÚ¾ÓÁ¬½Ó
+	 * ç”±ä¸‹ä¸€è·³èŠ‚ç‚¹åœ°å€å¯»æ‰¾å¯¹åº”çš„é‚»å±…è¿æ¥
 	 * @param address
 	 * @return
 	 */
@@ -470,36 +470,36 @@ public class NetGridRouter extends ActiveRouter{
 	}
 
 	/**
-	 * ¸üĞÂÂ·ÓÉ±í£¬°üÀ¨1¡¢¸üĞÂÒÑÓĞÁ´Â·µÄÂ·¾¶£»2¡¢½øĞĞÈ«¾ÖÔ¤²â
+	 * æ›´æ–°è·¯ç”±è¡¨ï¼ŒåŒ…æ‹¬1ã€æ›´æ–°å·²æœ‰é“¾è·¯çš„è·¯å¾„ï¼›2ã€è¿›è¡Œå…¨å±€é¢„æµ‹
 	 * @param m
 	 * @return
 	 */
 	public boolean updateRouterTable(Message msg){
 		gridSearch(msg);
 		
-		if (this.routerTable.containsKey(msg.getTo())){//Ô¤²âÒ²ÕÒ²»µ½µ½´ïÄ¿µÄ½ÚµãµÄÂ·¾¶£¬ÔòÂ·ÓÉÊ§°Ü		
-			//System.out.println("Ñ°Â·³É¹¦£¡£¡£¡    "+" Path length:  "+routerTable.get(msg.getTo()).size()+" routertable size: "+routerTable.size()+" Netgrid Path:  "+routerTable.get(msg.getTo()));
-			return true;//ÕÒµ½ÁËÂ·¾¶
+		if (this.routerTable.containsKey(msg.getTo())){//é¢„æµ‹ä¹Ÿæ‰¾ä¸åˆ°åˆ°è¾¾ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„ï¼Œåˆ™è·¯ç”±å¤±è´¥		
+			//System.out.println("å¯»è·¯æˆåŠŸï¼ï¼ï¼    "+" Path length:  "+routerTable.get(msg.getTo()).size()+" routertable size: "+routerTable.size()+" Netgrid Path:  "+routerTable.get(msg.getTo()));
+			return true;//æ‰¾åˆ°äº†è·¯å¾„
 		}else{
-			//System.out.println("Ñ°Â·Ê§°Ü£¡£¡£¡");
+			//System.out.println("å¯»è·¯å¤±è´¥ï¼ï¼ï¼");
 			return false;
 		}
 	}
 	
 	/**
-	 * Ã°ÅİÅÅĞò
+	 * å†’æ³¡æ’åº
 	 * @param distanceList
 	 * @return
 	 */
 	public List<Tuple<DTNHost, Double>> sort(List<Tuple<DTNHost, Double>> distanceList){
 		for (int j = 0; j < distanceList.size(); j++){
 			for (int i = 0; i < distanceList.size() - j - 1; i++){
-				if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()){//´ÓĞ¡µ½´ó£¬´óµÄÖµ·ÅÔÚ¶ÓÁĞÓÒ²à
+				if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()){//ä»å°åˆ°å¤§ï¼Œå¤§çš„å€¼æ”¾åœ¨é˜Ÿåˆ—å³ä¾§
 					Tuple<DTNHost, Double> var1 = distanceList.get(i);
 					Tuple<DTNHost, Double> var2 = distanceList.get(i + 1);
 					distanceList.remove(i);
-					distanceList.remove(i);//×¢Òâ£¬Ò»µ©Ö´ĞĞremoveÖ®ºó£¬Õû¸öListµÄ´óĞ¡¾Í±äÁË£¬ËùÒÔÔ­±¾i+1µÄÎ»ÖÃÏÖÔÚ±ä³ÉÁËi
-					//×¢ÒâË³Ğò
+					distanceList.remove(i);//æ³¨æ„ï¼Œä¸€æ—¦æ‰§è¡Œremoveä¹‹åï¼Œæ•´ä¸ªListçš„å¤§å°å°±å˜äº†ï¼Œæ‰€ä»¥åŸæœ¬i+1çš„ä½ç½®ç°åœ¨å˜æˆäº†i
+					//æ³¨æ„é¡ºåº
 					distanceList.add(i, var2);
 					distanceList.add(i + 1, var1);
 				}
@@ -508,17 +508,17 @@ public class NetGridRouter extends ActiveRouter{
 		return distanceList;
 	}
 
-	private HashMap<GridCell, DTNHost> GridCellToDTNHosts = new HashMap<GridCell, DTNHost>();//¼ÇÂ¼ÓĞµ¥¸ö½ÚµãµÄÍø¸ñ
+	private HashMap<GridCell, DTNHost> GridCellToDTNHosts = new HashMap<GridCell, DTNHost>();//è®°å½•æœ‰å•ä¸ªèŠ‚ç‚¹çš„ç½‘æ ¼
 	private HashMap<DTNHost, GridCell> DTNHostToGridCell = new HashMap<DTNHost, GridCell>();
-	private HashMap<GridCell, List<DTNHost>> GridCellhasMultiDTNHosts = new HashMap<GridCell, List<DTNHost>>();//¼ÇÂ¼ÓĞ¶à¸ö½ÚµãµÄÍø¸ñ
+	private HashMap<GridCell, List<DTNHost>> GridCellhasMultiDTNHosts = new HashMap<GridCell, List<DTNHost>>();//è®°å½•æœ‰å¤šä¸ªèŠ‚ç‚¹çš„ç½‘æ ¼
 	/**
-	 * ¸üĞÂ¼ÇÂ¼Íø¸ñºÍDTNHost½Úµã¹ØÏµ±í
+	 * æ›´æ–°è®°å½•ç½‘æ ¼å’ŒDTNHostèŠ‚ç‚¹å…³ç³»è¡¨
 	 */
 	public void updateRelationshipofGridsAndDTNHosts(){
 		DTNHostToGridCell.clear();
 		GridCellToDTNHosts.clear();
 		
-		/**È«¾Ö½Úµã±éÀúÒ»´Î**/
+		/**å…¨å±€èŠ‚ç‚¹éå†ä¸€æ¬¡**/
 		for (DTNHost h : getHosts()){
 			if (h == null)
 				throw new SimError("null");
@@ -544,7 +544,7 @@ public class NetGridRouter extends ActiveRouter{
 				}
 			}
 		}
-		for (GridCell c : GridCellhasMultiDTNHosts.keySet()){//×îºó´ÓGridCellToDTNHostsÁĞ±íÖĞÌŞ³ıÓĞ¶à¸ö½ÚµãµÄÍø¸ñ
+		for (GridCell c : GridCellhasMultiDTNHosts.keySet()){//æœ€åä»GridCellToDTNHostsåˆ—è¡¨ä¸­å‰”é™¤æœ‰å¤šä¸ªèŠ‚ç‚¹çš„ç½‘æ ¼
 			GridCellToDTNHosts.remove(c);
 		}	
 		//System.out.println(GridCellToDTNHosts.size()+" "+GridCellToDTNHosts + " \n  " + DTNHostToGridCell.size()+"  "
@@ -592,14 +592,14 @@ public class NetGridRouter extends ActiveRouter{
         return topologyInfo;
     }
 	/**
-	 * ºËĞÄÂ·ÓÉËã·¨£¬ÔËÓÃÌ°ĞÄÑ¡ÔñĞÔÖÊ½øĞĞ±éÀú£¬ÕÒ³öµ½´ïÄ¿µÄ½ÚµãµÄ×î¶ÌÂ·¾¶
+	 * æ ¸å¿ƒè·¯ç”±ç®—æ³•ï¼Œè¿ç”¨è´ªå¿ƒé€‰æ‹©æ€§è´¨è¿›è¡Œéå†ï¼Œæ‰¾å‡ºåˆ°è¾¾ç›®çš„èŠ‚ç‚¹çš„æœ€çŸ­è·¯å¾„
 	 * @param msg
 	 */
 	public void gridSearch(Message msg){		
 		this.finalHopLabel = false;
 		this.finalHopConnection = null;
 		
-		if (routerTableUpdateLabel == true)//routerTableUpdateLabel == trueÔò´ú±í´Ë´Î¸üĞÂÂ·ÓÉ±íÒÑ¾­¸üĞÂ¹ıÁË£¬ËùÒÔ²»ÒªÖØ¸´¼ÆËã
+		if (routerTableUpdateLabel == true)//routerTableUpdateLabel == trueåˆ™ä»£è¡¨æ­¤æ¬¡æ›´æ–°è·¯ç”±è¡¨å·²ç»æ›´æ–°è¿‡äº†ï¼Œæ‰€ä»¥ä¸è¦é‡å¤è®¡ç®—
 			return;
 		this.routerTable.clear();
 		this.arrivalTime.clear();
@@ -614,35 +614,35 @@ public class NetGridRouter extends ActiveRouter{
 		case "onlineOrbitCalculation":
 			
 			break;
-		case "preOrbitCalculation"://Í¨¹ıÌáÇ°ÀûÓÃÍø¸ñ±í´æ´¢¸÷¸ö½ÚµãµÄ¹ìµÀĞÅÏ¢£¬´Ó¶øÔËĞĞ¹ı³ÌÖĞ²»ÔÙµ÷ÓÃ¹ìµÀ¼ÆËãº¯ÊıÀ´Ô¤²â¶øÊÇÍ¨¹ı¶Á±íÀ´Ô¤²â
-			/**!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!¸üĞÂµÄÊ±¼ä¶Î´ıĞŞ¸Ä!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**/
-			//GN.updateNetGridInfo_without_OrbitCalculation(this.RoutingTimeNow);//Êµ¼Ê·ÂÕæÊ±ÓÃ£¬ÓÃÓÚ¶ÁÈ¡ÊÂÏÈ¼ÆËãºÃµÄÍø¸ñ±í
-			GN.updateNetGridInfo_without_OrbitCalculation_without_gridTable();//¼Ó¿ì·ÂÕæ½ø¶ÈÓÃ£¬Ö±½Ó¶ÁÈ¡ÏÖÓĞµÄ½Úµã×ø±êÖµ£¬È»ºó×ª»»³É¶ÔÓ¦Íø¸ñ×ø±ê
-			updateRelationshipofGridsAndDTNHosts();//ĞèÒª·ÅÔÚgridTable¸üĞÂÖ®ºó
-			//GN.updateGrid_without_OrbitCalculation(this.RoutingTimeNow);//¸üĞÂÍø¸ñ±í
+		case "preOrbitCalculation"://é€šè¿‡æå‰åˆ©ç”¨ç½‘æ ¼è¡¨å­˜å‚¨å„ä¸ªèŠ‚ç‚¹çš„è½¨é“ä¿¡æ¯ï¼Œä»è€Œè¿è¡Œè¿‡ç¨‹ä¸­ä¸å†è°ƒç”¨è½¨é“è®¡ç®—å‡½æ•°æ¥é¢„æµ‹è€Œæ˜¯é€šè¿‡è¯»è¡¨æ¥é¢„æµ‹
+			/**!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!æ›´æ–°çš„æ—¶é—´æ®µå¾…ä¿®æ”¹!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**/
+			//GN.updateNetGridInfo_without_OrbitCalculation(this.RoutingTimeNow);//å®é™…ä»¿çœŸæ—¶ç”¨ï¼Œç”¨äºè¯»å–äº‹å…ˆè®¡ç®—å¥½çš„ç½‘æ ¼è¡¨
+			GN.updateNetGridInfo_without_OrbitCalculation_without_gridTable();//åŠ å¿«ä»¿çœŸè¿›åº¦ç”¨ï¼Œç›´æ¥è¯»å–ç°æœ‰çš„èŠ‚ç‚¹åæ ‡å€¼ï¼Œç„¶åè½¬æ¢æˆå¯¹åº”ç½‘æ ¼åæ ‡
+			updateRelationshipofGridsAndDTNHosts();//éœ€è¦æ”¾åœ¨gridTableæ›´æ–°ä¹‹å
+			//GN.updateGrid_without_OrbitCalculation(this.RoutingTimeNow);//æ›´æ–°ç½‘æ ¼è¡¨
 			/**!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**/
 			break;
 		}
-		/**È«ÍøµÄ´«ÊäËÙÂÊ¼Ù¶¨ÎªÒ»ÑùµÄ**/
+		/**å…¨ç½‘çš„ä¼ è¾“é€Ÿç‡å‡å®šä¸ºä¸€æ ·çš„**/
 		double transmitSpeed = this.getHost().getInterface(1).getTransmitSpeed();
 		
-		/**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/
+		/**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/
 		List<DTNHost> searchedSet = new ArrayList<DTNHost>();
 		List<DTNHost> sourceSet = new ArrayList<DTNHost>();
-		sourceSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½ÚµãËù
-		searchedSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞÔ´½Úµã
+		sourceSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹æ‰€
+		searchedSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æºèŠ‚ç‚¹
 		
-		for (Connection con : this.getHost().getConnections()){//Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í
+		for (Connection con : this.getHost().getConnections()){//æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨
 			DTNHost neiHost = con.getOtherNode(this.getHost());
-			sourceSet.add(neiHost);//³õÊ¼Ê±Ö»ÓĞ±¾½ÚµãºÍÁ´Â·ÁÚ¾Ó		
+			sourceSet.add(neiHost);//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹å’Œé“¾è·¯é‚»å±…		
 			Double time = SimClock.getTime() + msg.getSize()/this.getHost().getInterface(1).getTransmitSpeed();
 			List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 			Tuple<Integer, Boolean> hop = new Tuple<Integer, Boolean>(neiHost.getAddress(), false);
-			path.add(hop);//×¢ÒâË³Ğò
+			path.add(hop);//æ³¨æ„é¡ºåº
 			arrivalTime.put(neiHost, time);
 			routerTable.put(neiHost, path);
 			
-			if (msg.getTo() == neiHost){//Ò»ÌøµÄÁÚ¾Ó½Úµã£¬Ö±½Ó·µ»Ø
+			if (msg.getTo() == neiHost){//ä¸€è·³çš„é‚»å±…èŠ‚ç‚¹ï¼Œç›´æ¥è¿”å›
 				finalHopLabel = true;
 				finalHopConnection = con;
 //				System.out.println(msg+" through "+finalHopConnection+"  to "+msg.getTo());
@@ -652,69 +652,69 @@ public class NetGridRouter extends ActiveRouter{
 			}
 		}
 		
-		/**Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾ÓÍø¸ñ£¬²¢¸üĞÂÂ·ÓÉ±í**/		
+		/**æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ç½‘æ ¼ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨**/		
 		int iteratorTimes = 0;
 		int size = getHosts().size();
 		boolean updateLabel = true;
 		boolean predictLable = false;
 
-		arrivalTime.put(this.getHost(), SimClock.getTime());//³õÊ¼»¯µ½´ïÊ±¼ä
+		arrivalTime.put(this.getHost(), SimClock.getTime());//åˆå§‹åŒ–åˆ°è¾¾æ—¶é—´
 		
-		/**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+		/**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
 		List<Tuple<DTNHost, Double>> PriorityQueue = new ArrayList<Tuple<DTNHost, Double>>();
-		/**ÓÅÏÈ¼¶¶ÓÁĞ£¬×öÅÅĞòÓÃ**/
+		/**ä¼˜å…ˆçº§é˜Ÿåˆ—ï¼Œåšæ’åºç”¨**/
 		
-		while(true){//DijsktraËã·¨Ë¼Ïë£¬Ã¿´ÎÀú±éÈ«¾Ö£¬ÕÒÊ±ÑÓ×îĞ¡µÄ¼ÓÈëÂ·ÓÉ±í£¬±£Ö¤Â·ÓÉ±íÖĞÓÀÔ¶ÊÇÊ±ÑÓ×îĞ¡µÄÂ·¾¶
+		while(true){//Dijsktraç®—æ³•æ€æƒ³ï¼Œæ¯æ¬¡å†éå…¨å±€ï¼Œæ‰¾æ—¶å»¶æœ€å°çš„åŠ å…¥è·¯ç”±è¡¨ï¼Œä¿è¯è·¯ç”±è¡¨ä¸­æ°¸è¿œæ˜¯æ—¶å»¶æœ€å°çš„è·¯å¾„
 			if (iteratorTimes >= size )//|| updateLabel == false)
 				break; 
 			updateLabel = false;
 			
 			for (DTNHost c : sourceSet){															
-				//List<DTNHost> neighborHostsList = GN.getNeighborsHostsNow(GN.cellFromCoord(c.getLocation()));//»ñÈ¡Ô´¼¯ºÏÖĞhost½ÚµãµÄÁÚ¾Ó½Úµã(µ±Ç°µÄÁÚ¾ÓÍø¸ñ)
+				//List<DTNHost> neighborHostsList = GN.getNeighborsHostsNow(GN.cellFromCoord(c.getLocation()));//è·å–æºé›†åˆä¸­hostèŠ‚ç‚¹çš„é‚»å±…èŠ‚ç‚¹(å½“å‰çš„é‚»å±…ç½‘æ ¼)
 				List<DTNHost> neighborHostsList = topologyInfo.get(c);
-				/**Ìí¼ÓÍ¬Ò»¹ìµÀÄÚµÄÏàÁÚ½Úµã£¬ÒÔ¼°ÏàÁÚ¹ìµÀÄÚµÄ×î½üµÄÏàÁÚ½Úµã**/
-				neighborHostsList.removeAll(((NetGridRouter)c.getRouter()).neighborHostsInSamePlane);//È¥ÖØ¸´
-				neighborHostsList.addAll(((NetGridRouter)c.getRouter()).neighborHostsInSamePlane);//Ìí¼ÓÍ¬Ò»¹ìµÀÄÚµÄÏàÁÚ½Úµã
+				/**æ·»åŠ åŒä¸€è½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹ï¼Œä»¥åŠç›¸é‚»è½¨é“å†…çš„æœ€è¿‘çš„ç›¸é‚»èŠ‚ç‚¹**/
+				neighborHostsList.removeAll(((NetGridRouter)c.getRouter()).neighborHostsInSamePlane);//å»é‡å¤
+				neighborHostsList.addAll(((NetGridRouter)c.getRouter()).neighborHostsInSamePlane);//æ·»åŠ åŒä¸€è½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹
 				if (!((NetGridRouter)c.getRouter()).neighborPlaneHosts.isEmpty()){
-					neighborHostsList.removeAll(((NetGridRouter)c.getRouter()).neighborPlaneHosts);//È¥ÖØ¸´
-					neighborHostsList.addAll(((NetGridRouter)c.getRouter()).neighborPlaneHosts);//Ìí¼ÓÏàÁÚ¹ìµÀÄÚµÄ×î½üµÄÏàÁÚ½Úµã
+					neighborHostsList.removeAll(((NetGridRouter)c.getRouter()).neighborPlaneHosts);//å»é‡å¤
+					neighborHostsList.addAll(((NetGridRouter)c.getRouter()).neighborPlaneHosts);//æ·»åŠ ç›¸é‚»è½¨é“å†…çš„æœ€è¿‘çš„ç›¸é‚»èŠ‚ç‚¹
 				}
 				//System.out.println("RoutingHost and time :  "+this.getHost()+this.RoutingTimeNow+"  thisHostGrid:  "+thisHostGrid  +"  SourceNetgird:  "+c+"  contains:  "+GN.getHostsFromNetgridNow(c, this.RoutingTimeNow)+"  NeighborNetgrid:  "+neighborNetgridsList.keySet()+" contains: "+neighborNetgridsList.values()+"  sourceSet:  "+sourceSet);
 										
-				/**ÅĞ¶ÏÊÇ·ñÒÑ¾­ÊÇËÑË÷¹ıµÄÔ´Íø¸ñ¼¯ºÏÖĞµÄÍø¸ñ**/
+				/**åˆ¤æ–­æ˜¯å¦å·²ç»æ˜¯æœç´¢è¿‡çš„æºç½‘æ ¼é›†åˆä¸­çš„ç½‘æ ¼**/
 				if (searchedSet.contains(c) || neighborHostsList == null)
 					continue;				
 				searchedSet.add(c);
 				
-				for (DTNHost eachNeighborHost : neighborHostsList){//startTime.keySet()°üº¬ÁËËùÓĞµÄÁÚ¾Ó½Úµã£¬°üº¬Î´À´µÄÁÚ¾Ó½Úµã
-					if (sourceSet.contains(eachNeighborHost))//È·±£²»»ØÍ·
+				for (DTNHost eachNeighborHost : neighborHostsList){//startTime.keySet()åŒ…å«äº†æ‰€æœ‰çš„é‚»å±…èŠ‚ç‚¹ï¼ŒåŒ…å«æœªæ¥çš„é‚»å±…èŠ‚ç‚¹
+					if (sourceSet.contains(eachNeighborHost))//ç¡®ä¿ä¸å›å¤´
 						continue;
 				
 					double time = arrivalTime.get(c) + msg.getSize()/transmitSpeed;
 					
-					/**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
+					/**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
 					List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 					if (this.routerTable.containsKey(c))
 						path.addAll(this.routerTable.get(c));
 					Tuple<Integer, Boolean> thisHop = new Tuple<Integer, Boolean>(eachNeighborHost.getAddress(), predictLable);
-					path.add(thisHop);//×¢ÒâË³Ğò
-					/**Ìí¼ÓÂ·¾¶ĞÅÏ¢**/
+					path.add(thisHop);//æ³¨æ„é¡ºåº
+					/**æ·»åŠ è·¯å¾„ä¿¡æ¯**/
 					
-					/**Î¬»¤×îĞ¡´«ÊäÊ±¼äµÄ¶ÓÁĞ**/
+					/**ç»´æŠ¤æœ€å°ä¼ è¾“æ—¶é—´çš„é˜Ÿåˆ—**/
 					if (arrivalTime.containsKey(eachNeighborHost)){
-						/**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+						/**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
 						if (time <= arrivalTime.get(eachNeighborHost)){
 							if (random.nextBoolean() == true && 
-									time - arrivalTime.get(eachNeighborHost) < 0.1){//Èç¹ûÊ±¼äÏàµÈ£¬×öËæ»ú»¯Ñ¡Ôñ
+									time - arrivalTime.get(eachNeighborHost) < 0.1){//å¦‚æœæ—¶é—´ç›¸ç­‰ï¼ŒåšéšæœºåŒ–é€‰æ‹©
 								
-								/**×¢Òâ£¬ÔÚ¶Ô¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+								/**æ³¨æ„ï¼Œåœ¨å¯¹é˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 								int index = -1;
 								for (Tuple<DTNHost, Double> t : PriorityQueue){
 									if (t.getKey() == eachNeighborHost){
 										index = PriorityQueue.indexOf(t);
 									}
 								}
-								/**×¢Òâ£¬ÔÚÉÏÃæ¶ÔPriorityQueue¶ÓÁĞ½øĞĞµü´úµÄÊ±ºò£¬²»ÄÜ¹»ÔÚforÑ­»·ÀïÃæ¶Ô´Ë¶ÓÁĞ½øĞĞĞŞ¸Ä²Ù×÷£¬·ñÔò»á±¨´í**/
+								/**æ³¨æ„ï¼Œåœ¨ä¸Šé¢å¯¹PriorityQueueé˜Ÿåˆ—è¿›è¡Œè¿­ä»£çš„æ—¶å€™ï¼Œä¸èƒ½å¤Ÿåœ¨forå¾ªç¯é‡Œé¢å¯¹æ­¤é˜Ÿåˆ—è¿›è¡Œä¿®æ”¹æ“ä½œï¼Œå¦åˆ™ä¼šæŠ¥é”™**/
 								if (index > -1){
 									PriorityQueue.remove(index);
 									PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborHost, time));
@@ -723,14 +723,14 @@ public class NetGridRouter extends ActiveRouter{
 								}
 							}
 						}
-						/**¼ì²é¶ÓÁĞÖĞÊÇ·ñÒÑÓĞÍ¨¹ı´ËÍø¸ñµÄÂ·¾¶£¬Èç¹ûÓĞ£¬¿´ÄÄ¸öÊ±¼ä¸ü¶Ì**/
+						/**æ£€æŸ¥é˜Ÿåˆ—ä¸­æ˜¯å¦å·²æœ‰é€šè¿‡æ­¤ç½‘æ ¼çš„è·¯å¾„ï¼Œå¦‚æœæœ‰ï¼Œçœ‹å“ªä¸ªæ—¶é—´æ›´çŸ­**/
 					}
 					else{						
 						PriorityQueue.add(new Tuple<DTNHost, Double>(eachNeighborHost, time));
 						arrivalTime.put(eachNeighborHost, time);
 						routerTable.put(eachNeighborHost, path);
 					}
-					/**¶Ô¶ÓÁĞ½øĞĞÅÅĞò**/
+					/**å¯¹é˜Ÿåˆ—è¿›è¡Œæ’åº**/
 					sort(PriorityQueue);					
 					updateLabel = true;
 				}
@@ -738,30 +738,30 @@ public class NetGridRouter extends ActiveRouter{
 			iteratorTimes++;
 			for (int i = 0; i < PriorityQueue.size(); i++){
 				if (!sourceSet.contains(PriorityQueue.get(i).getKey())){
-					sourceSet.add(PriorityQueue.get(i).getKey());//½«ĞÂµÄ×î¶ÌÍø¸ñ¼ÓÈë
+					sourceSet.add(PriorityQueue.get(i).getKey());//å°†æ–°çš„æœ€çŸ­ç½‘æ ¼åŠ å…¥
 					break;
 				}
 			}				
-//			if (netgridRouterTable.containsKey(msg.getTo()))//Èç¹ûÖĞÍ¾ÕÒµ½ĞèÒªµÄÂ·½£¬¾ÍÖ±½ÓÍË³öËÑË÷
+//			if (netgridRouterTable.containsKey(msg.getTo()))//å¦‚æœä¸­é€”æ‰¾åˆ°éœ€è¦çš„è·¯å¾‘ï¼Œå°±ç›´æ¥é€€å‡ºæœç´¢
 //				break;
 		}
 		routerTableUpdateLabel = true;
 	}
 	
 	/**
-	 * Í¨¹ıĞÅÏ¢Í·²¿ÄÚµÄÂ·¾¶ĞÅÏ¢(½ÚµãµØÖ·)ÕÒµ½¶ÔÓ¦µÄ½Úµã£¬DTNHostÀà
+	 * é€šè¿‡ä¿¡æ¯å¤´éƒ¨å†…çš„è·¯å¾„ä¿¡æ¯(èŠ‚ç‚¹åœ°å€)æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹ï¼ŒDTNHostç±»
 	 * @param path
 	 * @return
 	 */
 	public List<DTNHost> getHostListFromPath(List<Integer> path){
 		List<DTNHost> hostsOfPath = new ArrayList<DTNHost>();
 		for (int i = 0; i < path.size(); i++){
-			hostsOfPath.add(this.getHostFromAddress(path.get(i)));//¸ù¾İ½ÚµãµØÖ·ÕÒµ½DTNHost 
+			hostsOfPath.add(this.getHostFromAddress(path.get(i)));//æ ¹æ®èŠ‚ç‚¹åœ°å€æ‰¾åˆ°DTNHost 
 		}
 		return hostsOfPath;
 	}
 	/**
-	 * Í¨¹ı½ÚµãµØÖ·ÕÒµ½¶ÔÓ¦µÄ½Úµã£¬DTNHostÀà
+	 * é€šè¿‡èŠ‚ç‚¹åœ°å€æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹ï¼ŒDTNHostç±»
 	 * @param address
 	 * @return
 	 */
@@ -774,7 +774,7 @@ public class NetGridRouter extends ActiveRouter{
 	}
 
 	/**
-	 * ¼ÆËãÍ¨¹ıÔ¤²â½Úµãµ½´ï£¬ËùĞèµÄ´«ÊäÊ±¼ä(¼´´«ÊäÊ±¼ä¼ÓÉÏµÈ´ıÊ±¼ä)
+	 * è®¡ç®—é€šè¿‡é¢„æµ‹èŠ‚ç‚¹åˆ°è¾¾ï¼Œæ‰€éœ€çš„ä¼ è¾“æ—¶é—´(å³ä¼ è¾“æ—¶é—´åŠ ä¸Šç­‰å¾…æ—¶é—´)
 	 * @param msgSize
 	 * @param startTime
 	 * @param host
@@ -786,28 +786,28 @@ public class NetGridRouter extends ActiveRouter{
 			double waitTime;
 			waitTime = startTime - SimClock.getTime() + msgSize/((nei.getInterface(1).getTransmitSpeed() > 
 									host.getInterface(1).getTransmitSpeed()) ? host.getInterface(1).getTransmitSpeed() : 
-										nei.getInterface(1).getTransmitSpeed()) + this.transmitRange*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ;
+										nei.getInterface(1).getTransmitSpeed()) + this.transmitRange*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡;
 			return waitTime;
 		}
 		else{
-			assert false :"Ô¤²â½á¹ûÊ§Ğ§ ";
+			assert false :"é¢„æµ‹ç»“æœå¤±æ•ˆ ";
 			return -1;
 		}
 	}
 	/**
-	 * ¼ÆËãµ±Ç°½ÚµãÓëÒ»ÌøÁÚ¾ÓµÄ´«ÊäÑÓÊ±
+	 * è®¡ç®—å½“å‰èŠ‚ç‚¹ä¸ä¸€è·³é‚»å±…çš„ä¼ è¾“å»¶æ—¶
 	 * @param msgSize
 	 * @param host
 	 * @return
 	 */
 	public double calculateNeighborsDelay(int msgSize, DTNHost host){
 		double transmitDelay = msgSize/((this.getHost().getInterface(1).getTransmitSpeed() > host.getInterface(1).getTransmitSpeed()) ? 
-				host.getInterface(1).getTransmitSpeed() : this.getHost().getInterface(1).getTransmitSpeed()) + getDistance(this.getHost(), host)*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ
+				host.getInterface(1).getTransmitSpeed() : this.getHost().getInterface(1).getTransmitSpeed()) + getDistance(this.getHost(), host)*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡
 		return transmitDelay;
 	}
 	
 	/**
-	 * ¼ÆËãÁ½¸ö½ÚµãÖ®¼äµÄ¾àÀë
+	 * è®¡ç®—ä¸¤ä¸ªèŠ‚ç‚¹ä¹‹é—´çš„è·ç¦»
 	 * @param a
 	 * @param b
 	 * @return
@@ -840,7 +840,7 @@ public class NetGridRouter extends ActiveRouter{
 		return null;
 	}
 	/**
-	 * ¸ù¾İÕâÒ»ÌøµÄ¿ÉÑ¡½ÚµãµØÖ·¼¯ºÏ£¬Ñ¡ÔñÒ»¸ö×îºÏÊÊµÄÏÂÒ»Ìø½Úµã²¢ÕÒµ½¶ÔÓ¦µÄconnection½øĞĞ·¢ËÍ
+	 * æ ¹æ®è¿™ä¸€è·³çš„å¯é€‰èŠ‚ç‚¹åœ°å€é›†åˆï¼Œé€‰æ‹©ä¸€ä¸ªæœ€åˆé€‚çš„ä¸‹ä¸€è·³èŠ‚ç‚¹å¹¶æ‰¾åˆ°å¯¹åº”çš„connectionè¿›è¡Œå‘é€
 	 * @param address
 	 * @return
 	 */
@@ -848,40 +848,40 @@ public class NetGridRouter extends ActiveRouter{
 		if (hostsInThisHop.size() == 1){
 			return findConnection(hostsInThisHop.get(0));
 		}
-		/**ÓĞ¶à¸ö¿ÉÑ¡ÏÂÒ»Ìø½ÚµãµÄÊ±ºò**/
+		/**æœ‰å¤šä¸ªå¯é€‰ä¸‹ä¸€è·³èŠ‚ç‚¹çš„æ—¶å€™**/
 		else{
-			/**È·±£Ò»ÌøµÄ´«Êä²»»á´í¹ı**/
+			/**ç¡®ä¿ä¸€è·³çš„ä¼ è¾“ä¸ä¼šé”™è¿‡**/
 			DTNHost destination = msg.getTo();
 			for (int i = 0; i < hostsInThisHop.size(); i++){
 				Connection connect = findConnection(hostsInThisHop.get(i));
 				
-				/**Â·ÓÉÕÒµ½µÄÂ·¾¶¿ÉÄÜ³öÏÖ´íÎó£¬µ¼ÖÂµ±Ç°Â·¾¶²»¿ÉÓÃ**/
+				/**è·¯ç”±æ‰¾åˆ°çš„è·¯å¾„å¯èƒ½å‡ºç°é”™è¯¯ï¼Œå¯¼è‡´å½“å‰è·¯å¾„ä¸å¯ç”¨**/
 				if (connect == null) 
 					return null;
-				/**Â·ÓÉÕÒµ½µÄÂ·¾¶¿ÉÄÜ³öÏÖ´íÎó£¬µ¼ÖÂµ±Ç°Â·¾¶²»¿ÉÓÃ**/
+				/**è·¯ç”±æ‰¾åˆ°çš„è·¯å¾„å¯èƒ½å‡ºç°é”™è¯¯ï¼Œå¯¼è‡´å½“å‰è·¯å¾„ä¸å¯ç”¨**/
 				
 				if (connect.getOtherInterface(this.getHost().getInterface(1)).getHost() == destination)
 					return connect;
 			}
-			/**È·±£Ò»ÌøµÄ´«Êä²»»á´í¹ı**/
-			/****************************************************************!!!!!´ıĞŞ¸Ä!!!!!!**************************************************************************/
+			/**ç¡®ä¿ä¸€è·³çš„ä¼ è¾“ä¸ä¼šé”™è¿‡**/
+			/****************************************************************!!!!!å¾…ä¿®æ”¹!!!!!!**************************************************************************/
 			int randomInt = this.random.nextInt(hostsInThisHop.size());
-			Connection con = findConnection(hostsInThisHop.get(randomInt) - 1);//×¢ÒâÒª¼õÒ»£¬ÒòÎªÊÇArrayList£¬Êı×éÏÂ±ê
+			Connection con = findConnection(hostsInThisHop.get(randomInt) - 1);//æ³¨æ„è¦å‡ä¸€ï¼Œå› ä¸ºæ˜¯ArrayListï¼Œæ•°ç»„ä¸‹æ ‡
 			if (con != null){
 				return con;
 			}
-			/**Ò»µ©ÓĞÒ»´ÎÊ§°Ü¾Í½øĞĞ±éÀúÑ°ÕÒ**/
+			/**ä¸€æ—¦æœ‰ä¸€æ¬¡å¤±è´¥å°±è¿›è¡Œéå†å¯»æ‰¾**/
 			else{
 				for (int i = 0; i < hostsInThisHop.size(); i++){
 					con = findConnection(i);
-					/**±éÀúËùÓĞ¿ÉÄÜĞÔ£¬ÕÒ³öÒ»¸ö¿É´ïµÄÁÚ¾Ó½Úµã£¬·ñÔò·µ»Ønull**/
+					/**éå†æ‰€æœ‰å¯èƒ½æ€§ï¼Œæ‰¾å‡ºä¸€ä¸ªå¯è¾¾çš„é‚»å±…èŠ‚ç‚¹ï¼Œå¦åˆ™è¿”å›null**/
 					if (con != null)
 						return con;
 				}
 			}
 			
 			return null;
-			/****************************************************************!!!!!´ıĞŞ¸Ä!!!!!!**************************************************************************/
+			/****************************************************************!!!!!å¾…ä¿®æ”¹!!!!!!**************************************************************************/
 		}
 	}
     /**
@@ -899,7 +899,7 @@ public class NetGridRouter extends ActiveRouter{
 		int retVal = startTransfer(m, con);
 		 if (retVal == RCV_OK) {  //accepted a message, don't try others
 	            return m;     
-	        } else if (retVal > 0) { //ÏµÍ³¶¨Òå£¬Ö»ÓĞTRY_LATER_BUSY´óÓÚ0£¬¼´Îª1
+	        } else if (retVal > 0) { //ç³»ç»Ÿå®šä¹‰ï¼Œåªæœ‰TRY_LATER_BUSYå¤§äº0ï¼Œå³ä¸º1
 	            return null;          // should try later -> don't bother trying others
 	        }
 		 return null;
@@ -915,12 +915,12 @@ public class NetGridRouter extends ActiveRouter{
 		Connection con = t.getValue();
         if (con == null)
         	return false;
-		/**¼ì²éËù¾­¹ıÂ·¾¶µÄÇé¿ö£¬Èç¹ûÏÂÒ»ÌøµÄÁ´Â·ÒÑ¾­±»Õ¼ÓÃ£¬ÔòĞèÒªµÈ´ı**/
+		/**æ£€æŸ¥æ‰€ç»è¿‡è·¯å¾„çš„æƒ…å†µï¼Œå¦‚æœä¸‹ä¸€è·³çš„é“¾è·¯å·²ç»è¢«å ç”¨ï¼Œåˆ™éœ€è¦ç­‰å¾…**/
 		if (con.isTransferring() || ((NetGridRouter)con.getOtherNode(this.getHost()).getRouter()).isTransferring()){	
-			return true;//ËµÃ÷Ä¿µÄ½ÚµãÕıÃ¦
+			return true;//è¯´æ˜ç›®çš„èŠ‚ç‚¹æ­£å¿™
 		}
 		return false;
-		/**ÖÁÓÚ¼ì²éËùÓĞµÄÁ´Â·Õ¼ÓÃÇé¿ö£¬¿´±¾½ÚµãÊÇ·ñÔÚ¶ÔÍâ·¢ËÍµÄÇé¿ö£¬ÔÚupdateº¯ÊıÖĞÒÑ¾­¼ì²é¹ıÁË£¬ÔÚ´ËÎŞĞèÖØ¸´¼ì²é**/
+		/**è‡³äºæ£€æŸ¥æ‰€æœ‰çš„é“¾è·¯å ç”¨æƒ…å†µï¼Œçœ‹æœ¬èŠ‚ç‚¹æ˜¯å¦åœ¨å¯¹å¤–å‘é€çš„æƒ…å†µï¼Œåœ¨updateå‡½æ•°ä¸­å·²ç»æ£€æŸ¥è¿‡äº†ï¼Œåœ¨æ­¤æ— éœ€é‡å¤æ£€æŸ¥**/
 	}
     /**
      * Try to send the message through a specific connection.
@@ -949,30 +949,30 @@ public class NetGridRouter extends ActiveRouter{
 	 */
 	@Override
 	public boolean isTransferring() {
-		//ÅĞ¶Ï¸Ã½ÚµãÄÜ·ñ½øĞĞ´«ÊäÏûÏ¢£¬´æÔÚÒÔÏÂÇé¿öÒ»ÖÖÒÔÉÏµÄ£¬Ö±½Ó·µ»Ø£¬²»¸üĞÂ,¼´ÏÖÔÚĞÅµÀÒÑ±»Õ¼ÓÃ£º
-		//ÇéĞÎ1£º±¾½ÚµãÕıÔÚÏòÍâ´«Êä
+		//åˆ¤æ–­è¯¥èŠ‚ç‚¹èƒ½å¦è¿›è¡Œä¼ è¾“æ¶ˆæ¯ï¼Œå­˜åœ¨ä»¥ä¸‹æƒ…å†µä¸€ç§ä»¥ä¸Šçš„ï¼Œç›´æ¥è¿”å›ï¼Œä¸æ›´æ–°,å³ç°åœ¨ä¿¡é“å·²è¢«å ç”¨ï¼š
+		//æƒ…å½¢1ï¼šæœ¬èŠ‚ç‚¹æ­£åœ¨å‘å¤–ä¼ è¾“
 		if (this.sendingConnections.size() > 0) {//protected ArrayList<Connection> sendingConnections;
 			return true; // sending something
 		}
 		
 		List<Connection> connections = getConnections();
-		//ÇéĞÍ2£ºÃ»ÓĞÁÚ¾Ó½Úµã
+		//æƒ…å‹2ï¼šæ²¡æœ‰é‚»å±…èŠ‚ç‚¹
 		if (connections.size() == 0) {
 			return false; // not connected
 		}
-		//ÇéĞÍ3£ºÓĞÁÚ¾Ó½Úµã£¬µ«×ÔÉíÓëÖÜÎ§½ÚµãÕıÔÚ´«Êä
-		//Ä£ÄâÁËÎŞÏß¹ã²¥Á´Â·£¬¼´ÁÚ¾Ó½ÚµãÖ®¼äÍ¬Ê±Ö»ÄÜÓĞÒ»¶Ô½Úµã´«ÊäÊı¾İ!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		//ĞèÒªĞŞ¸Ä!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//æƒ…å‹3ï¼šæœ‰é‚»å±…èŠ‚ç‚¹ï¼Œä½†è‡ªèº«ä¸å‘¨å›´èŠ‚ç‚¹æ­£åœ¨ä¼ è¾“
+		//æ¨¡æ‹Ÿäº†æ— çº¿å¹¿æ’­é“¾è·¯ï¼Œå³é‚»å±…èŠ‚ç‚¹ä¹‹é—´åŒæ—¶åªèƒ½æœ‰ä¸€å¯¹èŠ‚ç‚¹ä¼ è¾“æ•°æ®!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//éœ€è¦ä¿®æ”¹!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		for (int i=0, n=connections.size(); i<n; i++) {
 			Connection con = connections.get(i);
-			if (!con.isReadyForTransfer()) {//isReadyForTransfer·µ»ØfalseÔò±íÊ¾ÓĞĞÅµÀÔÚ±»Õ¼ÓÃ£¬Òò´Ë¶ÔÓÚ¹ã²¥ĞÅµÀ¶øÑÔ²»ÄÜ´«Êä
+			if (!con.isReadyForTransfer()) {//isReadyForTransferè¿”å›falseåˆ™è¡¨ç¤ºæœ‰ä¿¡é“åœ¨è¢«å ç”¨ï¼Œå› æ­¤å¯¹äºå¹¿æ’­ä¿¡é“è€Œè¨€ä¸èƒ½ä¼ è¾“
 				return true;	// a connection isn't ready for new transfer
 			}
 		}		
 		return false;		
 	}
 	/**
-	 * ´ËÖØĞ´º¯Êı±£Ö¤ÔÚ´«ÊäÍê³ÉÖ®ºó£¬Ô´½ÚµãµÄĞÅÏ¢´Ómessages»º´æÖĞÉ¾³ı
+	 * æ­¤é‡å†™å‡½æ•°ä¿è¯åœ¨ä¼ è¾“å®Œæˆä¹‹åï¼ŒæºèŠ‚ç‚¹çš„ä¿¡æ¯ä»messagesç¼“å­˜ä¸­åˆ é™¤
 	 */
 	@Override
 	protected void transferDone(Connection con){
@@ -989,7 +989,7 @@ public class NetGridRouter extends ActiveRouter{
         return new ArrayList<DTNHost>(((SatelliteMovement) this.getHost().getMovementModel()).getHosts());
     }
 	/**
-	 * ´¦ÀíinitInterSatelliteNeighbors()º¯ÊıÖĞµÄ±ß½çÖµÎÊÌâ
+	 * å¤„ç†initInterSatelliteNeighbors()å‡½æ•°ä¸­çš„è¾¹ç•Œå€¼é—®é¢˜
 	 * @param n
 	 * @param upperBound
 	 * @param lowerBound
@@ -1005,15 +1005,15 @@ public class NetGridRouter extends ActiveRouter{
 		return n;
 	}
 	/**
-	 * ´¦ÀíÔÚÍ¬Ò»¸öÆ½ÃæÄÚµÄ½Úµã±àºÅ£¬´¦ÔÚ±ß½çÊ±µÄÎÊÌâ
+	 * å¤„ç†åœ¨åŒä¸€ä¸ªå¹³é¢å†…çš„èŠ‚ç‚¹ç¼–å·ï¼Œå¤„åœ¨è¾¹ç•Œæ—¶çš„é—®é¢˜
 	 * @param n
 	 * @param nrofPlane
 	 * @param nrofSatelliteInOnePlane
 	 * @return
 	 */
 	public int processBound(int n ,int nrofPlane, int nrofSatelliteInOnePlane){
-		int startNumber = nrofSatelliteInOnePlane * (nrofPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-		int endNumber = nrofSatelliteInOnePlane * nrofPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+		int startNumber = nrofSatelliteInOnePlane * (nrofPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+		int endNumber = nrofSatelliteInOnePlane * nrofPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
 		if (n < startNumber)
 			return endNumber;
 		if (n > endNumber)
@@ -1022,14 +1022,14 @@ public class NetGridRouter extends ActiveRouter{
 		return n;
 	}
 	/**
-	 * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÍ¬¹ìÁÚ¾Ó½Úµã
+	 * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨é‚»å±…èŠ‚ç‚¹
 	 */
 	public void initInterSatelliteNeighbors(){
 		Settings setting = new Settings("userSetting");
 		Settings sat = new Settings("Group");
-		int TOTAL_SATELLITES = sat.getInt("nrofHosts");//×Ü½ÚµãÊı
-		int TOTAL_PLANE = setting.getInt("nrofPlane");//×Ü¹ìµÀÆ½ÃæÊı
-		int NROF_S_EACHPLANE = TOTAL_SATELLITES/TOTAL_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+		int TOTAL_SATELLITES = sat.getInt("nrofHosts");//æ€»èŠ‚ç‚¹æ•°
+		int TOTAL_PLANE = setting.getInt("nrofPlane");//æ€»è½¨é“å¹³é¢æ•°
+		int NROF_S_EACHPLANE = TOTAL_SATELLITES/TOTAL_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
 		
 		int thisHostAddress = this.getHost().getAddress();
 		
@@ -1040,19 +1040,19 @@ public class NetGridRouter extends ActiveRouter{
 		for (DTNHost host : getHosts()){
 			if (host.getAddress() == a || host.getAddress() == b){
 				neighborHostsInSamePlane.remove(host);
-				neighborHostsInSamePlane.add(host);//Í¬Ò»¸ö¹ìµÀÄÚµÄÏàÁÚ½Úµã
+				neighborHostsInSamePlane.add(host);//åŒä¸€ä¸ªè½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹
 			}
 		}
 	}
 	/**
-	 * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÏàÁÚ¹ìµÀµÄÁÚ¾Ó½Úµã(ÒòÎªÔÚ±ßÔµ¹ìµÀÆ½ÃæÊ±µÄ¼òµ¥¶ÔÓ¦¹ØÏµ´æÔÚÒ»Ğ©ÎÊÌâ£¬ËùÒÔĞèÒª¶¯Ì¬¸üĞÂ)
+	 * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„ç›¸é‚»è½¨é“çš„é‚»å±…èŠ‚ç‚¹(å› ä¸ºåœ¨è¾¹ç¼˜è½¨é“å¹³é¢æ—¶çš„ç®€å•å¯¹åº”å…³ç³»å­˜åœ¨ä¸€äº›é—®é¢˜ï¼Œæ‰€ä»¥éœ€è¦åŠ¨æ€æ›´æ–°)
 	 */
 	public void updateInterSatelliteNeighbors(List<DTNHost> conNeighbors){	
 		SatelliteMovement movementModel = ((SatelliteMovement)this.getHost().getMovementModel());
 		
-		int TOTAL_SATELLITES = movementModel.getTotalNrofLEOSatellites();//×Ü½ÚµãÊı		
-		int TOTAL_PLANE = movementModel.getTotalNrofLEOPlanes();//×Ü¹ìµÀÆ½ÃæÊı
-		int NROF_S_EACHPLANE = TOTAL_SATELLITES/TOTAL_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+		int TOTAL_SATELLITES = movementModel.getTotalNrofLEOSatellites();//æ€»èŠ‚ç‚¹æ•°		
+		int TOTAL_PLANE = movementModel.getTotalNrofLEOPlanes();//æ€»è½¨é“å¹³é¢æ•°
+		int NROF_S_EACHPLANE = TOTAL_SATELLITES/TOTAL_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
 		
 		int thisHostAddress = this.getHost().getAddress();
 		
@@ -1066,20 +1066,20 @@ public class NetGridRouter extends ActiveRouter{
 				if (!conNeighbors.contains(host)){
 					double minDistance = Double.MAX_VALUE;
 					DTNHost minHost = null;	
-					for (DTNHost neighborHost : conNeighbors){//Èç¹û²»°üº¬¾Í´ÓÒÑÓĞµÄcËùÊôµÄ¹ìµÀÆ½ÃæÉÏµÄ½Úµã£¬Ñ¡Ò»¸ö×î½üµÄ
-						int planeOfC = c/NROF_S_EACHPLANE + 1;//Á½¸öÏàÁÚ½Úµã¸÷×ÔËùÊôµÄ¹ìµÀÆ½ÃæºÅ
+					for (DTNHost neighborHost : conNeighbors){//å¦‚æœä¸åŒ…å«å°±ä»å·²æœ‰çš„cæ‰€å±çš„è½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹ï¼Œé€‰ä¸€ä¸ªæœ€è¿‘çš„
+						int planeOfC = c/NROF_S_EACHPLANE + 1;//ä¸¤ä¸ªç›¸é‚»èŠ‚ç‚¹å„è‡ªæ‰€å±çš„è½¨é“å¹³é¢å·
 						if (planeOfC == movementModel.getNrofPlane()){
 							if (neighborHost.getLocation().distance(this.getHost().getLocation()) < minDistance)
 								minHost = neighborHost;
 						}
 					}
 					if (minHost != null){
-						neighborPlaneHosts.remove(minHost);//È¥ÖØ¸´Ìí¼Ó
+						neighborPlaneHosts.remove(minHost);//å»é‡å¤æ·»åŠ 
 						neighborPlaneHosts.add(minHost);
 					}
 				}
 				else{
-					neighborPlaneHosts.remove(host);//È¥ÖØ¸´Ìí¼Ó
+					neighborPlaneHosts.remove(host);//å»é‡å¤æ·»åŠ 
 					neighborPlaneHosts.add(host);
 				}
 			}
@@ -1089,19 +1089,19 @@ public class NetGridRouter extends ActiveRouter{
 					double minDistance = Double.MAX_VALUE;
 					DTNHost minHost = null;	
 					for (DTNHost neighborHost : conNeighbors){
-						int planeOfD = d/NROF_S_EACHPLANE + 1;//Á½¸öÏàÁÚ½Úµã¸÷×ÔËùÊôµÄ¹ìµÀÆ½ÃæºÅ
+						int planeOfD = d/NROF_S_EACHPLANE + 1;//ä¸¤ä¸ªç›¸é‚»èŠ‚ç‚¹å„è‡ªæ‰€å±çš„è½¨é“å¹³é¢å·
 						if (planeOfD == movementModel.getNrofPlane()){
 							if (neighborHost.getLocation().distance(this.getHost().getLocation()) < minDistance)
 								minHost = neighborHost;
 						}
 					}
 					if (minHost != null){
-						neighborPlaneHosts.remove(minHost);//È¥ÖØ¸´Ìí¼Ó
+						neighborPlaneHosts.remove(minHost);//å»é‡å¤æ·»åŠ 
 						neighborPlaneHosts.add(minHost);
 					}
 				}
 				else{
-					neighborPlaneHosts.remove(host);//È¥ÖØ¸´Ìí¼Ó
+					neighborPlaneHosts.remove(host);//å»é‡å¤æ·»åŠ 
 					neighborPlaneHosts.add(host);
 				}
 			}
@@ -1110,51 +1110,51 @@ public class NetGridRouter extends ActiveRouter{
 	
 	public class GridNeighbors {
 		
-		private List<DTNHost> hosts = new ArrayList<DTNHost>();//È«¾ÖÎÀĞÇ½ÚµãÁĞ±í
+		private List<DTNHost> hosts = new ArrayList<DTNHost>();//å…¨å±€å«æ˜ŸèŠ‚ç‚¹åˆ—è¡¨
 		private DTNHost host;
 		private double transmitRange;
 		private double msgTtl;
 		
 		private double updateInterval = 1;
 		
-		private GridCell[][][] cells;//GridCellÕâ¸öÀà£¬´´½¨Ò»¸öÊµÀı´ú±íÒ»¸öµ¥¶ÀµÄÍø¸ñ£¬Õû¸öworld´´½¨ÁËÒ»¸öÈıÎ¬Êı×é´æ´¢Õâ¸öÍø¸ñ£¬Ã¿¸öÍø¸ñÄÚÓÖ´æ´¢ÁËµ±Ç°ÔÚÆäÖĞµÄhostµÄnetworkinterface
+		private GridCell[][][] cells;//GridCellè¿™ä¸ªç±»ï¼Œåˆ›å»ºä¸€ä¸ªå®ä¾‹ä»£è¡¨ä¸€ä¸ªå•ç‹¬çš„ç½‘æ ¼ï¼Œæ•´ä¸ªworldåˆ›å»ºäº†ä¸€ä¸ªä¸‰ç»´æ•°ç»„å­˜å‚¨è¿™ä¸ªç½‘æ ¼ï¼Œæ¯ä¸ªç½‘æ ¼å†…åˆå­˜å‚¨äº†å½“å‰åœ¨å…¶ä¸­çš„hostçš„networkinterface
 		
 		private double cellSize;
 		private int rows;
 		private int cols;
-		private int zs;//ĞÂÔöÈıÎ¬±äÁ¿
+		private int zs;//æ–°å¢ä¸‰ç»´å˜é‡
 		private  int worldSizeX;
 		private  int worldSizeY;
-		private  int worldSizeZ;//ĞÂÔö
+		private  int worldSizeZ;//æ–°å¢
 		
 		private int gridLayer;
 		
-		/**Ã¿´Îrouting½øĞĞ¸üĞÂÊ±£¬ÓÃÓÚ´æ´¢Ö¸¶¨Ê±¼äµÄÍØÆË×´Ì¬£¬Íø¸ñºÍ½ÚµãµÄÓ³Éä¹ØÏµ**/
+		/**æ¯æ¬¡routingè¿›è¡Œæ›´æ–°æ—¶ï¼Œç”¨äºå­˜å‚¨æŒ‡å®šæ—¶é—´çš„æ‹“æ‰‘çŠ¶æ€ï¼Œç½‘æ ¼å’ŒèŠ‚ç‚¹çš„æ˜ å°„å…³ç³»**/
 //		private HashMap<Double, HashMap<NetworkInterface, GridCell>> gridmap = new HashMap<Double, HashMap<NetworkInterface, GridCell>>();
 //		private HashMap<Double, HashMap<GridCell, List<DTNHost>>> cellmap = new HashMap<Double, HashMap<GridCell, List<DTNHost>>>();
 		
-		/**µ±Ç°Ë²Ê±Ê±¿ÌµÄÍØÆË×´Ì¬£¬°üº¬Íø¸ñºÍ½ÚµãµÄÓ³Éä¹ØÏµ**/
+		/**å½“å‰ç¬æ—¶æ—¶åˆ»çš„æ‹“æ‰‘çŠ¶æ€ï¼ŒåŒ…å«ç½‘æ ¼å’ŒèŠ‚ç‚¹çš„æ˜ å°„å…³ç³»**/
 		HashMap<NetworkInterface, GridCell> interfaceToGridCell = new HashMap<NetworkInterface, GridCell>();
 		HashMap<GridCell, List<DTNHost>> gridCellToHosts = new HashMap<GridCell, List<DTNHost>>();
 		
-		/*ÓÃÓÚ³õÊ¼»¯Ê±£¬¼ÆËã¸÷¸ö½ÚµãÔÚÒ»¸öÖÜÆÚÄÚµÄÍø¸ñ×ø±ê*/
-		private HashMap <DTNHost, List<GridCell>> gridLocation = new HashMap<DTNHost, List<GridCell>>();//´æ·Å½ÚµãËù¾­¹ıµÄÍø¸ñ
-		private HashMap <DTNHost, List<Double>> gridTime = new HashMap<DTNHost, List<Double>>();//´æ·Å½Úµã¾­¹ıÕâĞ©Íø¸ñÊ±µÄÊ±¼ä
-		private HashMap <DTNHost, Double> periodMap = new HashMap <DTNHost, Double>();//¼ÇÂ¼¸÷¸ö½Úµã¹ìµÀµÄÖÜÆÚ
+		/*ç”¨äºåˆå§‹åŒ–æ—¶ï¼Œè®¡ç®—å„ä¸ªèŠ‚ç‚¹åœ¨ä¸€ä¸ªå‘¨æœŸå†…çš„ç½‘æ ¼åæ ‡*/
+		private HashMap <DTNHost, List<GridCell>> gridLocation = new HashMap<DTNHost, List<GridCell>>();//å­˜æ”¾èŠ‚ç‚¹æ‰€ç»è¿‡çš„ç½‘æ ¼
+		private HashMap <DTNHost, List<Double>> gridTime = new HashMap<DTNHost, List<Double>>();//å­˜æ”¾èŠ‚ç‚¹ç»è¿‡è¿™äº›ç½‘æ ¼æ—¶çš„æ—¶é—´
+		private HashMap <DTNHost, Double> periodMap = new HashMap <DTNHost, Double>();//è®°å½•å„ä¸ªèŠ‚ç‚¹è½¨é“çš„å‘¨æœŸ
 		
 		public GridNeighbors(DTNHost host){
 			this.host = host;
 			//System.out.println(this.host);
 			Settings se = new Settings("Interface");
-			transmitRange = se.getDouble("transmitRange");//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡´«ÊäËÙÂÊ
+			transmitRange = se.getDouble("transmitRange");//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–ä¼ è¾“é€Ÿç‡
 			Settings set = new Settings("Group");
 			msgTtl = set.getDouble("msgTtl");
 			
 			Settings s = new Settings(MovementModel.MOVEMENT_MODEL_NS);
-			int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE,3);//²ÎÊı´Ó2Î¬ĞŞ¸ÄÎª3Î¬
+			int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE,3);//å‚æ•°ä»2ç»´ä¿®æ”¹ä¸º3ç»´
 			worldSizeX = worldSize[0];
 			worldSizeY = worldSize[1];
-			worldSizeZ = worldSize[1];//ĞÂÔöÈıÎ¬±äÁ¿£¬´ı¼ì²é£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
+			worldSizeZ = worldSize[1];//æ–°å¢ä¸‰ç»´å˜é‡ï¼Œå¾…æ£€æŸ¥ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼
 			
 			Settings layer = new Settings("Group");
 			this.gridLayer = layer.getInt("layer");
@@ -1176,7 +1176,7 @@ public class NetGridRouter extends ActiveRouter{
 			//cellSize = (int) (transmitRange*0.5773502);
 			
 			CreateGrid(cellSize);
-			/*³õÊ¼»¯£¬Ç°ÌáËãºÃÎÀĞÇ¹ìµÀĞÅÏ¢*/
+			/*åˆå§‹åŒ–ï¼Œå‰æç®—å¥½å«æ˜Ÿè½¨é“ä¿¡æ¯*/
 			
 		}
 		public void setHost(DTNHost h){
@@ -1186,13 +1186,13 @@ public class NetGridRouter extends ActiveRouter{
 			return this.host;
 		}
 		/**
-		 * ³õÊ¼»¯´´½¨¹Ì¶¨µÄÍø¸ñ
+		 * åˆå§‹åŒ–åˆ›å»ºå›ºå®šçš„ç½‘æ ¼
 		 * @param cellSize
 		 */
 		public void CreateGrid(double cellSize){
 			this.rows = (int)Math.floor(worldSizeY/cellSize) + 1;
 			this.cols = (int)Math.floor(worldSizeX/cellSize) + 1;
-			this.zs = (int)Math.floor(worldSizeZ/cellSize) + 1;//ĞÂÔö
+			this.zs = (int)Math.floor(worldSizeZ/cellSize) + 1;//æ–°å¢
 			System.out.println(cellSize+"  "+this.rows+"  "+this.cols+"  "+this.zs);
 			// leave empty cells on both sides to make neighbor search easier 
 			this.cells = new GridCell[rows+2][cols+2][zs+2];
@@ -1200,7 +1200,7 @@ public class NetGridRouter extends ActiveRouter{
 
 			for (int i=0; i<rows+2; i++) {
 				for (int j=0; j<cols+2; j++) {
-					for (int n=0;n<zs+2; n++){//ĞÂÔöÈıÎ¬±äÁ¿
+					for (int n=0;n<zs+2; n++){//æ–°å¢ä¸‰ç»´å˜é‡
 						this.cells[i][j][n] = new GridCell();
 						cells[i][j][n].setNumber(i, j, n);
 					}
@@ -1208,11 +1208,11 @@ public class NetGridRouter extends ActiveRouter{
 			}
 		}
 		/**
-		 * ±éšvËùÓĞ¹üc£¬Œ¦Ã¿‚€¹üc±éšvÒ»‚€ßLÆÚ£¬Ó›ä›ÆäÒ»‚€ßLÆÚƒÈ±éšvß^µÄ¾W¸ñ£¬²¢ÕÒµ½Œ¦‘ªµÄßMÈëºÍëxé_•rég
+		 * éæ­·æ‰€æœ‰ç¯€é»ï¼Œå°æ¯å€‹ç¯€é»éæ­·ä¸€å€‹é€±æœŸï¼Œè¨˜éŒ„å…¶ä¸€å€‹é€±æœŸå…§éæ­·éçš„ç¶²æ ¼ï¼Œå¹¶æ‰¾åˆ°å°æ‡‰çš„é€²å…¥å’Œé›¢é–‹æ™‚é–“
 		 */
 		public void initializeGridLocation(){	
 
-			for (DTNHost h : getHosts()){//Œ¦Ã¿‚€¹üc±éšvÒ»‚€ßLÆÚ£¬Ó›ä›ÆäÒ»‚€ßLÆÚƒÈ±éšvß^µÄ¾W¸ñ£¬²¢ÕÒµ½Œ¦‘ªµÄßMÈëºÍëxé_•rég
+			for (DTNHost h : getHosts()){//å°æ¯å€‹ç¯€é»éæ­·ä¸€å€‹é€±æœŸï¼Œè¨˜éŒ„å…¶ä¸€å€‹é€±æœŸå…§éæ­·éçš„ç¶²æ ¼ï¼Œå¹¶æ‰¾åˆ°å°æ‡‰çš„é€²å…¥å’Œé›¢é–‹æ™‚é–“
 				double period = getPeriodofOrbit(h);
 				this.periodMap.put(h, period);
 				System.out.println(this.host+" now calculate "+h+"  "+period);
@@ -1220,25 +1220,25 @@ public class NetGridRouter extends ActiveRouter{
 				List<GridCell> gridList = new ArrayList<GridCell>();
 				List<Double> intoTime = new ArrayList<Double>();
 				List<Double> outTime = new ArrayList<Double>();
-				GridCell startCell = cellFromCoord(h.getCoordinate(0));//¼ÇÂ¼ÆğÊ¼Íø¸ñ
+				GridCell startCell = cellFromCoord(h.getCoordinate(0));//è®°å½•èµ·å§‹ç½‘æ ¼
 				for (double time = 0; time < period; time += updateInterval){
 					Coord c = h.getCoordinate(time);
-					GridCell gc = cellFromCoord(c);//¸ù“ş×ø˜ËÕÒµ½Œ¦‘ªµÄ¾W¸ñ
+					GridCell gc = cellFromCoord(c);//æ ¹æ“šåæ¨™æ‰¾åˆ°å°æ‡‰çš„ç¶²æ ¼
 					if (!gridList.contains(gc)){
 						if (gridList.isEmpty()){
-							startCell = gc;//¼ÇÂ¼ÆğÊ¼Íø¸ñ
-							gridList.add(null);//°ÑÆğÊ¼Íø¸ñµÚÒ»´Î·Å¿ÕÖ¸Õë£¬Õ¼¸öÎ»
+							startCell = gc;//è®°å½•èµ·å§‹ç½‘æ ¼
+							gridList.add(null);//æŠŠèµ·å§‹ç½‘æ ¼ç¬¬ä¸€æ¬¡æ”¾ç©ºæŒ‡é’ˆï¼Œå ä¸ªä½
 							intoTime.add(time);
 						}						
-						gridList.add(gc);//µÚÒ»´Î¼ì²âµ½½Úµã½øÈë´ËÍø¸ñ£¨×¢Òâ£¬±ß½ç¼ì²é£¡£¡£¡¿ªÊ¼ºÍ½áÊøµÄÊ±ºò£¡£¡£¡!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!£©
-						intoTime.add(time);//¼ÇÂ¼ÏàÓ¦µÄ½øÈëÊ±¼ä
+						gridList.add(gc);//ç¬¬ä¸€æ¬¡æ£€æµ‹åˆ°èŠ‚ç‚¹è¿›å…¥æ­¤ç½‘æ ¼ï¼ˆæ³¨æ„ï¼Œè¾¹ç•Œæ£€æŸ¥ï¼ï¼ï¼å¼€å§‹å’Œç»“æŸçš„æ—¶å€™ï¼ï¼ï¼!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ï¼‰
+						intoTime.add(time);//è®°å½•ç›¸åº”çš„è¿›å…¥æ—¶é—´
 						if (gc == startCell){
 							gridList.set(0, startCell);
 							intoTime.set(0, time);
 						}
 					}	
 					else{
-						//ÉèÖÃÆğÊ¼Íø¸ñµÄÕæÕı½øÈëÊ±¼ä£¬ÔÚÒ»¸ö¹ìµÀÖÜÆÚÄÚ
+						//è®¾ç½®èµ·å§‹ç½‘æ ¼çš„çœŸæ­£è¿›å…¥æ—¶é—´ï¼Œåœ¨ä¸€ä¸ªè½¨é“å‘¨æœŸå†…
 						if (gc == startCell){
 							gridList.set(0, startCell);
 							intoTime.set(0, time);
@@ -1247,14 +1247,14 @@ public class NetGridRouter extends ActiveRouter{
 				}
 				//System.out.println(h+" startCell "+h.getCoordinate(1)+" time: "+h.getCoordinate(0)+ "  "+h.getCoordinate(period)+ "  "+h.getCoordinate(6024)+ "  "+h.getCoordinate(6023));
 				//System.out.println(h+" startCell "+startCell+" time: "+intoTime.get(0)+ "  "+intoTime.get(1)+"  "+intoTime.get(intoTime.size()-1)+"  "+gridLocation);
-				gridLocation.put(h, gridList);//±éÀúÍêÒ»¸ö½Úµã¾Í¼ÇÂ¼ÏÂÀ´
+				gridLocation.put(h, gridList);//éå†å®Œä¸€ä¸ªèŠ‚ç‚¹å°±è®°å½•ä¸‹æ¥
 				gridTime.put(h, intoTime);
 			}
 			System.out.println(gridLocation);
 		}
 		
 		
-		/**ÓÃÓÚ²âÊÔÍØÆË¼ÆËãµÄ¿ªÏú£¬¿ÉÉ¾**/
+		/**ç”¨äºæµ‹è¯•æ‹“æ‰‘è®¡ç®—çš„å¼€é”€ï¼Œå¯åˆ **/
 		public void computationComplexityOfGridCalculation(double time, int RunningTimes){	
 			
 			double orbitCost = 0;
@@ -1268,19 +1268,19 @@ public class NetGridRouter extends ActiveRouter{
 			
 			
 			for (int n = 0; n < RunningTimes; n++){
-				double t00 = System.nanoTime();//¸´ÔÓ¶È²âÊÔ´úÂë,¾«È·µ½ÄÉÃë
-				for (DTNHost h : getHosts()){//Œ¦Ã¿‚€¹üc±éšvÒ»‚€ßLÆÚ£¬Ó›ä›ÆäÒ»‚€ßLÆÚƒÈ±éšvß^µÄ¾W¸ñ£¬²¢ÕÒµ½Œ¦‘ªµÄßMÈëºÍëxé_•rég
+				double t00 = System.nanoTime();//å¤æ‚åº¦æµ‹è¯•ä»£ç ,ç²¾ç¡®åˆ°çº³ç§’
+				for (DTNHost h : getHosts()){//å°æ¯å€‹ç¯€é»éæ­·ä¸€å€‹é€±æœŸï¼Œè¨˜éŒ„å…¶ä¸€å€‹é€±æœŸå…§éæ­·éçš„ç¶²æ ¼ï¼Œå¹¶æ‰¾åˆ°å°æ‡‰çš„é€²å…¥å’Œé›¢é–‹æ™‚é–“
 						
 					Coord c = h.getCoordinate(time);					
 					
-					GridCell gc = cellFromCoord(c);//¸ù“ş×ø˜ËÕÒµ½Œ¦‘ªµÄ¾W¸ñ
+					GridCell gc = cellFromCoord(c);//æ ¹æ“šåæ¨™æ‰¾åˆ°å°æ‡‰çš„ç¶²æ ¼
 					relationship.put(h, new Tuple<Coord, GridCell>(c, gc));
 					
 					gridMap.put(gc, h);
 					
 				}	
-				double t01 = System.nanoTime();//¸´ÔÓ¶È²âÊÔ´úÂë,¾«È·µ½ÄÉÃë
-				System.out.println(n+"  ¹ìµÀ¼ÆËã¿ªÏú: "+ (t01-t00));
+				double t01 = System.nanoTime();//å¤æ‚åº¦æµ‹è¯•ä»£ç ,ç²¾ç¡®åˆ°çº³ç§’
+				System.out.println(n+"  è½¨é“è®¡ç®—å¼€é”€: "+ (t01-t00));
 				orbitCost += (t01-t00);
 				
 				
@@ -1298,15 +1298,15 @@ public class NetGridRouter extends ActiveRouter{
 					}
 
 				//}
-				double t02 = System.nanoTime();//¸´ÔÓ¶È²âÊÔ´úÂë,¾«È·µ½ÄÉÃë
-				System.out.println(n+"  ×Ü¹²¿ªÏú: " + (t02-t00) + "  Íø¸ñ¼ÆËãÒÔ¼°´æ·Å¿ªÏú: "+ (t02-t01));
+				double t02 = System.nanoTime();//å¤æ‚åº¦æµ‹è¯•ä»£ç ,ç²¾ç¡®åˆ°çº³ç§’
+				System.out.println(n+"  æ€»å…±å¼€é”€: " + (t02-t00) + "  ç½‘æ ¼è®¡ç®—ä»¥åŠå­˜æ”¾å¼€é”€: "+ (t02-t01));
 				GridCost += (t02-t01);
 				totalCost += (t02-t00);
 			}		
-			System.out.println("  Æ½¾ù×Ü¹²¿ªÏú: " + totalCost/RunningTimes + "  Æ½¾ù¹ìµÀ¼ÆËã¿ªÏú: "+ orbitCost/RunningTimes + "  Æ½¾ù±ß¼ÆËã¿ªÏú: "+ GridCost/RunningTimes);
+			System.out.println("  å¹³å‡æ€»å…±å¼€é”€: " + totalCost/RunningTimes + "  å¹³å‡è½¨é“è®¡ç®—å¼€é”€: "+ orbitCost/RunningTimes + "  å¹³å‡è¾¹è®¡ç®—å¼€é”€: "+ GridCost/RunningTimes);
 			throw new SimError("Pause");		
 		}
-		/**ÓÃÓÚ²âÊÔÍØÆË¼ÆËãµÄ¿ªÏú£¬¿ÉÉ¾**/
+		/**ç”¨äºæµ‹è¯•æ‹“æ‰‘è®¡ç®—çš„å¼€é”€ï¼Œå¯åˆ **/
 		public GridCell[] getLayer1(int row, int col, int z){
 			List<GridCell> GC = new ArrayList<GridCell>();
 			return new GridCell[] {
@@ -1331,12 +1331,12 @@ public class NetGridRouter extends ActiveRouter{
 //			}
 //			return GC;
 		}
-		/**ÓÃÓÚ²âÊÔÍØÆË¼ÆËãµÄ¿ªÏú£¬¿ÉÉ¾**/
+		/**ç”¨äºæµ‹è¯•æ‹“æ‰‘è®¡ç®—çš„å¼€é”€ï¼Œå¯åˆ **/
 
 		
 		
 		/**
-		 * «@È¡Ö¸¶¨ĞlĞÇ¹ücµÄß\ĞĞßLÆÚ•rég
+		 * ç²å–æŒ‡å®šè¡›æ˜Ÿç¯€é»çš„é‹è¡Œé€±æœŸæ™‚é–“
 		 * @param h
 		 * @return
 		 */
@@ -1345,76 +1345,76 @@ public class NetGridRouter extends ActiveRouter{
 		}
 		
 		/**
-		 * ÕÒµ½host½ÚµãÔÚµ±Ç°Ê±¼ä¶ÔÓ¦ËùÔÚµÄÍø¸ñ
+		 * æ‰¾åˆ°hostèŠ‚ç‚¹åœ¨å½“å‰æ—¶é—´å¯¹åº”æ‰€åœ¨çš„ç½‘æ ¼
 		 * @param host
 		 * @param time
 		 * @return
 		 */
 		public GridCell getGridCellFromCoordNow(DTNHost host){
-			/**×¢Òâ¶Á±í·½Ê½»ñµÃµÄÍø¸ñ×ø±ê£¬ºÍÊµÊ±ÈıÎ¬×ø±ê¼ÆËãµÃµ½µÄÍø¸ñ×ø±êÖ®¼äÍùÍù´æÔÚÎó²î£¡**/
+			/**æ³¨æ„è¯»è¡¨æ–¹å¼è·å¾—çš„ç½‘æ ¼åæ ‡ï¼Œå’Œå®æ—¶ä¸‰ç»´åæ ‡è®¡ç®—å¾—åˆ°çš„ç½‘æ ¼åæ ‡ä¹‹é—´å¾€å¾€å­˜åœ¨è¯¯å·®ï¼**/
 			return this.interfaceToGridCell.get(host.getInterface(1));
 			//return cellFromCoord(host.getCoordinate(time));
 		}
 		
 		/**
-		 * ÕÒµ½host½ÚµãÔÚÊ±¼ätime¶ÔÓ¦ËùÔÚµÄÍø¸ñ
+		 * æ‰¾åˆ°hostèŠ‚ç‚¹åœ¨æ—¶é—´timeå¯¹åº”æ‰€åœ¨çš„ç½‘æ ¼
 		 * @param host
 		 * @param time
 		 * @return
 		 */
 		public GridCell getGridCellFromCoordAtTime(DTNHost host, double time){
-			/**×¢Òâ¶Á±í·½Ê½»ñµÃµÄÍø¸ñ×ø±ê£¬ºÍÊµÊ±ÈıÎ¬×ø±ê¼ÆËãµÃµ½µÄÍø¸ñ×ø±êÖ®¼äÍùÍù´æÔÚÎó²î£¡**/
+			/**æ³¨æ„è¯»è¡¨æ–¹å¼è·å¾—çš„ç½‘æ ¼åæ ‡ï¼Œå’Œå®æ—¶ä¸‰ç»´åæ ‡è®¡ç®—å¾—åˆ°çš„ç½‘æ ¼åæ ‡ä¹‹é—´å¾€å¾€å­˜åœ¨è¯¯å·®ï¼**/
 			return this.interfaceToGridCell.get(host.getInterface(1));
 			//return cellFromCoord(host.getCoordinate(time));
 		}
 		/**
-		 * »ñÈ¡Ö¸¶¨Ê±¼äµã£¬Ö¸¶¨Íø¸ñµÄÁÚ¾ÓÍø¸ñ
+		 * è·å–æŒ‡å®šæ—¶é—´ç‚¹ï¼ŒæŒ‡å®šç½‘æ ¼çš„é‚»å±…ç½‘æ ¼
 		 * @param source
 		 * @param time
 		 * @return
 		 */
-		public HashMap<GridCell, Tuple<GridCell, List<DTNHost>>> getNeighborsNetgridsNow(GridCell source){//»ñÈ¡Ö¸¶¨Ê±¼äµÄÁÚ¾Ó½Úµã(Í¬Ê±°üº¬Ô¤²âµ½TTLÊ±¼äÄÚµÄÁÚ¾Ó)	
+		public HashMap<GridCell, Tuple<GridCell, List<DTNHost>>> getNeighborsNetgridsNow(GridCell source){//è·å–æŒ‡å®šæ—¶é—´çš„é‚»å±…èŠ‚ç‚¹(åŒæ—¶åŒ…å«é¢„æµ‹åˆ°TTLæ—¶é—´å†…çš„é‚»å±…)	
 
 			//HashMap<NetworkInterface, GridCell> ginterfaces = gridmap.get(time);
 			//GridCell cell = this.interfaceToGridCell.get(host.getInterface(1));
-			int[] number = source.getNumber();//µÃµ½±¾Íø¸ñµÄÈıÎ¬×ø±ê
+			int[] number = source.getNumber();//å¾—åˆ°æœ¬ç½‘æ ¼çš„ä¸‰ç»´åæ ‡
 			
-			List<GridCell> cellList = getNeighborCells(number[0], number[1], number[2]);//ËùÓĞÁÚ¾ÓµÄÍø¸ñ£¨µ±Ç°Ê±¿Ì£©
-			/**ÕÒ³öËùÓĞµÄÁÚ¾ÓÍø¸ñÒÔ¼°Æä°üº¬µÄ½Úµã**/
+			List<GridCell> cellList = getNeighborCells(number[0], number[1], number[2]);//æ‰€æœ‰é‚»å±…çš„ç½‘æ ¼ï¼ˆå½“å‰æ—¶åˆ»ï¼‰
+			/**æ‰¾å‡ºæ‰€æœ‰çš„é‚»å±…ç½‘æ ¼ä»¥åŠå…¶åŒ…å«çš„èŠ‚ç‚¹**/
 			HashMap<GridCell, Tuple<GridCell, List<DTNHost>>> neighborNetgridInfo = new HashMap<GridCell, Tuple<GridCell, List<DTNHost>>>();
 			//List<Tuple<GridCell, List<DTNHost>>> gridInfoList = new ArrayList<Tuple<GridCell, List<DTNHost>>>();
-			/**ÕÒ³öËùÓĞµÄÁÚ¾ÓÍø¸ñÒÔ¼°Æä°üº¬µÄ½Úµã**/
-			//assert cellmap.containsKey(time):" Ê±¼ä´íÎó ";
-			/**È¥³ı±¾Íø¸ñ**/
+			/**æ‰¾å‡ºæ‰€æœ‰çš„é‚»å±…ç½‘æ ¼ä»¥åŠå…¶åŒ…å«çš„èŠ‚ç‚¹**/
+			//assert cellmap.containsKey(time):" æ—¶é—´é”™è¯¯ ";
+			/**å»é™¤æœ¬ç½‘æ ¼**/
 			if (cellList.contains(source))
 				cellList.remove(source);
 			
 			for (GridCell c : cellList){
-				if (this.gridCellToHosts.containsKey(c)){//Èç¹û²»°üº¬£¬ÕâËµÃ÷´ËÁÚ¾ÓÍø¸ñÎª¿Õ£¬ÀïÃæ²»º¬ÈÎºÎ½Úµã
-					List<DTNHost> hostList = new ArrayList<DTNHost>(this.gridCellToHosts.get(c));//ÕÒ³öÕâÒ»¸öÁÚ¾ÓÍø¸ñÄÚ¶ÔÓ¦µÄËùÓĞ½Úµã
+				if (this.gridCellToHosts.containsKey(c)){//å¦‚æœä¸åŒ…å«ï¼Œè¿™è¯´æ˜æ­¤é‚»å±…ç½‘æ ¼ä¸ºç©ºï¼Œé‡Œé¢ä¸å«ä»»ä½•èŠ‚ç‚¹
+					List<DTNHost> hostList = new ArrayList<DTNHost>(this.gridCellToHosts.get(c));//æ‰¾å‡ºè¿™ä¸€ä¸ªé‚»å±…ç½‘æ ¼å†…å¯¹åº”çš„æ‰€æœ‰èŠ‚ç‚¹
 					Tuple<GridCell, List<DTNHost>> oneNeighborGrid = new Tuple<GridCell, List<DTNHost>>(c, hostList);
 					neighborNetgridInfo.put(c, oneNeighborGrid);
 				}
 			}	
 			
-			//System.out.println(host+" ÁÚ¾ÓÁĞ±í   "+hostList);
+			//System.out.println(host+" é‚»å±…åˆ—è¡¨   "+hostList);
 			return neighborNetgridInfo;
 		}
 		/**
-		 * »ñÈ¡µ±Ç°·ÂÕæÊ±¼äÏÂ£¬Ö¸¶¨Íø¸ñµÄÁÚ¾ÓÍø¸ñÄÚËùº¬ÓĞµÄËùÓĞÁÚ¾Ó½Úµã
+		 * è·å–å½“å‰ä»¿çœŸæ—¶é—´ä¸‹ï¼ŒæŒ‡å®šç½‘æ ¼çš„é‚»å±…ç½‘æ ¼å†…æ‰€å«æœ‰çš„æ‰€æœ‰é‚»å±…èŠ‚ç‚¹
 		 * @param source
 		 * @param time
 		 * @return
 		 */
-		public List<DTNHost> getNeighborsHostsNow(GridCell source){//»ñÈ¡Ö¸¶¨Ê±¼äµÄÁÚ¾Ó½Úµã(Í¬Ê±°üº¬Ô¤²âµ½TTLÊ±¼äÄÚµÄÁÚ¾Ó)	
+		public List<DTNHost> getNeighborsHostsNow(GridCell source){//è·å–æŒ‡å®šæ—¶é—´çš„é‚»å±…èŠ‚ç‚¹(åŒæ—¶åŒ…å«é¢„æµ‹åˆ°TTLæ—¶é—´å†…çš„é‚»å±…)	
 			//HashMap<NetworkInterface, GridCell> ginterfaces = gridmap.get(time);
 			//GridCell cell = this.interfaceToGridCell.get(host.getInterface(1));
-			int[] number = source.getNumber();//µÃµ½±¾Íø¸ñµÄÈıÎ¬×ø±ê
+			int[] number = source.getNumber();//å¾—åˆ°æœ¬ç½‘æ ¼çš„ä¸‰ç»´åæ ‡
 			
-			List<GridCell> cellList = getNeighborCells(number[0], number[1], number[2]);//ËùÓĞÁÚ¾ÓµÄÍø¸ñ£¨µ±Ç°Ê±¿Ì£©
-			/**ÕÒ³öËùÓĞµÄÁÚ¾ÓÍø¸ñÒÔ¼°Æä°üº¬µÄ½Úµã**/
+			List<GridCell> cellList = getNeighborCells(number[0], number[1], number[2]);//æ‰€æœ‰é‚»å±…çš„ç½‘æ ¼ï¼ˆå½“å‰æ—¶åˆ»ï¼‰
+			/**æ‰¾å‡ºæ‰€æœ‰çš„é‚»å±…ç½‘æ ¼ä»¥åŠå…¶åŒ…å«çš„èŠ‚ç‚¹**/
 
-			/**È¥³ı±¾Íø¸ñ**/
+			/**å»é™¤æœ¬ç½‘æ ¼**/
 			if (cellList.contains(source))
 				cellList.remove(source);
 			
@@ -1427,21 +1427,21 @@ public class NetGridRouter extends ActiveRouter{
 				
 			}
 //			for (GridCell c : cellList){
-//				if (this.gridCellToHosts.containsKey(c)){//Èç¹û²»°üº¬£¬ÕâËµÃ÷´ËÁÚ¾ÓÍø¸ñÎª¿Õ£¬ÀïÃæ²»º¬ÈÎºÎ½Úµã
-//					neighborHosts.addAll(this.gridCellToHosts.get(c));//ÕÒ³öÕâÒ»¸öÁÚ¾ÓÍø¸ñÄÚ¶ÔÓ¦µÄËùÓĞ½Úµã
+//				if (this.gridCellToHosts.containsKey(c)){//å¦‚æœä¸åŒ…å«ï¼Œè¿™è¯´æ˜æ­¤é‚»å±…ç½‘æ ¼ä¸ºç©ºï¼Œé‡Œé¢ä¸å«ä»»ä½•èŠ‚ç‚¹
+//					neighborHosts.addAll(this.gridCellToHosts.get(c));//æ‰¾å‡ºè¿™ä¸€ä¸ªé‚»å±…ç½‘æ ¼å†…å¯¹åº”çš„æ‰€æœ‰èŠ‚ç‚¹
 //				}
 //			}	
 			
-			//System.out.println(host+" ÁÚ¾ÓÁĞ±í   "+hostList);
+			//System.out.println(host+" é‚»å±…åˆ—è¡¨   "+hostList);
 			return neighborHosts;
 		}
 		
-//		public List<DTNHost> getNeighbors(DTNHost host, double time){//»ñÈ¡Ö¸¶¨Ê±¼äµÄÁÚ¾Ó½Úµã(Í¬Ê±°üº¬Ô¤²âµ½TTLÊ±¼äÄÚµÄÁÚ¾Ó)
+//		public List<DTNHost> getNeighbors(DTNHost host, double time){//è·å–æŒ‡å®šæ—¶é—´çš„é‚»å±…èŠ‚ç‚¹(åŒæ—¶åŒ…å«é¢„æµ‹åˆ°TTLæ—¶é—´å†…çš„é‚»å±…)
 //			int num = (int)((time-SimClock.getTime())/updateInterval);
 //			time = SimClock.getTime()+num*updateInterval;
 //			
-//			if (time > SimClock.getTime()+msgTtl*60){//¼ì²éÊäÈëµÄÊ±¼äÊÇ·ñ³¬¹ıÔ¤²âÊ±¼ä
-//				//assert false :"³¬³öÔ¤²âÊ±¼ä";
+//			if (time > SimClock.getTime()+msgTtl*60){//æ£€æŸ¥è¾“å…¥çš„æ—¶é—´æ˜¯å¦è¶…è¿‡é¢„æµ‹æ—¶é—´
+//				//assert false :"è¶…å‡ºé¢„æµ‹æ—¶é—´";
 //				time = SimClock.getTime()+msgTtl*60;
 //			}
 //			
@@ -1452,24 +1452,24 @@ public class NetGridRouter extends ActiveRouter{
 //			GridCell cell = ginterfaces.get(host.getInterface(1));
 //			int[] number = cell.getNumber();
 //			
-//			List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//ËùÓĞÁÚ¾ÓµÄÍø¸ñ£¨µ±Ç°Ê±¿Ì£©
-//			List<DTNHost> hostList = new ArrayList<DTNHost>();//(ÁÚ¾ÓÍø¸ñÄÚµÄ½Úµã¼¯ºÏ)
-//			assert cellmap.containsKey(time):" Ê±¼ä´íÎó ";
+//			List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//æ‰€æœ‰é‚»å±…çš„ç½‘æ ¼ï¼ˆå½“å‰æ—¶åˆ»ï¼‰
+//			List<DTNHost> hostList = new ArrayList<DTNHost>();//(é‚»å±…ç½‘æ ¼å†…çš„èŠ‚ç‚¹é›†åˆ)
+//			assert cellmap.containsKey(time):" æ—¶é—´é”™è¯¯ ";
 //			for (GridCell c : cellList){
-//				if (cellmap.get(time).containsKey(c))//Èç¹û²»°üº¬£¬ÕâËµÃ÷´ËÁÚ¾ÓÍø¸ñÎª¿Õ£¬ÀïÃæ²»º¬ÈÎºÎ½Úµã
+//				if (cellmap.get(time).containsKey(c))//å¦‚æœä¸åŒ…å«ï¼Œè¿™è¯´æ˜æ­¤é‚»å±…ç½‘æ ¼ä¸ºç©ºï¼Œé‡Œé¢ä¸å«ä»»ä½•èŠ‚ç‚¹
 //					hostList.addAll(cellmap.get(time).get(c));
 //			}	
-//			if (hostList.contains(host))//°Ñ×ÔÉí½ÚµãÈ¥µô
+//			if (hostList.contains(host))//æŠŠè‡ªèº«èŠ‚ç‚¹å»æ‰
 //				hostList.remove(host);
 //			
 //			//double t1 = System.currentTimeMillis();
 //			//System.out.println("search cost"+(t1-t0));
-//			//System.out.println(host+" ÁÚ¾ÓÁĞ±í   "+hostList);
+//			//System.out.println(host+" é‚»å±…åˆ—è¡¨   "+hostList);
 //			return hostList;
 //		}
 
 		
-//		public Tuple<HashMap<DTNHost, List<Double>>, //neiList ÎªÒÑ¾­¼ÆËã³öµÄµ±Ç°ÁÚ¾Ó½ÚµãÁĞ±í
+//		public Tuple<HashMap<DTNHost, List<Double>>, //neiList ä¸ºå·²ç»è®¡ç®—å‡ºçš„å½“å‰é‚»å±…èŠ‚ç‚¹åˆ—è¡¨
 //			HashMap<DTNHost, List<Double>>> getFutureNeighbors(List<DTNHost> neiList, DTNHost host, double time){
 //			int num = (int)((time-SimClock.getTime())/updateInterval);
 //			time = SimClock.getTime()+num*updateInterval;	
@@ -1479,75 +1479,75 @@ public class NetGridRouter extends ActiveRouter{
 //			for (DTNHost neiHost : neiList){
 //				List<Double> t= new ArrayList<Double>();
 //				t.add(SimClock.getTime());
-//				startTime.put(neiHost, t);//Ìí¼ÓÒÑ´æÔÚÁÚ¾Ó½ÚµãµÄ¿ªÊ¼Ê±¼ä
+//				startTime.put(neiHost, t);//æ·»åŠ å·²å­˜åœ¨é‚»å±…èŠ‚ç‚¹çš„å¼€å§‹æ—¶é—´
 //			}
 //			
-//			List<DTNHost> futureList = new ArrayList<DTNHost>();//(ÁÚ¾ÓÍø¸ñÄÚµÄÎ´À´½Úµã¼¯ºÏ)
-//			List<NetworkInterface> futureNeiList = new ArrayList<NetworkInterface>();//(Ô¤²âÎ´À´ÁÚ¾ÓµÄ½Úµã¼¯ºÏ)
+//			List<DTNHost> futureList = new ArrayList<DTNHost>();//(é‚»å±…ç½‘æ ¼å†…çš„æœªæ¥èŠ‚ç‚¹é›†åˆ)
+//			List<NetworkInterface> futureNeiList = new ArrayList<NetworkInterface>();//(é¢„æµ‹æœªæ¥é‚»å±…çš„èŠ‚ç‚¹é›†åˆ)
 //			
 //			
-//			Collection<DTNHost> temporalNeighborsBefore = startTime.keySet();//Ç°Ò»Ê±¿ÌµÄÁÚ¾Ó£¬Í¨¹ı½»²æ¶Ô±ÈÕâÒ»Ê±¿ÌµÄÁÚ¾Ó£¬¾ÍÖªµÀÄÄĞ©ÊÇĞÂ¼ÓÈëµÄ£¬ÄÄĞ©ÊÇĞÂÀë¿ªµÄ			
-//			Collection<DTNHost> temporalNeighborsNow = new ArrayList<DTNHost>();//ÓÃÓÚ¼ÇÂ¼µ±Ç°Ê±¿ÌµÄÁÚ¾Ó
+//			Collection<DTNHost> temporalNeighborsBefore = startTime.keySet();//å‰ä¸€æ—¶åˆ»çš„é‚»å±…ï¼Œé€šè¿‡äº¤å‰å¯¹æ¯”è¿™ä¸€æ—¶åˆ»çš„é‚»å±…ï¼Œå°±çŸ¥é“å“ªäº›æ˜¯æ–°åŠ å…¥çš„ï¼Œå“ªäº›æ˜¯æ–°ç¦»å¼€çš„			
+//			Collection<DTNHost> temporalNeighborsNow = new ArrayList<DTNHost>();//ç”¨äºè®°å½•å½“å‰æ—¶åˆ»çš„é‚»å±…
 //			for (; time < SimClock.getTime() + msgTtl*60; time += updateInterval){
 //				
-//				HashMap<NetworkInterface, GridCell> ginterfaces = gridmap.get(time);//È¡³ötimeÊ±¿ÌµÄÍø¸ñ±í
-//				GridCell cell = ginterfaces.get(host.getInterface(1));//ÕÒµ½´ËÊ±Ö¸¶¨½ÚµãËù´¦µÄÍø¸ñÎ»ÖÃ
+//				HashMap<NetworkInterface, GridCell> ginterfaces = gridmap.get(time);//å–å‡ºtimeæ—¶åˆ»çš„ç½‘æ ¼è¡¨
+//				GridCell cell = ginterfaces.get(host.getInterface(1));//æ‰¾åˆ°æ­¤æ—¶æŒ‡å®šèŠ‚ç‚¹æ‰€å¤„çš„ç½‘æ ¼ä½ç½®
 //				
 //				int[] number = cell.getNumber();
-//				List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//»ñÈ¡ËùÓĞÁÚ¾ÓµÄÍø¸ñ£¨µ±Ç°Ê±¿Ì£©
+//				List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//è·å–æ‰€æœ‰é‚»å±…çš„ç½‘æ ¼ï¼ˆå½“å‰æ—¶åˆ»ï¼‰
 //				
-//				for (GridCell c : cellList){	//±éÀúÔÚ²»Í¬Ê±¼äÎ¬¶ÈÉÏ£¬Ö¸¶¨½ÚµãÖÜÎ§Íø¸ñµÄÁÚ¾Ó
+//				for (GridCell c : cellList){	//éå†åœ¨ä¸åŒæ—¶é—´ç»´åº¦ä¸Šï¼ŒæŒ‡å®šèŠ‚ç‚¹å‘¨å›´ç½‘æ ¼çš„é‚»å±…
 //					if (!cellmap.get(time).containsKey(c))
 //						continue;
 //					temporalNeighborsNow.addAll(cellmap.get(time).get(c));
-//					for (DTNHost ni : cellmap.get(time).get(c)){//¼ì²éµ±Ç°Ô¤²âÊ±¼äµã£¬ËùÓĞµÄÁÚ¾Ó½Úµã
-//						if (ni == this.host)//ÅÅ³ı×ÔÉí½Úµã
+//					for (DTNHost ni : cellmap.get(time).get(c)){//æ£€æŸ¥å½“å‰é¢„æµ‹æ—¶é—´ç‚¹ï¼Œæ‰€æœ‰çš„é‚»å±…èŠ‚ç‚¹
+//						if (ni == this.host)//æ’é™¤è‡ªèº«èŠ‚ç‚¹
 //							continue;
-//						if (!neiList.contains(ni))//Èç¹ûÏÖÓĞÁÚ¾ÓÖĞÃ»ÓĞ£¬ÔòÒ»¶¨ÊÇÎ´À´½«µ½´ïµÄÁÚ¾Ó					
-//							futureList.add(ni); //´ËÎªÎ´À´½«»áµ½´ïµÄÁÚ¾Ó(µ±È»¶ÔÓÚµ±Ç°ÒÑÓĞµÄÁÚ¾Ó£¬Ò²¿ÉÄÜ»áÖĞÍ¾Àë¿ª£¬È»ºóÔÙ»ØÀ´)
+//						if (!neiList.contains(ni))//å¦‚æœç°æœ‰é‚»å±…ä¸­æ²¡æœ‰ï¼Œåˆ™ä¸€å®šæ˜¯æœªæ¥å°†åˆ°è¾¾çš„é‚»å±…					
+//							futureList.add(ni); //æ­¤ä¸ºæœªæ¥å°†ä¼šåˆ°è¾¾çš„é‚»å±…(å½“ç„¶å¯¹äºå½“å‰å·²æœ‰çš„é‚»å±…ï¼Œä¹Ÿå¯èƒ½ä¼šä¸­é€”ç¦»å¼€ï¼Œç„¶åå†å›æ¥)
 //										
-//						/**Èç¹ûÊÇÎ´À´µ½´ïµÄÁÚ¾Ó£¬Ö±½Óget»á·µ»Ø¿ÕÖ¸Õë£¬ËùÒÔÒªÏÈ¼ÓstartTimeºÍleaveTimeÅĞ¶Ï**/
+//						/**å¦‚æœæ˜¯æœªæ¥åˆ°è¾¾çš„é‚»å±…ï¼Œç›´æ¥getä¼šè¿”å›ç©ºæŒ‡é’ˆï¼Œæ‰€ä»¥è¦å…ˆåŠ startTimeå’ŒleaveTimeåˆ¤æ–­**/
 //						if (startTime.containsKey(ni)){
 //							if (leaveTime.isEmpty())
 //								break;
-//							if (startTime.get(ni).size() == leaveTime.get(ni).size()){//Èç¹û²»ÏàµÈÔòÒ»¶¨ÊÇÁÚ¾Ó½ÚµãÀë¿ªµÄÇé¿ö					
+//							if (startTime.get(ni).size() == leaveTime.get(ni).size()){//å¦‚æœä¸ç›¸ç­‰åˆ™ä¸€å®šæ˜¯é‚»å±…èŠ‚ç‚¹ç¦»å¼€çš„æƒ…å†µ					
 //								List<Double> mutipleTime= leaveTime.get(ni);
 //								mutipleTime.add(time);
-//								startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+//								startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 //							}
-//							/*if (leaveTime.containsKey(ni)){//ÓĞÁ½ÖÖÇé¿ö£¬Ò»ÖÖÔÚÔ¤²âÊ±¼ä¶ÎÄÚ´ËÁÚ¾Ó»áÀë¿ª£¬ÁíÒ»ÖÖÇé¿öÊÇ´ËÁÚ¾Ó²»½öÔÚ´ËÊ±¼ä¶ÎÄÚ»áÀë¿ª»¹»á»ØÀ´
-//								if (startTime.get(ni).size() == leaveTime.get(ni).size()){//Èç¹û²»ÏàµÈÔòÒ»¶¨ÊÇÁÚ¾Ó½ÚµãÀë¿ªµÄÇé¿ö					
+//							/*if (leaveTime.containsKey(ni)){//æœ‰ä¸¤ç§æƒ…å†µï¼Œä¸€ç§åœ¨é¢„æµ‹æ—¶é—´æ®µå†…æ­¤é‚»å±…ä¼šç¦»å¼€ï¼Œå¦ä¸€ç§æƒ…å†µæ˜¯æ­¤é‚»å±…ä¸ä»…åœ¨æ­¤æ—¶é—´æ®µå†…ä¼šç¦»å¼€è¿˜ä¼šå›æ¥
+//								if (startTime.get(ni).size() == leaveTime.get(ni).size()){//å¦‚æœä¸ç›¸ç­‰åˆ™ä¸€å®šæ˜¯é‚»å±…èŠ‚ç‚¹ç¦»å¼€çš„æƒ…å†µ					
 //									List<Double> mutipleTime= leaveTime.get(ni);
 //									mutipleTime.add(time);
-//									startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+//									startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 //								}
 //								else{
 //									List<Double> mutipleTime= leaveTime.get(ni);
 //									mutipleTime.add(time);
-//									leaveTime.put(ni, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+//									leaveTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 //								}	
 //							}
 //							else{
 //								List<Double> mutipleTime= new ArrayList<Double>();
 //								mutipleTime.add(time);
-//								leaveTime.put(ni, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+//								leaveTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 //							}*/
 //						}
 //						else{
-//							//System.out.println(this.host+" ³öÏÖÔ¤²â½Úµã: "+ni+" Ê±¼ä  "+time);
+//							//System.out.println(this.host+" å‡ºç°é¢„æµ‹èŠ‚ç‚¹: "+ni+" æ—¶é—´  "+time);
 //							List<Double> mutipleTime= new ArrayList<Double>();
 //							mutipleTime.add(time);
-//							startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+//							startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 //						}
-//						/**Èç¹ûÊÇÎ´À´µ½´ïµÄÁÚ¾Ó£¬Ö±½Óget»á·µ»Ø¿ÕÖ¸Õë£¬ËùÒÔÒªÏÈ¼ÓstartTimeºÍleaveTimeÅĞ¶Ï**/
+//						/**å¦‚æœæ˜¯æœªæ¥åˆ°è¾¾çš„é‚»å±…ï¼Œç›´æ¥getä¼šè¿”å›ç©ºæŒ‡é’ˆï¼Œæ‰€ä»¥è¦å…ˆåŠ startTimeå’ŒleaveTimeåˆ¤æ–­**/
 //					}	
 //				}
 //				
-//				for (DTNHost h : temporalNeighborsBefore){//½»²æ¶Ô±ÈÕâÒ»Ê±¿ÌºÍÉÏÒ»Ê±¿ÌµÄÁÚ¾Ó½Úµã£¬´Ó¶øÕÒ³öÀë¿ªµÄÁÚ¾Ó½Úµã
+//				for (DTNHost h : temporalNeighborsBefore){//äº¤å‰å¯¹æ¯”è¿™ä¸€æ—¶åˆ»å’Œä¸Šä¸€æ—¶åˆ»çš„é‚»å±…èŠ‚ç‚¹ï¼Œä»è€Œæ‰¾å‡ºç¦»å¼€çš„é‚»å±…èŠ‚ç‚¹
 //					if (!temporalNeighborsNow.contains(h)){
 //						List<Double> mutipleTime= leaveTime.get(h);
 //						mutipleTime.add(time);
-//						leaveTime.put(h, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+//						leaveTime.put(h, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 //					}						
 //				}
 //				temporalNeighborsBefore.clear();
@@ -1555,7 +1555,7 @@ public class NetGridRouter extends ActiveRouter{
 //				temporalNeighborsNow.clear();	
 //			}
 //			
-//			Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime= //¶şÔª×éºÏ²¢¿ªÊ¼ºÍ½áÊøÊ±¼ä
+//			Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime= //äºŒå…ƒç»„åˆå¹¶å¼€å§‹å’Œç»“æŸæ—¶é—´
 //					new Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>>(startTime, leaveTime); 
 //			
 //			
@@ -1564,12 +1564,12 @@ public class NetGridRouter extends ActiveRouter{
 
 
 		public List<GridCell> getNeighborCells(int row, int col, int z){
-			//HashMap<GridCell, List<DTNHost>> cellToHost = this.gridCellToHosts;//»ñÈ¡timeÊ±¿ÌµÄÈ«¾ÖÍø¸ñ±í
+			//HashMap<GridCell, List<DTNHost>> cellToHost = this.gridCellToHosts;//è·å–timeæ—¶åˆ»çš„å…¨å±€ç½‘æ ¼è¡¨
 			List<GridCell> GC = new ArrayList<GridCell>();
 			/***********************************************************************/
 			switch(this.gridLayer){
-			case 1 : //Ö»Õ¼ÓĞ%15.5µÄÌå»ı
-			/*Á½²ãÍø¸ñ·Ö¸î*/
+			case 1 : //åªå æœ‰%15.5çš„ä½“ç§¯
+			/*ä¸¤å±‚ç½‘æ ¼åˆ†å‰²*/
 				for (int i = -1; i < 2; i += 1){
 					for (int j = -1; j < 2; j += 1){
 						for (int k = -1; k < 2; k += 1){
@@ -1578,8 +1578,8 @@ public class NetGridRouter extends ActiveRouter{
 					}
 				}
 				break;
-			case 2 : {//m=1Ê±£¬Ö»Õ¼ÓĞ%28.5µÄÌå»ı
-			/*Èı²ãÍø¸ñ·Ö¸î*/
+			case 2 : {//m=1æ—¶ï¼Œåªå æœ‰%28.5çš„ä½“ç§¯
+			/*ä¸‰å±‚ç½‘æ ¼åˆ†å‰²*/
 				for (int i = -3; i <= 3; i += 1){
 					for (int j = -3; j <= 3; j += 1){
 						for (int k = -3; k <= 3; k += 1){
@@ -1588,7 +1588,7 @@ public class NetGridRouter extends ActiveRouter{
 						}
 					}
 				}
-				int m = 1;//Ä¬ÈÏm = 1;
+				int m = 1;//é»˜è®¤m = 1;
 				for (int j = -m; j <= m; j += 1){
 					for (int k = -m; k <= m; k += 1){
 						if (boundaryCheck(row+4,col+j,z+k)){
@@ -1628,7 +1628,7 @@ public class NetGridRouter extends ActiveRouter{
 				}	
 			}
 			break;
-			default :/*Á½²ãÍø¸ñ·Ö¸î*/
+			default :/*ä¸¤å±‚ç½‘æ ¼åˆ†å‰²*/
 				for (int i = -1; i < 2; i += 1){
 					for (int j = -1; j < 2; j += 1){
 						for (int k = -1; k < 2; k += 1){
@@ -1638,8 +1638,8 @@ public class NetGridRouter extends ActiveRouter{
 				}
 				break;
 			
-			case 3:{//n1=4,n2=2Ê±£¬Ö»Õ¼ÓĞ%36µÄÌå»ı
-				/*ËÄ²ã²ãÍø¸ñ·Ö¸î*/
+			case 3:{//n1=4,n2=2æ—¶ï¼Œåªå æœ‰%36çš„ä½“ç§¯
+				/*å››å±‚å±‚ç½‘æ ¼åˆ†å‰²*/
 				for (int i = -7; i <= 7; i += 1){
 					for (int j = -7; j <= 7; j += 1){
 						for (int k = -7; k <= 7; k += 1){
@@ -1649,7 +1649,7 @@ public class NetGridRouter extends ActiveRouter{
 						}
 					}
 				}
-				int n1 = 2;//Ä¬ÈÏn1 = 2;
+				int n1 = 2;//é»˜è®¤n1 = 2;
 				for (int j = -n1; j <= n1; j += 1){
 					for (int k = -n1; k <= n1; k += 1){
 						if (boundaryCheck(row+8,col+j,z+k)){
@@ -1694,7 +1694,7 @@ public class NetGridRouter extends ActiveRouter{
 					}
 				}
 				//
-				int n2 = 1;//Ä¬ÈÏn2 = 1;
+				int n2 = 1;//é»˜è®¤n2 = 1;
 				for (int j = -n2; j <= n2; j += 1){
 					for (int k = -n2; k <= n2; k += 1){
 						if (boundaryCheck(row+9,col+j,z+k)){
@@ -1740,7 +1740,7 @@ public class NetGridRouter extends ActiveRouter{
 				}
 			}
 		}
-			//GC.add(cells[row][col][z]);//ĞŞ¸ÄÁÚ¾ÓÍø¸ñµÄÌõ¼ş£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
+			//GC.add(cells[row][col][z]);//ä¿®æ”¹é‚»å±…ç½‘æ ¼çš„æ¡ä»¶ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼
 			/***********************************************************************/
 			return GC;
 		}
@@ -1759,14 +1759,14 @@ public class NetGridRouter extends ActiveRouter{
 		}
 		
 		/**
-		 * ²âÊÔĞÂµÄÍø¸ñ»ñÈ¡·½Ê½ÏÂ£¬Â·ÓÉËã·¨µÄĞÔÄÜ
+		 * æµ‹è¯•æ–°çš„ç½‘æ ¼è·å–æ–¹å¼ä¸‹ï¼Œè·¯ç”±ç®—æ³•çš„æ€§èƒ½
 		 * @param simClock
 		 */
 		public void updateNetGridInfo_without_OrbitCalculation_without_gridTable(){
-			//if (gridLocation.isEmpty())//³õÊ¼»¯Ö»Ö´ĞĞÒ»´Î
+			//if (gridLocation.isEmpty())//åˆå§‹åŒ–åªæ‰§è¡Œä¸€æ¬¡
 			//	initializeGridLocation();
 			
-			HashMap<NetworkInterface, GridCell> ginterfaces = new HashMap<NetworkInterface, GridCell>();//Ã¿´ÎÇå¿Õ;			
+			HashMap<NetworkInterface, GridCell> ginterfaces = new HashMap<NetworkInterface, GridCell>();//æ¯æ¬¡æ¸…ç©º;			
 			HashMap<GridCell, List<DTNHost>> cellToHost = new HashMap<GridCell, List<DTNHost>>();
 			
 			for (DTNHost host : hosts){
@@ -1794,14 +1794,14 @@ public class NetGridRouter extends ActiveRouter{
 		}
 		
 		/**
-		 * ÌáÇ°¼ÆËãÁË¸÷¸ö¹ìµÀÔÚÒ»¸öÖÜÆÚÄÚµÄÍø¸ñÀú±éÇé¿ö£¬Éú³É¹ìµÀ¶ÔÓ¦µÄÀú¾­Íø¸ñ±í£¬¸ù¾İ´Ë±í¾Í¿ÉÒÔ¼ÆËãÏà»¥Ö®¼äÎ´À´µÄ¹ØÏµ£¬¶øÎŞĞèÔÙ¼ÆËã¹ìµÀ
+		 * æå‰è®¡ç®—äº†å„ä¸ªè½¨é“åœ¨ä¸€ä¸ªå‘¨æœŸå†…çš„ç½‘æ ¼å†éæƒ…å†µï¼Œç”Ÿæˆè½¨é“å¯¹åº”çš„å†ç»ç½‘æ ¼è¡¨ï¼Œæ ¹æ®æ­¤è¡¨å°±å¯ä»¥è®¡ç®—ç›¸äº’ä¹‹é—´æœªæ¥çš„å…³ç³»ï¼Œè€Œæ— éœ€å†è®¡ç®—è½¨é“
 		 */
 		public void updateNetGridInfo_without_OrbitCalculation(double simClock){
-			if (gridLocation.isEmpty())//³õÊ¼»¯Ö»Ö´ĞĞÒ»´Î
+			if (gridLocation.isEmpty())//åˆå§‹åŒ–åªæ‰§è¡Œä¸€æ¬¡
 				initializeGridLocation();
 			
-			HashMap<NetworkInterface, GridCell> ginterfaces = new HashMap<NetworkInterface, GridCell>();//Ã¿´ÎÇå¿Õ;
-			//ginterfaces.clear();//Ã¿´ÎÇå¿Õ
+			HashMap<NetworkInterface, GridCell> ginterfaces = new HashMap<NetworkInterface, GridCell>();//æ¯æ¬¡æ¸…ç©º;
+			//ginterfaces.clear();//æ¯æ¬¡æ¸…ç©º
 			//Coord location = new Coord(0,0); 	// where is the host
 			//double simClock = SimClock.getTime();
 			//System.out.println("update time:  "+ simClock);
@@ -1810,27 +1810,27 @@ public class NetGridRouter extends ActiveRouter{
 			
 			HashMap<GridCell, List<DTNHost>> cellToHost = new HashMap<GridCell, List<DTNHost>>();
 			for (DTNHost host : hosts){
-				/**¼ÇÂ¼¸÷¸ö½ÚµãËù¾­¹ıµÄÍø¸ñ**/
+				/**è®°å½•å„ä¸ªèŠ‚ç‚¹æ‰€ç»è¿‡çš„ç½‘æ ¼**/
 				List<GridCell> gridCellList = this.gridLocation.get(host);
-				/**¼ÇÂ¼¸÷¸ö½ÚµãËù¾­¹ıÍø¸ñÊ±¶ÔÓ¦µÄ½øÈëÊ±¼ä**/
+				/**è®°å½•å„ä¸ªèŠ‚ç‚¹æ‰€ç»è¿‡ç½‘æ ¼æ—¶å¯¹åº”çš„è¿›å…¥æ—¶é—´**/
 				List<Double> timeList = this.gridTime.get(host);
 
 				if (gridCellList.size() != timeList.size()){
-					throw new SimError("¹ìµÀÔ¤²âµÃµ½µÄÊı¾İÓĞÎÊÌâ£¡");	
+					throw new SimError("è½¨é“é¢„æµ‹å¾—åˆ°çš„æ•°æ®æœ‰é—®é¢˜ï¼");	
 				}
-				/**ÎÀĞÇ¹ìµÀÖÜÆÚ**/
+				/**å«æ˜Ÿè½¨é“å‘¨æœŸ**/
 				double period = this.periodMap.get(host);
 				double t0 = simClock;
 				GridCell cell = null;
 				boolean label = false;
 					
 				if (simClock > period)
-					t0 = t0 % period;//´óÓÚÖÜÆÚ¾ÍÈ¡Óà²Ù×÷
+					t0 = t0 % period;//å¤§äºå‘¨æœŸå°±å–ä½™æ“ä½œ
 				
 				if (timeList.get(0) > timeList.get(timeList.size() - 1)){
 					for (int iterator = 1; iterator < timeList.size(); iterator++){
 						if (timeList.get(iterator) > t0){
-							/**×¢Òâ£¬ÕâÀïiterator - 1ÊÇÃ»ÓĞ´íµÄ£¬ÒòÎª¶ÔÓÚiterator¸öÀ´Ëµ£¬ÊÇÏÂÒ»¸öÍø¸ñ½øÈëµÄÊ±¼ä£¬Èç¹ûifÌõ¼şÂú×ã£¬ÄÇÃ´´ËÊ±¿Ì½ÚµãÓ¦¸Ã´¦ÔÚÇ°Ò»¸öÍø¸ñÎ»ÖÃµ±ÖĞ**/
+							/**æ³¨æ„ï¼Œè¿™é‡Œiterator - 1æ˜¯æ²¡æœ‰é”™çš„ï¼Œå› ä¸ºå¯¹äºiteratorä¸ªæ¥è¯´ï¼Œæ˜¯ä¸‹ä¸€ä¸ªç½‘æ ¼è¿›å…¥çš„æ—¶é—´ï¼Œå¦‚æœifæ¡ä»¶æ»¡è¶³ï¼Œé‚£ä¹ˆæ­¤æ—¶åˆ»èŠ‚ç‚¹åº”è¯¥å¤„åœ¨å‰ä¸€ä¸ªç½‘æ ¼ä½ç½®å½“ä¸­**/
 							int[] coordOfNetgrid = gridCellList.get(iterator - 1).getNumber();
 							cell = this.cells[coordOfNetgrid[0]][coordOfNetgrid[1]][coordOfNetgrid[2]];
 							//cell = gridCellList.get(iterator - 1);
@@ -1838,7 +1838,7 @@ public class NetGridRouter extends ActiveRouter{
 							break;
 						}
 					}
-					/**ÅĞ¶ÏÊÇ²»ÊÇ´¦ÓÚ¹ìµÀÖÜÆÚµÄÄ©Î²Ê±¿Ì£¬±ß½çÎ»ÖÃ**/
+					/**åˆ¤æ–­æ˜¯ä¸æ˜¯å¤„äºè½¨é“å‘¨æœŸçš„æœ«å°¾æ—¶åˆ»ï¼Œè¾¹ç•Œä½ç½®**/
 					if (t0 >= timeList.get(0) & cell == null){
 						int[] coordOfNetgrid = gridCellList.get(0).getNumber();
 						cell = this.cells[coordOfNetgrid[0]][coordOfNetgrid[1]][coordOfNetgrid[2]];
@@ -1854,7 +1854,7 @@ public class NetGridRouter extends ActiveRouter{
 				else{
 					for (int iterator = 1; iterator < timeList.size(); iterator++){
 						if (timeList.get(iterator) > t0){
-							/**×¢Òâ£¬ÕâÀïiterator - 1ÊÇÃ»ÓĞ´íµÄ£¬ÒòÎª¶ÔÓÚiterator¸öÀ´Ëµ£¬ÊÇÏÂÒ»¸öÍø¸ñ½øÈëµÄÊ±¼ä£¬Èç¹ûifÌõ¼şÂú×ã£¬ÄÇÃ´´ËÊ±¿Ì½ÚµãÓ¦¸Ã´¦ÔÚÇ°Ò»¸öÍø¸ñÎ»ÖÃµ±ÖĞ**/
+							/**æ³¨æ„ï¼Œè¿™é‡Œiterator - 1æ˜¯æ²¡æœ‰é”™çš„ï¼Œå› ä¸ºå¯¹äºiteratorä¸ªæ¥è¯´ï¼Œæ˜¯ä¸‹ä¸€ä¸ªç½‘æ ¼è¿›å…¥çš„æ—¶é—´ï¼Œå¦‚æœifæ¡ä»¶æ»¡è¶³ï¼Œé‚£ä¹ˆæ­¤æ—¶åˆ»èŠ‚ç‚¹åº”è¯¥å¤„åœ¨å‰ä¸€ä¸ªç½‘æ ¼ä½ç½®å½“ä¸­**/
 							int[] coordOfNetgrid = gridCellList.get(iterator - 1).getNumber();
 							cell = this.cells[coordOfNetgrid[0]][coordOfNetgrid[1]][coordOfNetgrid[2]];
 							//cell = gridCellList.get(iterator - 1);
@@ -1862,7 +1862,7 @@ public class NetGridRouter extends ActiveRouter{
 							break;
 						}
 					}
-					/**ÅĞ¶ÏÊÇ²»ÊÇ´¦ÓÚ¹ìµÀÖÜÆÚµÄÄ©Î²Ê±¿Ì£¬±ß½çÎ»ÖÃ**/
+					/**åˆ¤æ–­æ˜¯ä¸æ˜¯å¤„äºè½¨é“å‘¨æœŸçš„æœ«å°¾æ—¶åˆ»ï¼Œè¾¹ç•Œä½ç½®**/
 					if (t0 >= timeList.get(timeList.size() - 1) & cell == null){
 						int[] coordOfNetgrid = gridCellList.get(timeList.size() - 1).getNumber();
 						cell = this.cells[coordOfNetgrid[0]][coordOfNetgrid[1]][coordOfNetgrid[2]];
@@ -1877,19 +1877,19 @@ public class NetGridRouter extends ActiveRouter{
 //						label = true;
 //						break;
 //					}
-//					iterator++;//ÕÒµ½ÓëtimeListÊ±¼ä¶ÔÓ¦µÄÍø¸ñËùÔÚÎ»ÖÃ,iterator ´ú±íÔÚÕâÁ½¸ölistÖĞµÄÖ¸Õë						
+//					iterator++;//æ‰¾åˆ°ä¸timeListæ—¶é—´å¯¹åº”çš„ç½‘æ ¼æ‰€åœ¨ä½ç½®,iterator ä»£è¡¨åœ¨è¿™ä¸¤ä¸ªlistä¸­çš„æŒ‡é’ˆ						
 //				}				
 				//System.out.println(host+"  "+cell+" time "+SimClock.getTime());
 
 				if (label != true){
-					/**Èç¹ûÇ°ÃæÃ»ÓĞÕÒµ½£¬¾ÍËµÃ÷´ËÊ±½ÚµãÊÇÔÚÒ»¸ö¹ìµÀÖÜÆÚÄÚµÄ£¬´¦ÓÚ×îºóÒ»¸öÍø¸ñºÍµÚÒ»¸öÍø¸ñµÄ½»½ç´¦,Ó¦¸ÃÈ¡×îºóÒ»¸öÍø¸ñ**/
+					/**å¦‚æœå‰é¢æ²¡æœ‰æ‰¾åˆ°ï¼Œå°±è¯´æ˜æ­¤æ—¶èŠ‚ç‚¹æ˜¯åœ¨ä¸€ä¸ªè½¨é“å‘¨æœŸå†…çš„ï¼Œå¤„äºæœ€åä¸€ä¸ªç½‘æ ¼å’Œç¬¬ä¸€ä¸ªç½‘æ ¼çš„äº¤ç•Œå¤„,åº”è¯¥å–æœ€åä¸€ä¸ªç½‘æ ¼**/
 //					int[] coordOfNetgrid = gridCellList.get(timeList.size() - 1).getNumber();
 //					cell = this.cells[coordOfNetgrid[0]][coordOfNetgrid[1]][coordOfNetgrid[2]];
 					System.out.println(simClock+"  "+host);
 					throw new SimError("grid calculation error");
 				}
 				
-//				/**ÑéÖ¤ÓÃ**/
+//				/**éªŒè¯ç”¨**/
 //				int[] coordOfNetgrid = cell.getNumber();
 //				int[] TRUEcoordOfNetgrid = this.getGridCellFromCoordAtTime(host, simClock).getNumber();
 //				if (!(TRUEcoordOfNetgrid[0] == coordOfNetgrid[0] & TRUEcoordOfNetgrid[0] == coordOfNetgrid[0] & TRUEcoordOfNetgrid[0] == coordOfNetgrid[0])){
@@ -1897,7 +1897,7 @@ public class NetGridRouter extends ActiveRouter{
 //					//cell = this.getGridCellFromCoord(host, simClock);
 //					//throw new SimError("grid calculation error");	
 //				}					
-//				/**ÑéÖ¤ÓÃ**/
+//				/**éªŒè¯ç”¨**/
 
 				ginterfaces.put(host.getInterface(1), cell);
 				
@@ -1913,19 +1913,19 @@ public class NetGridRouter extends ActiveRouter{
 			
 			gridCellToHosts.putAll(cellToHost);
 			interfaceToGridCell.putAll(ginterfaces);
-			//ginterfaces = new HashMap<NetworkInterface, GridCell>();//Ã¿´ÎÇå¿Õ
+			//ginterfaces = new HashMap<NetworkInterface, GridCell>();//æ¯æ¬¡æ¸…ç©º
 			
 			
 //			cellmap.put(simClock, cellToHost);
-//			gridmap.put(simClock, ginterfaces);//Ô¤²âÎ´À´timeÊ±¼äÀï½ÚµãºÍÍø¸ñÖ®¼äµÄ¶ÔÓ¦¹ØÏµ
-			//ginterfaces.clear();//Ã¿´ÎÇå¿Õ
+//			gridmap.put(simClock, ginterfaces);//é¢„æµ‹æœªæ¥timeæ—¶é—´é‡ŒèŠ‚ç‚¹å’Œç½‘æ ¼ä¹‹é—´çš„å¯¹åº”å…³ç³»
+			//ginterfaces.clear();//æ¯æ¬¡æ¸…ç©º
 			
-			//CreateGrid(cellSize);//°üº¬cellsµÄnewºÍginterfacesµÄnew
+			//CreateGrid(cellSize);//åŒ…å«cellsçš„newå’Œginterfacesçš„new
 				
 		}		
 	
 		/**
-		 * ¸ù¾İ×ø±êcÕÒµ½cËùÊôµÄÍø¸ñ
+		 * æ ¹æ®åæ ‡cæ‰¾åˆ°cæ‰€å±çš„ç½‘æ ¼
 		 * @param c
 		 * @return
 		 */
@@ -1947,12 +1947,12 @@ public class NetGridRouter extends ActiveRouter{
 		}
 		
 		/**
-		 * ĞÂ½¨ÄÚ²¿Àà£¬ÓÃÓÚÊµÏÖÍø¸ñ»®·Ö£¬´æ´¢¸÷¸öÍø¸ñµÄÀëÉ¢×ø±ê
+		 * æ–°å»ºå†…éƒ¨ç±»ï¼Œç”¨äºå®ç°ç½‘æ ¼åˆ’åˆ†ï¼Œå­˜å‚¨å„ä¸ªç½‘æ ¼çš„ç¦»æ•£åæ ‡
 		 */
 		public class GridCell {
 			// how large array is initially chosen
 			private static final int EXPECTED_INTERFACE_COUNT = 18;
-			//private ArrayList<NetworkInterface> interfaces;//GridCell¾ÍÊÇÒÀ¿¿Î¬»¤ÍøÂç½Ó¿ÚÁĞ±í£¬À´¼ÇÂ¼ÔÚ´ËÍø¸ñÄÚµÄ½Úµã£¬¶ÔÓÚÈ«¾ÖÍø¸ñÀ´Ëµ£¬ĞèÒª±£Ö¤Í¬Ò»¸öÍøÂç½Ó¿Ú²»»áÍ¬Ê±³öÏÖÔÚÁ½¸öGridCellÖĞ
+			//private ArrayList<NetworkInterface> interfaces;//GridCellå°±æ˜¯ä¾é ç»´æŠ¤ç½‘ç»œæ¥å£åˆ—è¡¨ï¼Œæ¥è®°å½•åœ¨æ­¤ç½‘æ ¼å†…çš„èŠ‚ç‚¹ï¼Œå¯¹äºå…¨å±€ç½‘æ ¼æ¥è¯´ï¼Œéœ€è¦ä¿è¯åŒä¸€ä¸ªç½‘ç»œæ¥å£ä¸ä¼šåŒæ—¶å‡ºç°åœ¨ä¸¤ä¸ªGridCellä¸­
 			private int[] number;
 			
 			private GridCell() {

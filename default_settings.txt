@@ -5,7 +5,8 @@
 ## 0. Scenario and Overall settings
 	Scenario.name = satellite network simulation
 	Scenario.simulateConnections = true
-	Scenario.updateInterval = 0.005
+	#仿真引擎的单次更新间隔，值越小，执行精度越高，但效率越低
+	Scenario.updateInterval = 0.1
 	# 43200s == 12h
 	Scenario.endTime = 600
 
@@ -146,8 +147,7 @@
 			#Group.router = NetGridRouter
 			#Group.router = TwoLayerRouterBasedonGridRouter
 			#Group.router = DijsktraSearchBasedonTemporalGraph
-			#Group.router = SPNR
-			#Group.router = SPNRmodify
+			#Group.router = NetgridShortestPathRouter
 			#Group.router = SourceRoutingDijsktraSearchBasedonTemporalGraph
 			#Group.router = DirectDeliveryRouter
 			Group.router = ShortestPathFirstRouter

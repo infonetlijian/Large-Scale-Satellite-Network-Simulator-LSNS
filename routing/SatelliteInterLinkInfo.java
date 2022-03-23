@@ -25,7 +25,7 @@ public class SatelliteInterLinkInfo {
     public static final String INTERFACENAME_S = "Interface";
     /**
      * Decides the message transmitted through radio link or laser link
-     * according to this message size threshold£¬ -setting id ({@value})
+     * according to this message size thresholdï¼Œ -setting id ({@value})
      */
     public static final String MSG_SIZE_THRESHOLD_S = "MessageThreshold";
     /** indicates the type of link*/
@@ -39,25 +39,25 @@ public class SatelliteInterLinkInfo {
 	private SatelliteMovement sMovement;
 
     /** total number of LEO satellites*/
-    private static int LEO_TOTAL_SATELLITES;//×Ü½ÚµãÊı
+    private static int LEO_TOTAL_SATELLITES;//æ€»èŠ‚ç‚¹æ•°
     /** total number of LEO plane*/
-    private static int LEO_TOTAL_PLANE;//×Ü¹ìµÀÆ½ÃæÊı
+    private static int LEO_TOTAL_PLANE;//æ€»è½¨é“å¹³é¢æ•°
     /** number of hosts in each LEO plane*/
-    private static int LEO_NROF_S_EACHPLANE;//Ã¿¸öÆ½ÃæÉÏµÄÎÀĞÇÊı
+    private static int LEO_NROF_S_EACHPLANE;//æ¯ä¸ªå¹³é¢ä¸Šçš„å«æ˜Ÿæ•°
     
     /** total number of MEO satellites*/
-    private static int MEO_TOTAL_SATELLITES;//×Ü½ÚµãÊı
+    private static int MEO_TOTAL_SATELLITES;//æ€»èŠ‚ç‚¹æ•°
     /** total number of MEO plane*/
-    private static int MEO_TOTAL_PLANE;//×Ü¹ìµÀÆ½ÃæÊı
+    private static int MEO_TOTAL_PLANE;//æ€»è½¨é“å¹³é¢æ•°
     /** number of hosts in each MEO plane*/
-    private static int MEO_NROF_S_EACHPLANE;//Ã¿¸öÆ½ÃæÉÏµÄÎÀĞÇÊı
+    private static int MEO_NROF_S_EACHPLANE;//æ¯ä¸ªå¹³é¢ä¸Šçš„å«æ˜Ÿæ•°
     
     /** total number of GEO satellites*/
-    private static int GEO_TOTAL_SATELLITES;//×Ü½ÚµãÊı
+    private static int GEO_TOTAL_SATELLITES;//æ€»èŠ‚ç‚¹æ•°
     /** total number of GEO plane*/
-    private static int GEO_TOTAL_PLANE;//×Ü¹ìµÀÆ½ÃæÊı
+    private static int GEO_TOTAL_PLANE;//æ€»è½¨é“å¹³é¢æ•°
     /** number of hosts in each GEO plane*/
-    private static int GEO_NROF_S_EACHPLANE;//Ã¿¸öÆ½ÃæÉÏµÄÎÀĞÇÊı
+    private static int GEO_NROF_S_EACHPLANE;//æ¯ä¸ªå¹³é¢ä¸Šçš„å«æ˜Ÿæ•°
     
     /** store LEO cluster information */
     private LEOclusterInfo LEOci;
@@ -72,7 +72,7 @@ public class SatelliteInterLinkInfo {
      *  through radio link or laser link -setting id ({@value}*/
     private static int msgThreshold;
 	/** maximum connection betweent this node and node in the neighbor plane*/
-	public int nrofAllowConnectedHostInNeighborPlane = 2;//Éè¶¨ÁÚ¾Ó¹ìµÀÆ½Ãæ×î´óÔÊĞíµÄÁ¬½ÓÊı
+	public int nrofAllowConnectedHostInNeighborPlane = 2;//è®¾å®šé‚»å±…è½¨é“å¹³é¢æœ€å¤§å…è®¸çš„è¿æ¥æ•°
 
     public SatelliteInterLinkInfo(DTNHost host, String satelliteType){
     	this.host = host;
@@ -82,20 +82,20 @@ public class SatelliteInterLinkInfo {
     	msgThreshold = setting.getInt(MSG_SIZE_THRESHOLD_S);
     	//LEO  	
         Settings s = new Settings(GROUPNAME_S);
-        LEO_TOTAL_SATELLITES = s.getInt("nrofLEO");//×Ü½ÚµãÊı
-        LEO_TOTAL_PLANE = s.getInt("nrofLEOPlanes");//×Ü¹ìµÀÆ½ÃæÊı
-        LEO_NROF_S_EACHPLANE = LEO_TOTAL_SATELLITES/LEO_TOTAL_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+        LEO_TOTAL_SATELLITES = s.getInt("nrofLEO");//æ€»èŠ‚ç‚¹æ•°
+        LEO_TOTAL_PLANE = s.getInt("nrofLEOPlanes");//æ€»è½¨é“å¹³é¢æ•°
+        LEO_NROF_S_EACHPLANE = LEO_TOTAL_SATELLITES/LEO_TOTAL_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
         //MEO
         if (s.getBoolean("EnableMEO")){
-            MEO_TOTAL_SATELLITES = s.getInt("nrofMEO");//×Ü½ÚµãÊı
-            MEO_TOTAL_PLANE = s.getInt("nrofMEOPlane");//×Ü¹ìµÀÆ½ÃæÊı
-            MEO_NROF_S_EACHPLANE = MEO_TOTAL_SATELLITES/MEO_TOTAL_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+            MEO_TOTAL_SATELLITES = s.getInt("nrofMEO");//æ€»èŠ‚ç‚¹æ•°
+            MEO_TOTAL_PLANE = s.getInt("nrofMEOPlane");//æ€»è½¨é“å¹³é¢æ•°
+            MEO_NROF_S_EACHPLANE = MEO_TOTAL_SATELLITES/MEO_TOTAL_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
         }
         //GEO
         if (s.getBoolean("EnableGEO")){
-            GEO_TOTAL_SATELLITES = s.getInt("nrofGEO");//×Ü½ÚµãÊı
-            GEO_TOTAL_PLANE = s.getInt("nrofGEOPlane");//×Ü¹ìµÀÆ½ÃæÊı
-            GEO_NROF_S_EACHPLANE = GEO_TOTAL_SATELLITES/GEO_TOTAL_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+            GEO_TOTAL_SATELLITES = s.getInt("nrofGEO");//æ€»èŠ‚ç‚¹æ•°
+            GEO_TOTAL_PLANE = s.getInt("nrofGEOPlane");//æ€»è½¨é“å¹³é¢æ•°
+            GEO_NROF_S_EACHPLANE = GEO_TOTAL_SATELLITES/GEO_TOTAL_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
         }
         clusterInfoInit();
         //if it is static clustering, then start initialization
@@ -228,12 +228,12 @@ public class SatelliteInterLinkInfo {
     public List<Tuple<DTNHost, Double>> sort(List<Tuple<DTNHost, Double>> distanceList) {
         for (int j = 0; j < distanceList.size(); j++) {
             for (int i = 0; i < distanceList.size() - j - 1; i++) {
-                if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()) {//´ÓĞ¡µ½´ó£¬´óµÄÖµ·ÅÔÚ¶ÓÁĞÓÒ²à
+                if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()) {//ä»å°åˆ°å¤§ï¼Œå¤§çš„å€¼æ”¾åœ¨é˜Ÿåˆ—å³ä¾§
                     Tuple<DTNHost, Double> var1 = distanceList.get(i);
                     Tuple<DTNHost, Double> var2 = distanceList.get(i + 1);
                     distanceList.remove(i);
-                    distanceList.remove(i);//×¢Òâ£¬Ò»µ©Ö´ĞĞremoveÖ®ºó£¬Õû¸öListµÄ´óĞ¡¾Í±äÁË£¬ËùÒÔÔ­±¾i+1µÄÎ»ÖÃÏÖÔÚ±ä³ÉÁËi
-                    //×¢ÒâË³Ğò
+                    distanceList.remove(i);//æ³¨æ„ï¼Œä¸€æ—¦æ‰§è¡Œremoveä¹‹åï¼Œæ•´ä¸ªListçš„å¤§å°å°±å˜äº†ï¼Œæ‰€ä»¥åŸæœ¬i+1çš„ä½ç½®ç°åœ¨å˜æˆäº†i
+                    //æ³¨æ„é¡ºåº
                     distanceList.add(i, var2);
                     distanceList.add(i + 1, var1);
                 }
@@ -271,7 +271,7 @@ public class SatelliteInterLinkInfo {
     	Settings s = new Settings("Group");
     	int totalMEOPlane = s.getInt("nrofMEOPlane");
     	int totalLEOPlane = s.getInt("nrofLEOPlanes");
-    	int staticNrofManageLEOPlane = totalLEOPlane / totalMEOPlane;//Æ½¾ùÃ¿¸öMEOÆ½ÃæĞèÒª¹ÜÀíµÄLEO¹ìµÀÆ½ÃæÊı
+    	int staticNrofManageLEOPlane = totalLEOPlane / totalMEOPlane;//å¹³å‡æ¯ä¸ªMEOå¹³é¢éœ€è¦ç®¡ç†çš„LEOè½¨é“å¹³é¢æ•°
     	
 //    	System.out.println("hosts size  "+getHosts().size());
     	/*find all MEO orbit plane and their first MEO nodes*/
@@ -281,26 +281,26 @@ public class SatelliteInterLinkInfo {
     		DTNHost h = findHostByAddress(i);
     		allMEOPlane.add(h);
     	}
-    	/*¶ÔÃ¿Ò»¸öMEOÆ½Ãæ·ÖÅä¹ÜÀí½Úµã*/
+    	/*å¯¹æ¯ä¸€ä¸ªMEOå¹³é¢åˆ†é…ç®¡ç†èŠ‚ç‚¹*/
     	for (DTNHost MEO : allMEOPlane){
-        	double MEOAngle = sMovement.getOrbitParameters()[3];//»ñÈ¡µÚ4¸ö²ÎÊı,Éı½»µã³à¾­
+        	double MEOAngle = sMovement.getOrbitParameters()[3];//è·å–ç¬¬4ä¸ªå‚æ•°,å‡äº¤ç‚¹èµ¤ç»
         	//find all MEO hosts in same orbit plane
         	if (!MEO.getSatelliteType().contains("MEO"))
         		System.out.println(MEO+"  error!  "+MEO.getSatelliteType());
         	List<DTNHost> MEOInSamePlane = 
         			((SatelliteMovement)MEO.getMovementModel())
         			.getSatelliteLinkInfo().getMEOci().findAllSatellitesInSamePlane();
-        	//¼ÇÂ¼Ã¿¸öLEOÆ½ÃæµÄ´ØÍ·½Úµã´ú±í£¬ÒÔ¼°¹ìµÀÆ½ÃæµÄÉı½»µã³à¾­²ÎÊı
+        	//è®°å½•æ¯ä¸ªLEOå¹³é¢çš„ç°‡å¤´èŠ‚ç‚¹ä»£è¡¨ï¼Œä»¥åŠè½¨é“å¹³é¢çš„å‡äº¤ç‚¹èµ¤ç»å‚æ•°
         	HashMap<DTNHost, Double> LEOAngle = new HashMap<DTNHost, Double>();
             /** total number of LEO satellites*/
 
-        	/*ÊÕ¼¯ËùÓĞLEO¹ìµÀÆ½ÃæµÄÉı½»µã³à¾­²ÎÊı*/
+        	/*æ”¶é›†æ‰€æœ‰LEOè½¨é“å¹³é¢çš„å‡äº¤ç‚¹èµ¤ç»å‚æ•°*/
         	for (int i = 0; i < LEO_TOTAL_SATELLITES; i+= LEO_NROF_S_EACHPLANE){
         		DTNHost h = findHostByAddress(i);
-        		LEOAngle.put(h, ((SatelliteMovement)h.getMovementModel()).getOrbitParameters()[3]);//»ñÈ¡µÚ4¸ö²ÎÊı,Éı½»µã³à¾­
+        		LEOAngle.put(h, ((SatelliteMovement)h.getMovementModel()).getOrbitParameters()[3]);//è·å–ç¬¬4ä¸ªå‚æ•°,å‡äº¤ç‚¹èµ¤ç»
         	}
         	
-        	/*ÕÒ³öÀë×Ô¼ºÉı½»µã³à¾­²î¾à×îĞ¡µÄLEO¹ìµÀÆ½Ãæ*/
+        	/*æ‰¾å‡ºç¦»è‡ªå·±å‡äº¤ç‚¹èµ¤ç»å·®è·æœ€å°çš„LEOè½¨é“å¹³é¢*/
         	List<Tuple<DTNHost, Double>> differenceOfAngle = new ArrayList<Tuple<DTNHost, Double>>();
         	for (DTNHost h : LEOAngle.keySet()){
         		differenceOfAngle.add(new 
@@ -309,13 +309,13 @@ public class SatelliteInterLinkInfo {
         	
         	sort(differenceOfAngle);
         	
-        	//ÕÒ³ö±¾MEO½Úµã¹ìµÀÆ½Ãæ×î½üµÄ¶à¸öLEO¹ìµÀÆ½Ãæ£¬²¢ÉèÖÃ¹ÜÀí½ÚµãÎª±¾MEO¹ìµÀÆ½ÃæÉÏµÄËùÓĞ½Úµã
+        	//æ‰¾å‡ºæœ¬MEOèŠ‚ç‚¹è½¨é“å¹³é¢æœ€è¿‘çš„å¤šä¸ªLEOè½¨é“å¹³é¢ï¼Œå¹¶è®¾ç½®ç®¡ç†èŠ‚ç‚¹ä¸ºæœ¬MEOè½¨é“å¹³é¢ä¸Šçš„æ‰€æœ‰èŠ‚ç‚¹
         	for (int index = 0, times = 0; index 
         			< staticNrofManageLEOPlane; times++){             		
         		if (times > differenceOfAngle.size())
         			break;
         		DTNHost minLEO = differenceOfAngle.get(times).getKey();
-        		//Èç¹û´ËÆ½ÃæÒÑ¾­±»°²ÅÅÁËMEO¹ÜÀí½Úµã£¬¾ÍÌø¹ı
+        		//å¦‚æœæ­¤å¹³é¢å·²ç»è¢«å®‰æ’äº†MEOç®¡ç†èŠ‚ç‚¹ï¼Œå°±è·³è¿‡
         		if (!((SatelliteMovement)minLEO.getMovementModel()).
         				getSatelliteLinkInfo().getLEOci().getManageHosts().isEmpty()){
         			continue;
@@ -342,16 +342,16 @@ public class SatelliteInterLinkInfo {
     	this.initLable = true;
 //        for (int n = 0; n < nearnestPlane.size(); n++){
 //            for (DTNHost host : getHosts()){
-//                int startNumber = this.startNumberInSameMEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-//                int endNumber = this.endNumberInSameMEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+//                int startNumber = this.startNumberInSameMEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+//                int endNumber = this.endNumberInSameMEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
 //
-//                //ÕÒ³öµ±Ç°Æ½ÃæÄÚµÄËùÓĞ½Úµã£¬¼ÓÈë´ËMEOËù¹ÜÀíµÄ·Ö´ØÖĞ
+//                //æ‰¾å‡ºå½“å‰å¹³é¢å†…çš„æ‰€æœ‰èŠ‚ç‚¹ï¼ŒåŠ å…¥æ­¤MEOæ‰€ç®¡ç†çš„åˆ†ç°‡ä¸­
 //                if (host.getAddress() >= startNumber && host.getAddress()<= endNumber){
 //                    if (!host.getSatelliteType().contains("LEO"))
 //                        throw new SimError("Clustering Calculation error!");
-//                    //Í¬Ê±¶ÔÏàÓ¦µÄLEOÌí¼Ó±¾½Úµã×÷Îª¹ÜÀí½Úµã
+//                    //åŒæ—¶å¯¹ç›¸åº”çš„LEOæ·»åŠ æœ¬èŠ‚ç‚¹ä½œä¸ºç®¡ç†èŠ‚ç‚¹
 //                    ((OptimizedClusteringRouter)host.getRouter()).LEOci.addManageHost(thisNode);
-//                    clusterList.add(host);//Ìí¼Ó·Ö´ØÄÚµÄ½Úµã
+//                    clusterList.add(host);//æ·»åŠ åˆ†ç°‡å†…çš„èŠ‚ç‚¹
 //                }
 //            }
 //        }
@@ -386,49 +386,49 @@ public class SatelliteInterLinkInfo {
         /** neighbor hosts in two neighbor orbit plane, and they can be forwarded directly*/
         private List<DTNHost> allowConnectLEOHostsInNeighborPlane = new ArrayList<DTNHost>();
         /** neighbor hosts in the neighbor orbit plane*/
-        public List<DTNHost> neighborPlaneHosts = new ArrayList<DTNHost>();//ÏàÁÚ¹ìµÀÆ½ÃæÄÚµÄÁ½¸öÁÚ¾Ó½Úµã
+        public List<DTNHost> neighborPlaneHosts = new ArrayList<DTNHost>();//ç›¸é‚»è½¨é“å¹³é¢å†…çš„ä¸¤ä¸ªé‚»å±…èŠ‚ç‚¹
         /** hosts list in the same orbit plane, and they can be forwarded directly without MEO */
-        public List<DTNHost> neighborHostsInSamePlane = new ArrayList<DTNHost>();//ÏàÍ¬¹ìµÀÆ½ÃæÀïµÄÁ½¸öÁÚ¾Ó½Úµã
+        public List<DTNHost> neighborHostsInSamePlane = new ArrayList<DTNHost>();//ç›¸åŒè½¨é“å¹³é¢é‡Œçš„ä¸¤ä¸ªé‚»å±…èŠ‚ç‚¹
         /** all manage hosts which contains in the transmission range of MEO */
         private List<DTNHost> manageHosts = new ArrayList<DTNHost>();
 
         /* plane number of this LEO node*/
         public int nrofLEOPlane;
         /** start address number of the first host in the plane*/
-        public int startNumberInSameLEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
+        public int startNumberInSameLEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
         /** end address number of the first host in the plane*/
-        public int endNumberInSameLEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+        public int endNumberInSameLEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
         
         public LEOclusterInfo(DTNHost h){
         	thisNode = h;
         	
-            //ÉèÖÃ±¾MEO¹ìµÀÆ½ÃæÄÚµÄ¿ªÊ¼/½áÊø½Úµã±àºÅ£¬ÒÔ¼°MEOÆ½Ãæ±àºÅ
+            //è®¾ç½®æœ¬MEOè½¨é“å¹³é¢å†…çš„å¼€å§‹/ç»“æŸèŠ‚ç‚¹ç¼–å·ï¼Œä»¥åŠMEOå¹³é¢ç¼–å·
             setPlaneNumber();
         	
-            initInterSatelliteNeighbors();//³õÊ¼»¯¼ÇÂ¼½ÚµãÔÚÍ¬Ò»¸ö¹ìµÀÄÚµÄËùÓĞ½Úµã£¬ÒÔ¼°¹ìµÀÄÚÏàÁÚµÄÁÚ¾ÓÓÃÓÚÖ±½Ó×ª·¢
-            //ÕÒµ½ËùÓĞLEO½Úµã
+            initInterSatelliteNeighbors();//åˆå§‹åŒ–è®°å½•èŠ‚ç‚¹åœ¨åŒä¸€ä¸ªè½¨é“å†…çš„æ‰€æœ‰èŠ‚ç‚¹ï¼Œä»¥åŠè½¨é“å†…ç›¸é‚»çš„é‚»å±…ç”¨äºç›´æ¥è½¬å‘
+            //æ‰¾åˆ°æ‰€æœ‰LEOèŠ‚ç‚¹
             findAllLEONodes();
-            //ÕÒµ½ËùÓĞÁÚ¾Ó¹ìµÀÆ½ÃæµÄ½Úµã
+            //æ‰¾åˆ°æ‰€æœ‰é‚»å±…è½¨é“å¹³é¢çš„èŠ‚ç‚¹
             findAllSatellitesInLEONeighborPlane();
-            //Í¬Æ½ÃæÄÚµÄÁÚ¾Ó½Úµã
+            //åŒå¹³é¢å†…çš„é‚»å±…èŠ‚ç‚¹
             findAllowConnectMEOHostsInLEOSamePlane(thisNode.getAddress()/LEO_NROF_S_EACHPLANE + 1, LEO_NROF_S_EACHPLANE);
         }
         /**
-         * ¼ÆËã±¾LEO½ÚµãËùÊôµÄ¹ìµÀ²ÎÊı
+         * è®¡ç®—æœ¬LEOèŠ‚ç‚¹æ‰€å±çš„è½¨é“å‚æ•°
          */
         public void setPlaneNumber(){
         	this.nrofLEOPlane = thisNode.getAddress()/LEO_NROF_S_EACHPLANE + 1;
-        	this.startNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * (nrofLEOPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            this.endNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * nrofLEOPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+        	this.startNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * (nrofLEOPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            this.endNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * nrofLEOPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÍ¬¹ìµÄÁÚ¾Ó½Úµã
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨çš„é‚»å±…èŠ‚ç‚¹
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
         public void findAllowConnectMEOHostsInLEOSamePlane(int nrofPlane, int nrofSatelliteInOnePlane){ 
-            int	startNumber = this.startNumberInSameLEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber = this.endNumberInSameLEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            int	startNumber = this.startNumberInSameLEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber = this.endNumberInSameLEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             if (!(thisNode.getAddress() >= startNumber && thisNode.getAddress()<= endNumber)){
             	throw new SimError("LEO address calculation error");
             }
@@ -443,7 +443,7 @@ public class SatelliteInterLinkInfo {
             allowConnectLEOHostsInSamePlane.add(findHostByAddress(b));
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÁ½¸öÁÚ¾Ó¹ìµÀÆ½ÃæËùÓĞ½ÚµãÓÚallowConnectMEOHostsInNeighborPlaneÖĞ
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„ä¸¤ä¸ªé‚»å±…è½¨é“å¹³é¢æ‰€æœ‰èŠ‚ç‚¹äºallowConnectMEOHostsInNeighborPlaneä¸­
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
@@ -458,21 +458,21 @@ public class SatelliteInterLinkInfo {
             	a = LEO_TOTAL_PLANE;
             if(b > LEO_TOTAL_PLANE)
             	b = 1;
-            //×óÁÚ¾ÓMEO¹ìµÀÆ½Ãæ
-            int startNumber1 = LEO_NROF_S_EACHPLANE * (a - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber1 = LEO_NROF_S_EACHPLANE * a - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            //å·¦é‚»å±…MEOè½¨é“å¹³é¢
+            int startNumber1 = LEO_NROF_S_EACHPLANE * (a - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber1 = LEO_NROF_S_EACHPLANE * a - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             
-            //Èç¹ûÄ¿µÄ½ÚµãÔÚÁÚ¾Ó¹ìµÀÆ½ÃæÉÏ£¬¾ÍÕÒ³öÕâ¸öÄ¿µÄ½ÚµãËùÊô¹ìµÀÆ½ÃæµÄËùÓĞµÄ½Úµã
+            //å¦‚æœç›®çš„èŠ‚ç‚¹åœ¨é‚»å±…è½¨é“å¹³é¢ä¸Šï¼Œå°±æ‰¾å‡ºè¿™ä¸ªç›®çš„èŠ‚ç‚¹æ‰€å±è½¨é“å¹³é¢çš„æ‰€æœ‰çš„èŠ‚ç‚¹
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber1 && host.getAddress() <= endNumber1){
                 	allowConnectLEOHostsInNeighborPlane.add(host);
                 }
             }
-            //ÓÒÁÚ¾ÓMEO¹ìµÀÆ½Ãæ
-            int startNumber2 = LEO_NROF_S_EACHPLANE * (b - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber2 = LEO_NROF_S_EACHPLANE * b - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            //å³é‚»å±…MEOè½¨é“å¹³é¢
+            int startNumber2 = LEO_NROF_S_EACHPLANE * (b - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber2 = LEO_NROF_S_EACHPLANE * b - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             
-            //Èç¹ûÄ¿µÄ½ÚµãÔÚÁÚ¾Ó¹ìµÀÆ½ÃæÉÏ£¬¾ÍÕÒ³öÕâ¸öÄ¿µÄ½ÚµãËùÊô¹ìµÀÆ½ÃæµÄËùÓĞµÄ½Úµã
+            //å¦‚æœç›®çš„èŠ‚ç‚¹åœ¨é‚»å±…è½¨é“å¹³é¢ä¸Šï¼Œå°±æ‰¾å‡ºè¿™ä¸ªç›®çš„èŠ‚ç‚¹æ‰€å±è½¨é“å¹³é¢çš„æ‰€æœ‰çš„èŠ‚ç‚¹
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber2 && host.getAddress() <= endNumber2){
                 	allowConnectLEOHostsInNeighborPlane.add(host);
@@ -480,7 +480,7 @@ public class SatelliteInterLinkInfo {
             }
         }
         /**
-         * Í¬Ò»Æ½ÃæÄÚµÄÁÚ¾ÓÁ½¸ö½Úµã
+         * åŒä¸€å¹³é¢å†…çš„é‚»å±…ä¸¤ä¸ªèŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getAllowConnectLEOHostsInLEOSamePlane(){
@@ -494,18 +494,18 @@ public class SatelliteInterLinkInfo {
         	return allowConnectLEOHostsInNeighborPlane;
         }
         /**
-         * ¶¯Ì¬ÕÒµ½MEOµÄµ±Ç°ÁÚ¾Ó¹ìµÀµÄ×î½üÁ½¸ö½ÚµãÓÃ»§ÁÚ¾ÓÍ¨ĞÅ
+         * åŠ¨æ€æ‰¾åˆ°MEOçš„å½“å‰é‚»å±…è½¨é“çš„æœ€è¿‘ä¸¤ä¸ªèŠ‚ç‚¹ç”¨æˆ·é‚»å±…é€šä¿¡
          * @return
          */
         public List<DTNHost> updateAllowConnectLEOHostsInNeighborPlane(){
         	List<DTNHost> list = new ArrayList<DTNHost>();
         	
         	if (!thisNode.getRouter().CommunicationSatellitesLabel)
-        		return list;//·ÇÍ¨ĞÅ½Úµã£¬Ö±½Ó·µ»Ø£¬²»»áºÍÁÚ¾Ó¹ìµÀµÄLEO½Úµã½¨Á¢Á¬½Ó
+        		return list;//éé€šä¿¡èŠ‚ç‚¹ï¼Œç›´æ¥è¿”å›ï¼Œä¸ä¼šå’Œé‚»å±…è½¨é“çš„LEOèŠ‚ç‚¹å»ºç«‹è¿æ¥
         	
         	List<Tuple<DTNHost, Double>> listFromDistance = new ArrayList<Tuple<DTNHost, Double>>();
         	for (DTNHost h : getAllowConnectLEOHostsInNeighborPlane()){
-        		if (thisNode.getRouter().CommunicationNodesList.containsKey(h)){//È·¶¨ÊÇÒ»¸öÍ¨ĞÅ½Úµã
+        		if (thisNode.getRouter().CommunicationNodesList.containsKey(h)){//ç¡®å®šæ˜¯ä¸€ä¸ªé€šä¿¡èŠ‚ç‚¹
         			listFromDistance.add(new Tuple<DTNHost, Double>(h, getDistance(thisNode, h)));
         		}
         	}
@@ -514,7 +514,7 @@ public class SatelliteInterLinkInfo {
         		if (list.isEmpty())
         			list.add(t.getKey());
         		else{
-        			//²»ÊÇÍ¬Ò»¸ö¹ìµÀÆ½ÃæµÄ
+        			//ä¸æ˜¯åŒä¸€ä¸ªè½¨é“å¹³é¢çš„
         			if (!((SatelliteMovement)list.get(0).getMovementModel()).
         					getSatelliteLinkInfo().getLEOci().getAllowConnectLEOHostsInLEOSamePlane().contains(t.getKey())){
         					list.add(t.getKey());	
@@ -526,7 +526,7 @@ public class SatelliteInterLinkInfo {
         	return list;   	
         }
         /**
-         * ÕÒµ½ËùÓĞLEO½Úµã
+         * æ‰¾åˆ°æ‰€æœ‰LEOèŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> findAllLEONodes(){
@@ -538,14 +538,14 @@ public class SatelliteInterLinkInfo {
         	return LEOList;       		
         }
         /**
-         * ÅĞ¶ÏÄ¿µÄ½ÚµãÊÇ·ñÔÚÁÚ¾ÓÆ½ÃæÉÏ
+         * åˆ¤æ–­ç›®çš„èŠ‚ç‚¹æ˜¯å¦åœ¨é‚»å±…å¹³é¢ä¸Š
          * @param to
          * @return
          */
         public List<DTNHost> ifHostsInNeighborOrbitPlane(DTNHost to){
             List<DTNHost> hostsInNeighborOrbitPlane = null;
 
-            int NROF_S_EACHPLANE = LEO_TOTAL_SATELLITES/LEO_TOTAL_PLANE;//Ã¿¸ö¹ìµÀÆ½ÃæÉÏµÄ½ÚµãÊı
+            int NROF_S_EACHPLANE = LEO_TOTAL_SATELLITES/LEO_TOTAL_PLANE;//æ¯ä¸ªè½¨é“å¹³é¢ä¸Šçš„èŠ‚ç‚¹æ•°
             int thisHostAddress = getHost().getAddress();
 
             int serialNumberOfPlane = thisHostAddress/NROF_S_EACHPLANE + 1;
@@ -553,18 +553,18 @@ public class SatelliteInterLinkInfo {
 //            System.out.println(thisNode+" src plane: "+serialNumberOfPlane+"  "+to+" des plane: "+destinationSerialNumberOfPlane);
             if (abs(serialNumberOfPlane - destinationSerialNumberOfPlane) <= 1 ||
                     abs(serialNumberOfPlane - destinationSerialNumberOfPlane) >= LEO_TOTAL_PLANE){
-                int startNumber = NROF_S_EACHPLANE * (destinationSerialNumberOfPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-                int endNumber = NROF_S_EACHPLANE * destinationSerialNumberOfPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+                int startNumber = NROF_S_EACHPLANE * (destinationSerialNumberOfPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+                int endNumber = NROF_S_EACHPLANE * destinationSerialNumberOfPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
                 
                 hostsInNeighborOrbitPlane = new ArrayList<DTNHost>();
-                //Èç¹ûÄ¿µÄ½ÚµãÔÚÁÚ¾Ó¹ìµÀÆ½ÃæÉÏ£¬¾ÍÕÒ³öÕâ¸öÄ¿µÄ½ÚµãËùÊô¹ìµÀÆ½ÃæµÄËùÓĞµÄ½Úµã
+                //å¦‚æœç›®çš„èŠ‚ç‚¹åœ¨é‚»å±…è½¨é“å¹³é¢ä¸Šï¼Œå°±æ‰¾å‡ºè¿™ä¸ªç›®çš„èŠ‚ç‚¹æ‰€å±è½¨é“å¹³é¢çš„æ‰€æœ‰çš„èŠ‚ç‚¹
                 for (DTNHost host : getHosts()){
                     if (host.getAddress() >= startNumber && host.getAddress() <= endNumber){
                         hostsInNeighborOrbitPlane.add(host);
                     }
                 }
             }
-            //·ñÔò¾Í·µ»Ø¿Õ
+            //å¦åˆ™å°±è¿”å›ç©º
             return hostsInNeighborOrbitPlane;
         }
         /**
@@ -600,12 +600,12 @@ public class SatelliteInterLinkInfo {
         public List<Tuple<DTNHost, Double>> sort(List<Tuple<DTNHost, Double>> distanceList) {
             for (int j = 0; j < distanceList.size(); j++) {
                 for (int i = 0; i < distanceList.size() - j - 1; i++) {
-                    if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()) {//´ÓĞ¡µ½´ó£¬´óµÄÖµ·ÅÔÚ¶ÓÁĞÓÒ²à
+                    if (distanceList.get(i).getValue() > distanceList.get(i + 1).getValue()) {//ä»å°åˆ°å¤§ï¼Œå¤§çš„å€¼æ”¾åœ¨é˜Ÿåˆ—å³ä¾§
                         Tuple<DTNHost, Double> var1 = distanceList.get(i);
                         Tuple<DTNHost, Double> var2 = distanceList.get(i + 1);
                         distanceList.remove(i);
-                        distanceList.remove(i);//×¢Òâ£¬Ò»µ©Ö´ĞĞremoveÖ®ºó£¬Õû¸öListµÄ´óĞ¡¾Í±äÁË£¬ËùÒÔÔ­±¾i+1µÄÎ»ÖÃÏÖÔÚ±ä³ÉÁËi
-                        //×¢ÒâË³Ğò
+                        distanceList.remove(i);//æ³¨æ„ï¼Œä¸€æ—¦æ‰§è¡Œremoveä¹‹åï¼Œæ•´ä¸ªListçš„å¤§å°å°±å˜äº†ï¼Œæ‰€ä»¥åŸæœ¬i+1çš„ä½ç½®ç°åœ¨å˜æˆäº†i
+                        //æ³¨æ„é¡ºåº
                         distanceList.add(i, var2);
                         distanceList.add(i + 1, var1);
                     }
@@ -614,7 +614,7 @@ public class SatelliteInterLinkInfo {
             return distanceList;
         }
         /**
-         * »ñÈ¡µ±Ç°Í¨ĞÅ·¶Î§ÄÚµÄMEO½Úµã
+         * è·å–å½“å‰é€šä¿¡èŒƒå›´å†…çš„MEOèŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getConnectedMEOHosts(Message msg){
@@ -666,7 +666,7 @@ public class SatelliteInterLinkInfo {
             return manageHosts;
         }
         /**
-         * ´¦ÀíinitInterSatelliteNeighbors()º¯ÊıÖĞµÄ±ß½çÖµÎÊÌâ
+         * å¤„ç†initInterSatelliteNeighbors()å‡½æ•°ä¸­çš„è¾¹ç•Œå€¼é—®é¢˜
          * @param n
          * @param upperBound
          * @param lowerBound
@@ -682,7 +682,7 @@ public class SatelliteInterLinkInfo {
             return n;
         }
         /**
-         * ´¦ÀíÔÚÍ¬Ò»¸öÆ½ÃæÄÚµÄ½Úµã±àºÅ£¬´¦ÔÚ±ß½çÊ±µÄÎÊÌâ
+         * å¤„ç†åœ¨åŒä¸€ä¸ªå¹³é¢å†…çš„èŠ‚ç‚¹ç¼–å·ï¼Œå¤„åœ¨è¾¹ç•Œæ—¶çš„é—®é¢˜
          * @param n
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
@@ -697,30 +697,30 @@ public class SatelliteInterLinkInfo {
             return n;
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÍ¬¹ìËùÓĞ½Úµã
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨æ‰€æœ‰èŠ‚ç‚¹
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
         public void findAllSatellitesInSamePlane(int nrofPlane, int nrofSatelliteInOnePlane){
             if (startNumberInSameLEOPlane == 0 && endNumberInSameLEOPlane == 0) {  
-            	startNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * (nrofPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            	endNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * nrofPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            	startNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * (nrofPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            	endNumberInSameLEOPlane = LEO_NROF_S_EACHPLANE * nrofPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             }
 
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumberInSameLEOPlane && host.getAddress()<= endNumberInSameLEOPlane){
-                    allHostsInSamePlane.add(host);//Í¬Ò»¸ö¹ìµÀÄÚµÄÏàÁÚ½Úµã
+                    allHostsInSamePlane.add(host);//åŒä¸€ä¸ªè½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹
                 }
             }
         }
         /**
-         * ³õÊ¼»¯ÕÒµ½Í¬Ò»¹ìµÀµÄËùÓĞ½Úµã£¬²¢ÇÒÉè¶¨±¾½ÚµãµÄÍ¬¹ìÁÚ¾Ó½Úµã
+         * åˆå§‹åŒ–æ‰¾åˆ°åŒä¸€è½¨é“çš„æ‰€æœ‰èŠ‚ç‚¹ï¼Œå¹¶ä¸”è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨é‚»å±…èŠ‚ç‚¹
          */
         public void initInterSatelliteNeighbors(){
 
             int thisHostAddress = getHost().getAddress();
 
-            //Í¬¹ìµÀÆ½ÃæÄÚËùÓĞ½Úµã
+            //åŒè½¨é“å¹³é¢å†…æ‰€æœ‰èŠ‚ç‚¹
             findAllSatellitesInSamePlane(thisHostAddress/LEO_NROF_S_EACHPLANE + 1, LEO_NROF_S_EACHPLANE);
 
             int upperBound = getHosts().size() - 1;
@@ -730,7 +730,7 @@ public class SatelliteInterLinkInfo {
             for (DTNHost host : getHosts()){
                 if (host.getAddress() == a || host.getAddress() == b){
                     neighborHostsInSamePlane.remove(host);
-                    neighborHostsInSamePlane.add(host);//Í¬Ò»¸ö¹ìµÀÄÚµÄÏàÁÚ½Úµã
+                    neighborHostsInSamePlane.add(host);//åŒä¸€ä¸ªè½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹
                 }
             }
         }
@@ -781,25 +781,25 @@ public class SatelliteInterLinkInfo {
             otherClusterList = new HashMap<DTNHost, List<DTNHost>>();
             clusterUpdateTime = new HashMap<DTNHost, Double>();
             
-            //ÉèÖÃ±¾MEO¹ìµÀÆ½ÃæÄÚµÄ¿ªÊ¼/½áÊø½Úµã±àºÅ£¬ÒÔ¼°MEOÆ½Ãæ±àºÅ
+            //è®¾ç½®æœ¬MEOè½¨é“å¹³é¢å†…çš„å¼€å§‹/ç»“æŸèŠ‚ç‚¹ç¼–å·ï¼Œä»¥åŠMEOå¹³é¢ç¼–å·
             setPlaneNumber();
-            //Í¬¹ìµÀÆ½ÃæÄÚÁÚ¾ÓµÄÁ½¸ö½Úµã
+            //åŒè½¨é“å¹³é¢å†…é‚»å±…çš„ä¸¤ä¸ªèŠ‚ç‚¹
             findAllowConnectMEOHostsInSamePlane();
-            //Í¬¹ìµÀÆ½ÃæÄÚËùÓĞ½Úµã
+            //åŒè½¨é“å¹³é¢å†…æ‰€æœ‰èŠ‚ç‚¹
             findAllSatellitesInSamePlane();
-            //³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÁ½¸öÁÚ¾Ó¹ìµÀÆ½ÃæËùÓĞ½Úµã
+            //åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„ä¸¤ä¸ªé‚»å±…è½¨é“å¹³é¢æ‰€æœ‰èŠ‚ç‚¹
             findAllSatellitesInNeighborPlane();
         }
         /**
-         * ¼ÆËã±¾MEO½ÚµãËùÊôµÄ¹ìµÀ²ÎÊı
+         * è®¡ç®—æœ¬MEOèŠ‚ç‚¹æ‰€å±çš„è½¨é“å‚æ•°
          */
         public void setPlaneNumber(){
         	this.nrofMEOPlane = (thisNode.getAddress() - LEO_TOTAL_SATELLITES)/MEO_NROF_S_EACHPLANE + 1;
-        	this.startNumberInSameMEOPlane = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * (nrofMEOPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            this.endNumberInSameMEOPlane = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * nrofMEOPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+        	this.startNumberInSameMEOPlane = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * (nrofMEOPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            this.endNumberInSameMEOPlane = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * nrofMEOPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
         }
         /**
-         * ³õÊ¼»¯ÕÒµ½ËùÓĞMEOÊôĞÔ½Úµã
+         * åˆå§‹åŒ–æ‰¾åˆ°æ‰€æœ‰MEOå±æ€§èŠ‚ç‚¹
          */
         public List<DTNHost> findAllMEONodes(){
         	MEOList.clear();
@@ -810,13 +810,13 @@ public class SatelliteInterLinkInfo {
         	return MEOList;
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÍ¬¹ìµÄÁÚ¾Ó½Úµã
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨çš„é‚»å±…èŠ‚ç‚¹
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
         public void findAllowConnectMEOHostsInSamePlane(){ 
-        	int	startNumber = this.startNumberInSameMEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber = this.endNumberInSameMEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+        	int	startNumber = this.startNumberInSameMEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber = this.endNumberInSameMEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             if (!(thisNode.getAddress() >= startNumber && thisNode.getAddress()<= endNumber)){
             	System.out.println(thisNode.getAddress()+"  "+this.nrofMEOPlane+"  "+
             			this.startNumberInSameMEOPlane+"  "+this.endNumberInSameMEOPlane);
@@ -833,24 +833,24 @@ public class SatelliteInterLinkInfo {
             allowConnectMEOHostsInSamePlane.add(findHostByAddress(b));
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÍ¬¹ìËùÓĞ½Úµã
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨æ‰€æœ‰èŠ‚ç‚¹
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
         public List<DTNHost> findAllSatellitesInSamePlane(){ 
         	allHostsInSamePlane.clear();
-        	int	startNumber = this.startNumberInSameMEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber = this.endNumberInSameMEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+        	int	startNumber = this.startNumberInSameMEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber = this.endNumberInSameMEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
 
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber && host.getAddress()<= endNumber){
-                    allHostsInSamePlane.add(host);//Í¬Ò»¸ö¹ìµÀÄÚµÄÏàÁÚ½Úµã
+                    allHostsInSamePlane.add(host);//åŒä¸€ä¸ªè½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹
                 }
             }
             return allHostsInSamePlane;
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÁ½¸öÁÚ¾Ó¹ìµÀÆ½ÃæËùÓĞ½ÚµãÓÚallowConnectMEOHostsInNeighborPlaneÖĞ
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„ä¸¤ä¸ªé‚»å±…è½¨é“å¹³é¢æ‰€æœ‰èŠ‚ç‚¹äºallowConnectMEOHostsInNeighborPlaneä¸­
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
@@ -865,21 +865,21 @@ public class SatelliteInterLinkInfo {
             	a = MEO_TOTAL_PLANE;
             if(b > MEO_TOTAL_PLANE)
             	b = 1;
-            //×óÁÚ¾ÓMEO¹ìµÀÆ½Ãæ
-            int startNumber1 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * (a - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber1 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * a - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            //å·¦é‚»å±…MEOè½¨é“å¹³é¢
+            int startNumber1 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * (a - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber1 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * a - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             
-            //Èç¹ûÄ¿µÄ½ÚµãÔÚÁÚ¾Ó¹ìµÀÆ½ÃæÉÏ£¬¾ÍÕÒ³öÕâ¸öÄ¿µÄ½ÚµãËùÊô¹ìµÀÆ½ÃæµÄËùÓĞµÄ½Úµã
+            //å¦‚æœç›®çš„èŠ‚ç‚¹åœ¨é‚»å±…è½¨é“å¹³é¢ä¸Šï¼Œå°±æ‰¾å‡ºè¿™ä¸ªç›®çš„èŠ‚ç‚¹æ‰€å±è½¨é“å¹³é¢çš„æ‰€æœ‰çš„èŠ‚ç‚¹
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber1 && host.getAddress() <= endNumber1){
                 	allowConnectMEOHostsInNeighborPlane.add(host);
                 }
             }
-            //ÓÒÁÚ¾ÓMEO¹ìµÀÆ½Ãæ
-            int startNumber2 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * (b - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber2 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * b - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            //å³é‚»å±…MEOè½¨é“å¹³é¢
+            int startNumber2 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * (b - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber2 = LEO_TOTAL_SATELLITES + MEO_NROF_S_EACHPLANE * b - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             
-            //Èç¹ûÄ¿µÄ½ÚµãÔÚÁÚ¾Ó¹ìµÀÆ½ÃæÉÏ£¬¾ÍÕÒ³öÕâ¸öÄ¿µÄ½ÚµãËùÊô¹ìµÀÆ½ÃæµÄËùÓĞµÄ½Úµã
+            //å¦‚æœç›®çš„èŠ‚ç‚¹åœ¨é‚»å±…è½¨é“å¹³é¢ä¸Šï¼Œå°±æ‰¾å‡ºè¿™ä¸ªç›®çš„èŠ‚ç‚¹æ‰€å±è½¨é“å¹³é¢çš„æ‰€æœ‰çš„èŠ‚ç‚¹
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber2 && host.getAddress() <= endNumber2){
                 	allowConnectMEOHostsInNeighborPlane.add(host);
@@ -888,7 +888,7 @@ public class SatelliteInterLinkInfo {
         }
 
         /**
-         * ¶¯Ì¬ÕÒµ½MEOµÄµ±Ç°ÁÚ¾Ó¹ìµÀµÄ×î½üÁ½¸ö½ÚµãÓÃ»§ÁÚ¾ÓÍ¨ĞÅ
+         * åŠ¨æ€æ‰¾åˆ°MEOçš„å½“å‰é‚»å±…è½¨é“çš„æœ€è¿‘ä¸¤ä¸ªèŠ‚ç‚¹ç”¨æˆ·é‚»å±…é€šä¿¡
          * @return
          */
         public List<DTNHost> updateAllowConnectMEOHostsInNeighborPlane(){
@@ -903,7 +903,7 @@ public class SatelliteInterLinkInfo {
         		if (list.isEmpty())
         			list.add(t.getKey());
         		else{
-        			//²»ÊÇÍ¬Ò»¸ö¹ìµÀÆ½ÃæµÄ
+        			//ä¸æ˜¯åŒä¸€ä¸ªè½¨é“å¹³é¢çš„
         			if (!((SatelliteMovement)list.get(0).getMovementModel()).
         					getSatelliteLinkInfo().getMEOci().getAllowConnectMEOHostsInSamePlane().contains(t.getKey())){
         					list.add(t.getKey());	
@@ -915,14 +915,14 @@ public class SatelliteInterLinkInfo {
         	return list;
         }
         /**
-         * Í¬Ò»¹ìµÀÄÚµÄËùÓĞ½Úµã
+         * åŒä¸€è½¨é“å†…çš„æ‰€æœ‰èŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getAllowConnectMEOHostsInSamePlane(){
         	return allowConnectMEOHostsInSamePlane;
         }
         /**
-         * ÁÚ¾Ó¹ìµÀÄÚµÄËùÓĞ½Úµã
+         * é‚»å±…è½¨é“å†…çš„æ‰€æœ‰èŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getAllowConnectMEOHostsInNeighborPlane(){
@@ -959,7 +959,7 @@ public class SatelliteInterLinkInfo {
         	
         }
         /**
-         * »ñÈ¡µ±Ç°Í¨ĞÅ·¶Î§ÄÚµÄLEO½Úµã
+         * è·å–å½“å‰é€šä¿¡èŒƒå›´å†…çš„LEOèŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getConnectedLEOHosts(){
@@ -972,7 +972,7 @@ public class SatelliteInterLinkInfo {
         	return list;
         }
         /**
-         * »ñÈ¡µ±Ç°Í¨ĞÅ·¶Î§ÄÚµÄGEO½Úµã
+         * è·å–å½“å‰é€šä¿¡èŒƒå›´å†…çš„GEOèŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getConnectedGEOHosts(){
@@ -988,7 +988,7 @@ public class SatelliteInterLinkInfo {
          * @return cluster list
          */
         public List<DTNHost> getClusterList(){
-            return clusterList;//·µ»ØµÄÊÇMEO²ãÏà»¥Á¬½ÓµÄMEO½Úµã
+            return clusterList;//è¿”å›çš„æ˜¯MEOå±‚ç›¸äº’è¿æ¥çš„MEOèŠ‚ç‚¹
         }
         /**
          * delete other unaccessible MEO node
@@ -1064,9 +1064,9 @@ public class SatelliteInterLinkInfo {
         /* plane number of this GEO node*/
         private int nrofGEOPlane;
         /** start address number of the first host in the plane*/
-        private int startNumberInSameGEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
+        private int startNumberInSameGEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
         /** end address number of the first host in the plane*/
-        private int endNumberInSameGEOPlane;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+        private int endNumberInSameGEOPlane;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
         
         public GEOclusterInfo(DTNHost thisNode){
             this.thisNode = thisNode;
@@ -1077,26 +1077,26 @@ public class SatelliteInterLinkInfo {
             otherClusterList = new HashMap<DTNHost, List<DTNHost>>();
             clusterUpdateTime = new HashMap<DTNHost, Double>();
             
-            //ÉèÖÃ±¾GEO¹ìµÀÆ½ÃæÄÚµÄ¿ªÊ¼/½áÊø½Úµã±àºÅ£¬ÒÔ¼°GEOÆ½Ãæ±àºÅ
+            //è®¾ç½®æœ¬GEOè½¨é“å¹³é¢å†…çš„å¼€å§‹/ç»“æŸèŠ‚ç‚¹ç¼–å·ï¼Œä»¥åŠGEOå¹³é¢ç¼–å·
             setPlaneNumber();
-            //Í¬¹ìµÀÆ½ÃæÄÚÁÚ¾ÓµÄÁ½¸ö½Úµã
+            //åŒè½¨é“å¹³é¢å†…é‚»å±…çš„ä¸¤ä¸ªèŠ‚ç‚¹
             findAllowConnectGEOHostsInSamePlane(nrofGEOPlane, GEO_NROF_S_EACHPLANE);
-            //Í¬¹ìµÀÆ½ÃæÄÚËùÓĞ½Úµã
+            //åŒè½¨é“å¹³é¢å†…æ‰€æœ‰èŠ‚ç‚¹
             findAllSatellitesInSamePlane(thisNode.getAddress()/GEO_NROF_S_EACHPLANE + 1, GEO_NROF_S_EACHPLANE);
-            //³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÁ½¸öÁÚ¾Ó¹ìµÀÆ½ÃæËùÓĞ½Úµã
+            //åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„ä¸¤ä¸ªé‚»å±…è½¨é“å¹³é¢æ‰€æœ‰èŠ‚ç‚¹
             findAllSatellitesInNeighborPlane();
         }
         /**
-         * ¼ÆËã±¾GEO½ÚµãËùÊôµÄ¹ìµÀ²ÎÊı
+         * è®¡ç®—æœ¬GEOèŠ‚ç‚¹æ‰€å±çš„è½¨é“å‚æ•°
          */
         public void setPlaneNumber(){
-        	this.nrofGEOPlane = (thisNode.getAddress() - LEO_TOTAL_SATELLITES - MEO_TOTAL_SATELLITES)/GEO_NROF_S_EACHPLANE + 1;//Ä¬ÈÏÏÂÈ¡Õû
-        	this.startNumberInSameGEOPlane = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (nrofGEOPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            this.endNumberInSameGEOPlane = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * nrofGEOPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+        	this.nrofGEOPlane = (thisNode.getAddress() - LEO_TOTAL_SATELLITES - MEO_TOTAL_SATELLITES)/GEO_NROF_S_EACHPLANE + 1;//é»˜è®¤ä¸‹å–æ•´
+        	this.startNumberInSameGEOPlane = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (nrofGEOPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            this.endNumberInSameGEOPlane = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * nrofGEOPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             System.out.println(thisNode+" GEO "+nrofGEOPlane+"  "+startNumberInSameGEOPlane+"  "+endNumberInSameGEOPlane);
         }
         /**
-         * ³õÊ¼»¯ÕÒµ½ËùÓĞGEOÊôĞÔ½Úµã
+         * åˆå§‹åŒ–æ‰¾åˆ°æ‰€æœ‰GEOå±æ€§èŠ‚ç‚¹
          */
         public List<DTNHost> findAllGEONodes(){
         	GEOList.clear();
@@ -1107,13 +1107,13 @@ public class SatelliteInterLinkInfo {
         	return GEOList;
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÍ¬¹ìµÄÁÚ¾Ó½Úµã
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨çš„é‚»å±…èŠ‚ç‚¹
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
         public void findAllowConnectGEOHostsInSamePlane(int nrofPlane, int nrofSatelliteInOnePlane){ 
-            int	startNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * nrofPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            int	startNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * nrofPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             if (!(thisNode.getAddress() >= startNumber && thisNode.getAddress()<= endNumber)){
             	
             	throw new SimError("GEO address calculation error");
@@ -1129,25 +1129,25 @@ public class SatelliteInterLinkInfo {
             allowConnectGEOHostsInSamePlane.add(findHostByAddress(b));
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÍ¬¹ìËùÓĞ½Úµã
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„åŒè½¨æ‰€æœ‰èŠ‚ç‚¹
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
         public void findAllSatellitesInSamePlane(int nrofPlane, int nrofSatelliteInOnePlane){ 
-        	int startNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (nrofPlane - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * nrofPlane - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
-            //TODO ¼ì²éÏÂÕâÀï»¹ÓĞMEOciµ±ÖĞµÄº¯Êı
+        	int startNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (nrofPlane - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * nrofPlane - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
+            //TODO æ£€æŸ¥ä¸‹è¿™é‡Œè¿˜æœ‰MEOciå½“ä¸­çš„å‡½æ•°
             
             
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber && host.getAddress()<= endNumber){
-                    allHostsInSamePlane.add(host);//Í¬Ò»¸ö¹ìµÀÄÚµÄÏàÁÚ½Úµã
+                    allHostsInSamePlane.add(host);//åŒä¸€ä¸ªè½¨é“å†…çš„ç›¸é‚»èŠ‚ç‚¹
                 }
             }
             //System.out.println(thisNode+"  allowConnectGEOHostsInSamePlane  "+allowConnectGEOHostsInSamePlane);
         }
         /**
-         * ³õÊ¼»¯Éè¶¨±¾½ÚµãµÄÁ½¸öÁÚ¾Ó¹ìµÀÆ½ÃæËùÓĞ½ÚµãÓÚallowConnectGEOHostsInNeighborPlaneÖĞ
+         * åˆå§‹åŒ–è®¾å®šæœ¬èŠ‚ç‚¹çš„ä¸¤ä¸ªé‚»å±…è½¨é“å¹³é¢æ‰€æœ‰èŠ‚ç‚¹äºallowConnectGEOHostsInNeighborPlaneä¸­
          * @param nrofPlane
          * @param nrofSatelliteInOnePlane
          */
@@ -1162,21 +1162,21 @@ public class SatelliteInterLinkInfo {
             	a = GEO_TOTAL_PLANE;
             if(b > GEO_TOTAL_PLANE)
             	b = 1;
-            //×óÁÚ¾ÓGEO¹ìµÀÆ½Ãæ
-            int startNumber1 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (a - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber1 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * a - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            //å·¦é‚»å±…GEOè½¨é“å¹³é¢
+            int startNumber1 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (a - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber1 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * a - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             
-            //Èç¹ûÄ¿µÄ½ÚµãÔÚÁÚ¾Ó¹ìµÀÆ½ÃæÉÏ£¬¾ÍÕÒ³öÕâ¸öÄ¿µÄ½ÚµãËùÊô¹ìµÀÆ½ÃæµÄËùÓĞµÄ½Úµã
+            //å¦‚æœç›®çš„èŠ‚ç‚¹åœ¨é‚»å±…è½¨é“å¹³é¢ä¸Šï¼Œå°±æ‰¾å‡ºè¿™ä¸ªç›®çš„èŠ‚ç‚¹æ‰€å±è½¨é“å¹³é¢çš„æ‰€æœ‰çš„èŠ‚ç‚¹
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber1 && host.getAddress() <= endNumber1){
                 	allowConnectGEOHostsInNeighborPlane.add(host);
                 }
             }
-            //ÓÒÁÚ¾ÓGEO¹ìµÀÆ½Ãæ
-            int startNumber2 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (b - 1);//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬ÆğÊ¼±àºÅ
-            int endNumber2 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * b - 1;//´Ë¹ìµÀÆ½ÃæÄÚµÄ½Úµã£¬½áÎ²±àºÅ
+            //å³é‚»å±…GEOè½¨é“å¹³é¢
+            int startNumber2 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * (b - 1);//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œèµ·å§‹ç¼–å·
+            int endNumber2 = LEO_TOTAL_SATELLITES + MEO_TOTAL_SATELLITES + GEO_NROF_S_EACHPLANE * b - 1;//æ­¤è½¨é“å¹³é¢å†…çš„èŠ‚ç‚¹ï¼Œç»“å°¾ç¼–å·
             
-            //Èç¹ûÄ¿µÄ½ÚµãÔÚÁÚ¾Ó¹ìµÀÆ½ÃæÉÏ£¬¾ÍÕÒ³öÕâ¸öÄ¿µÄ½ÚµãËùÊô¹ìµÀÆ½ÃæµÄËùÓĞµÄ½Úµã
+            //å¦‚æœç›®çš„èŠ‚ç‚¹åœ¨é‚»å±…è½¨é“å¹³é¢ä¸Šï¼Œå°±æ‰¾å‡ºè¿™ä¸ªç›®çš„èŠ‚ç‚¹æ‰€å±è½¨é“å¹³é¢çš„æ‰€æœ‰çš„èŠ‚ç‚¹
             for (DTNHost host : getHosts()){
                 if (host.getAddress() >= startNumber2 && host.getAddress() <= endNumber2){
                 	allowConnectGEOHostsInNeighborPlane.add(host);
@@ -1185,7 +1185,7 @@ public class SatelliteInterLinkInfo {
         }
 
         /**
-         * ¶¯Ì¬ÕÒµ½GEOµÄµ±Ç°ÁÚ¾Ó¹ìµÀµÄ×î½üÁ½¸ö½ÚµãÓÃ»§ÁÚ¾ÓÍ¨ĞÅ
+         * åŠ¨æ€æ‰¾åˆ°GEOçš„å½“å‰é‚»å±…è½¨é“çš„æœ€è¿‘ä¸¤ä¸ªèŠ‚ç‚¹ç”¨æˆ·é‚»å±…é€šä¿¡
          * @return
          */
         public List<DTNHost> updateAllowConnectGEOHostsInNeighborPlane(){
@@ -1200,7 +1200,7 @@ public class SatelliteInterLinkInfo {
         		if (list.isEmpty())
         			list.add(t.getKey());
         		else{
-        			//²»ÊÇÍ¬Ò»¸ö¹ìµÀÆ½ÃæµÄ
+        			//ä¸æ˜¯åŒä¸€ä¸ªè½¨é“å¹³é¢çš„
         			if (!((SatelliteMovement)list.get(0).getMovementModel()).
         					getSatelliteLinkInfo().getGEOci().getAllowConnectGEOHostsInSamePlane().contains(t.getKey())){
         					list.add(t.getKey());	
@@ -1212,14 +1212,14 @@ public class SatelliteInterLinkInfo {
         	return list;
         }
         /**
-         * Í¬Ò»¹ìµÀÄÚµÄËùÓĞ½Úµã
+         * åŒä¸€è½¨é“å†…çš„æ‰€æœ‰èŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getAllowConnectGEOHostsInSamePlane(){
         	return allowConnectGEOHostsInSamePlane;
         }
         /**
-         * ÁÚ¾Ó¹ìµÀÄÚµÄËùÓĞ½Úµã
+         * é‚»å±…è½¨é“å†…çš„æ‰€æœ‰èŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getAllowConnectGEOHostsInNeighborPlane(){
@@ -1247,7 +1247,7 @@ public class SatelliteInterLinkInfo {
         	return GEOclusterList;
         }
         /**
-         * »ñÈ¡µ±Ç°Í¨ĞÅ·¶Î§ÄÚµÄMEO½Úµã
+         * è·å–å½“å‰é€šä¿¡èŒƒå›´å†…çš„MEOèŠ‚ç‚¹
          * @return
          */
         public List<DTNHost> getConnectedMEOHosts(){

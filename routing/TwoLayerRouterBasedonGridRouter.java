@@ -23,12 +23,12 @@ import core.SimClock;
 import core.SimError;
 
 public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
-	/**×Ô¼º¶¨ÒåµÄ±äÁ¿ºÍÓ³ÉäµÈ
+	/**è‡ªå·±å®šä¹‰çš„å˜é‡å’Œæ˜ å°„ç­‰
 	 * 
 	 */
 	public static final String MSG_WAITLABEL = "waitLabel";
 	public static final String MSG_PATHLABEL = "msgPathLabel"; 
-	public static final String MSG_ROUTERPATH = "routerPath";  //¶¨Òå×Ö¶ÎÃû³Æ£¬¼ÙÉèÎªMSG_MY_PROPERTY
+	public static final String MSG_ROUTERPATH = "routerPath";  //å®šä¹‰å­—æ®µåç§°ï¼Œå‡è®¾ä¸ºMSG_MY_PROPERTY
 	/** Group name in the group -setting id ({@value})*/
 	public static final String GROUPNAME_S = "Group";
 	/** interface name in the group -setting id ({@value})*/
@@ -36,23 +36,23 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	/** transmit range -setting id ({@value})*/
 	public static final String TRANSMIT_RANGE_S = "transmitRange";
 
-	private static final double SPEEDOFLIGHT = 299792458;//¹âËÙ£¬½üËÆ3*10^8m/s
+	private static final double SPEEDOFLIGHT = 299792458;//å…‰é€Ÿï¼Œè¿‘ä¼¼3*10^8m/s
 	private static final double MESSAGESIZE = 1024000;//1MB
-	private static final double  HELLOINTERVAL = 30;//hello°ü·¢ËÍ¼ä¸ô
+	private static final double  HELLOINTERVAL = 30;//helloåŒ…å‘é€é—´éš”
 	
 	int[] predictionLabel = new int[2000];
-	double[] transmitDelay = new double[2000];//1000´ú±í×ÜµÄ½ÚµãÊı
-	//double[] liveTime = new double[2000];//Á´Â·µÄÉú´æÊ±¼ä£¬³õÊ¼»¯Ê±×Ô¶¯¸³ÖµÎª0
-	double[] endTime = new double[2000];//Á´Â·µÄÉú´æÊ±¼ä£¬³õÊ¼»¯Ê±×Ô¶¯¸³ÖµÎª0
+	double[] transmitDelay = new double[2000];//1000ä»£è¡¨æ€»çš„èŠ‚ç‚¹æ•°
+	//double[] liveTime = new double[2000];//é“¾è·¯çš„ç”Ÿå­˜æ—¶é—´ï¼Œåˆå§‹åŒ–æ—¶è‡ªåŠ¨èµ‹å€¼ä¸º0
+	double[] endTime = new double[2000];//é“¾è·¯çš„ç”Ÿå­˜æ—¶é—´ï¼Œåˆå§‹åŒ–æ—¶è‡ªåŠ¨èµ‹å€¼ä¸º0
 	
-	private boolean msgPathLabel;//´Ë±êÊ¶Ö¸Ê¾ÊÇ·ñÔÚĞÅÏ¢Í·²¿ÖĞ±êÊ¶Â·ÓÉÂ·¾¶
-	private double	transmitRange;//ÉèÖÃµÄ¿ÉÍ¨ĞĞ¾àÀëãĞÖµ
-	private List<DTNHost> hosts;//È«¾Ö½ÚµãÁĞ±í
+	private boolean msgPathLabel;//æ­¤æ ‡è¯†æŒ‡ç¤ºæ˜¯å¦åœ¨ä¿¡æ¯å¤´éƒ¨ä¸­æ ‡è¯†è·¯ç”±è·¯å¾„
+	private double	transmitRange;//è®¾ç½®çš„å¯é€šè¡Œè·ç¦»é˜ˆå€¼
+	private List<DTNHost> hosts;//å…¨å±€èŠ‚ç‚¹åˆ—è¡¨
 	
 	HashMap<DTNHost, Double> arrivalTime = new HashMap<DTNHost, Double>();
-	private HashMap<DTNHost, List<Tuple<Integer, Boolean>>> routerTable = new HashMap<DTNHost, List<Tuple<Integer, Boolean>>>();//½ÚµãµÄÂ·ÓÉ±í
-	private HashMap<String, Double> busyLabel = new HashMap<String, Double>();//Ö¸Ê¾ÏÂÒ»Ìø½Úµã´¦ÓÚÃ¦µÄ×´Ì¬£¬ĞèÒªµÈ´ı
-	protected HashMap<DTNHost, HashMap<DTNHost, double[]>> neighborsList = new HashMap<DTNHost, HashMap<DTNHost, double[]>>();//ĞÂÔöÈ«¾ÖÆäËü½ÚµãÁÚ¾ÓÁ´Â·Éú´æÊ±¼äĞÅÏ¢
+	private HashMap<DTNHost, List<Tuple<Integer, Boolean>>> routerTable = new HashMap<DTNHost, List<Tuple<Integer, Boolean>>>();//èŠ‚ç‚¹çš„è·¯ç”±è¡¨
+	private HashMap<String, Double> busyLabel = new HashMap<String, Double>();//æŒ‡ç¤ºä¸‹ä¸€è·³èŠ‚ç‚¹å¤„äºå¿™çš„çŠ¶æ€ï¼Œéœ€è¦ç­‰å¾…
+	protected HashMap<DTNHost, HashMap<DTNHost, double[]>> neighborsList = new HashMap<DTNHost, HashMap<DTNHost, double[]>>();//æ–°å¢å…¨å±€å…¶å®ƒèŠ‚ç‚¹é‚»å±…é“¾è·¯ç”Ÿå­˜æ—¶é—´ä¿¡æ¯
 	protected HashMap<DTNHost, HashMap<DTNHost, double[]>> predictList = new HashMap<DTNHost, HashMap<DTNHost, double[]>>();
 	
 	private boolean routerTableUpdateLabel;
@@ -61,22 +61,22 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	DTNHost MEOinthisTime;
 	Random random = new Random();
 	/**
-	 * ³õÊ¼»¯
+	 * åˆå§‹åŒ–
 	 * @param s
 	 */
 	public TwoLayerRouterBasedonGridRouter(Settings s){
 		super(s);
 	}
 	/**
-	 * ³õÊ¼»¯
+	 * åˆå§‹åŒ–
 	 * @param r
 	 */
 	protected TwoLayerRouterBasedonGridRouter(TwoLayerRouterBasedonGridRouter r) {
 		super(r);
-		this.GN = new GridNeighbors(this.getHost());//²»·ÅÔÚÕâµÄÔ­ÒòÊÇ£¬µ±Ö´ĞĞÕâÒ»²½³õÊ¼»¯µÄÊ±ºò£¬hostºÍrouter»¹Ã»ÓĞÍê³É°ó¶¨²Ù×÷
+		this.GN = new GridNeighbors(this.getHost());//ä¸æ”¾åœ¨è¿™çš„åŸå› æ˜¯ï¼Œå½“æ‰§è¡Œè¿™ä¸€æ­¥åˆå§‹åŒ–çš„æ—¶å€™ï¼Œhostå’Œrouterè¿˜æ²¡æœ‰å®Œæˆç»‘å®šæ“ä½œ
 	}
 	/**
-	 * ¸´ÖÆ´ËrouterÀà
+	 * å¤åˆ¶æ­¤routerç±»
 	 */
 	@Override
 	public MessageRouter replicate() {
@@ -84,20 +84,20 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		return new TwoLayerRouterBasedonGridRouter(this);
 	}
 	/**
-	 * Ö´ĞĞÂ·ÓÉµÄ³õÊ¼»¯²Ù×÷
+	 * æ‰§è¡Œè·¯ç”±çš„åˆå§‹åŒ–æ“ä½œ
 	 */
 	public void initialzation(){
-		GN.setHost(this.getHost());//ÎªÁËÊµÏÖGNºÍRouterÒÔ¼°HostÖ®¼äµÄ°ó¶¨£¬´ıĞŞ¸Ä£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
+		GN.setHost(this.getHost());//ä¸ºäº†å®ç°GNå’ŒRouterä»¥åŠHostä¹‹é—´çš„ç»‘å®šï¼Œå¾…ä¿®æ”¹ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼
 		this.GN.initializeGridLocation();
 	}	
 	/**
-	 * Â·ÓÉ¸üĞÂ£¬Ã¿´Îµ÷ÓÃÂ·ÓÉ¸üĞÂÊ±µÄÖ÷Èë¿Ú
+	 * è·¯ç”±æ›´æ–°ï¼Œæ¯æ¬¡è°ƒç”¨è·¯ç”±æ›´æ–°æ—¶çš„ä¸»å…¥å£
 	 */
 	@Override
 	public void update() {
 		super.update();
 		
-		/*²âÊÔ´úÂë£¬±£Ö¤neighborsºÍconnectionsµÄÒ»ÖÂĞÔ*/
+		/*æµ‹è¯•ä»£ç ï¼Œä¿è¯neighborså’Œconnectionsçš„ä¸€è‡´æ€§*/
 		List<DTNHost> conNeighbors = new ArrayList<DTNHost>();
 		for (Connection con : this.getConnections()){
 			conNeighbors.add(con.getOtherNode(this.getHost()));
@@ -107,26 +107,26 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		}
 		*/
 		//this.getHost().getNeighbors().changeNeighbors(conNeighbors);
-		//this.getHost().getNeighbors().updateNeighbors(this.getHost(), this.getConnections());//¸üĞÂÁÚ¾Ó½ÚµãÊı¾İ¿â
-		/*²âÊÔ´úÂë£¬±£Ö¤neighborsºÍconnectionsµÄÒ»ÖÂĞÔ*/
+		//this.getHost().getNeighbors().updateNeighbors(this.getHost(), this.getConnections());//æ›´æ–°é‚»å±…èŠ‚ç‚¹æ•°æ®åº“
+		/*æµ‹è¯•ä»£ç ï¼Œä¿è¯neighborså’Œconnectionsçš„ä¸€è‡´æ€§*/
 		
 		this.hosts = this.getHost().getNeighbors().getHosts();
-		List<Connection> connections = this.getConnections();  //È¡µÃËùÓĞÁÚ¾Ó½Úµã
+		List<Connection> connections = this.getConnections();  //å–å¾—æ‰€æœ‰é‚»å±…èŠ‚ç‚¹
 		List<Message> messages = new ArrayList<Message>(this.getMessageCollection());
 		
 		Settings s = new Settings(GROUPNAME_S);
-		this.msgPathLabel = s.getBoolean(MSG_PATHLABEL);//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡´«ÊäËÙÂÊ
+		this.msgPathLabel = s.getBoolean(MSG_PATHLABEL);//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–ä¼ è¾“é€Ÿç‡
 		
-		if (isTransferring()) {//ÅĞ¶ÏÁ´Â·ÊÇ·ñ±»Õ¼ÓÃ
+		if (isTransferring()) {//åˆ¤æ–­é“¾è·¯æ˜¯å¦è¢«å ç”¨
 			return; // can't start a new transfer
 		}
-		if (connections.size() > 0){//ÓĞÁÚ¾ÓÊ±ĞèÒª½øĞĞhello°ü·¢ËÍĞ­Òé
-			//helloProtocol();//Ö´ĞĞhello°üµÄÎ¬»¤¹¤×÷
+		if (connections.size() > 0){//æœ‰é‚»å±…æ—¶éœ€è¦è¿›è¡ŒhelloåŒ…å‘é€åè®®
+			//helloProtocol();//æ‰§è¡ŒhelloåŒ…çš„ç»´æŠ¤å·¥ä½œ
 		}
-		if (!canStartTransfer())//ÊÇ·ñÓĞÁÖ½Ü½ÚµãÇÒÓĞĞÅÏ¢ĞèÒª´«ËÍ
+		if (!canStartTransfer())//æ˜¯å¦æœ‰æ—æ°èŠ‚ç‚¹ä¸”æœ‰ä¿¡æ¯éœ€è¦ä¼ é€
 			return;
 		
-		//Èç¹ûÈ«¾ÖÁ´Â·×´Ì¬ÓĞËù¸Ä±ä£¬¾ÍĞèÒªÖØĞÂ¼ÆËãËùÓĞÂ·ÓÉ
+		//å¦‚æœå…¨å±€é“¾è·¯çŠ¶æ€æœ‰æ‰€æ”¹å˜ï¼Œå°±éœ€è¦é‡æ–°è®¡ç®—æ‰€æœ‰è·¯ç”±
 		/*boolean linkStateChange = false;
 		if (linkStateChange == true){
 			this.busyLabel.clear();
@@ -136,7 +136,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		routerTableUpdateLabel = false;
 		if (messages.isEmpty())
 			return;
-		for (Message msg : messages){//³¢ÊÔ·¢ËÍ¶ÓÁĞÀïµÄÏûÏ¢	
+		for (Message msg : messages){//å°è¯•å‘é€é˜Ÿåˆ—é‡Œçš„æ¶ˆæ¯	
 			if (checkBusyLabelForNextHop(msg))
 				continue;
 			if (findPathToSend(msg, connections, this.msgPathLabel) == true)
@@ -144,9 +144,9 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		}
 	}
 	/**
-	 * ¼ì²é´Ë´ı´«ÏûÏ¢msgÊÇ·ñĞèÒªµÈ´ı£¬µÈ´ıÔ­Òò¿ÉÄÜÊÇ1.Ä¿µÄ½ÚµãÕıÔÚ±»Õ¼ÓÃ£»2.Â·ÓÉµÃµ½µÄÂ·¾¶ÊÇÔ¤²âÂ·¾¶£¬ÏÂÒ»Ìø½ÚµãĞèÒªµÈ´ıÒ»¶ÎÊ±¼ä²ÅÄÜµ½´ï
+	 * æ£€æŸ¥æ­¤å¾…ä¼ æ¶ˆæ¯msgæ˜¯å¦éœ€è¦ç­‰å¾…ï¼Œç­‰å¾…åŸå› å¯èƒ½æ˜¯1.ç›®çš„èŠ‚ç‚¹æ­£åœ¨è¢«å ç”¨ï¼›2.è·¯ç”±å¾—åˆ°çš„è·¯å¾„æ˜¯é¢„æµ‹è·¯å¾„ï¼Œä¸‹ä¸€è·³èŠ‚ç‚¹éœ€è¦ç­‰å¾…ä¸€æ®µæ—¶é—´æ‰èƒ½åˆ°è¾¾
 	 * @param msg
-	 * @return ÊÇ·ñĞèÒªµÈ´ı
+	 * @return æ˜¯å¦éœ€è¦ç­‰å¾…
 	 */
 	public boolean checkBusyLabelForNextHop(Message msg){
 		if (this.busyLabel.containsKey(msg.getId())){
@@ -161,63 +161,63 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		return false;
 	}
 	/**
-	 * ¸üĞÂÂ·ÓÉ±í£¬Ñ°ÕÒÂ·¾¶²¢³¢ÊÔ×ª·¢ÏûÏ¢
+	 * æ›´æ–°è·¯ç”±è¡¨ï¼Œå¯»æ‰¾è·¯å¾„å¹¶å°è¯•è½¬å‘æ¶ˆæ¯
 	 * @param msg
 	 * @param connections
 	 * @param msgPathLabel
 	 * @return
 	 */
 	public boolean findPathToSend(Message msg, List<Connection> connections, boolean msgPathLabel){
-		if (msgPathLabel == true){//Èç¹ûÔÊĞíÔÚÏûÏ¢ÖĞĞ´ÈëÂ·¾¶ÏûÏ¢
-			if (msg.getProperty(MSG_ROUTERPATH) == null){//Í¨¹ı°üÍ·ÊÇ·ñÒÑĞ´ÈëÂ·¾¶ĞÅÏ¢À´ÅĞ¶ÏÊÇ·ñĞèÒªµ¥¶À¼ÆËãÂ·ÓÉ(Í¬Ê±Ò²°üº¬ÁËÔ¤²âµÄ¿ÉÄÜ)
+		if (msgPathLabel == true){//å¦‚æœå…è®¸åœ¨æ¶ˆæ¯ä¸­å†™å…¥è·¯å¾„æ¶ˆæ¯
+			if (msg.getProperty(MSG_ROUTERPATH) == null){//é€šè¿‡åŒ…å¤´æ˜¯å¦å·²å†™å…¥è·¯å¾„ä¿¡æ¯æ¥åˆ¤æ–­æ˜¯å¦éœ€è¦å•ç‹¬è®¡ç®—è·¯ç”±(åŒæ—¶ä¹ŸåŒ…å«äº†é¢„æµ‹çš„å¯èƒ½)
 				Tuple<Message, Connection> t = 
 						findPathFromRouterTabel(msg, connections, msgPathLabel);
 				return sendMsg(t);
 			}
-			else{//Èç¹ûÊÇÖĞ¼Ì½Úµã£¬¾Í¼ì²éÏûÏ¢Ëù´øµÄÂ·¾¶ĞÅÏ¢
+			else{//å¦‚æœæ˜¯ä¸­ç»§èŠ‚ç‚¹ï¼Œå°±æ£€æŸ¥æ¶ˆæ¯æ‰€å¸¦çš„è·¯å¾„ä¿¡æ¯
 				Tuple<Message, Connection> t = 
 						findPathFromMessage(msg);
-				assert t != null: "¶ÁÈ¡Â·¾¶ĞÅÏ¢Ê§°Ü£¡";
+				assert t != null: "è¯»å–è·¯å¾„ä¿¡æ¯å¤±è´¥ï¼";
 				return sendMsg(t);
 			}
-		}else{//²»»áÔÙĞÅÏ¢ÖĞĞ´ÈëÂ·¾¶ĞÅÏ¢£¬Ã¿Ò»Ìø¶¼ĞèÒªÖØĞÂ¼ÆËãÂ·¾¶
+		}else{//ä¸ä¼šå†ä¿¡æ¯ä¸­å†™å…¥è·¯å¾„ä¿¡æ¯ï¼Œæ¯ä¸€è·³éƒ½éœ€è¦é‡æ–°è®¡ç®—è·¯å¾„
 			Tuple<Message, Connection> t = 
-					findPathFromRouterTabel(msg, connections, msgPathLabel);//°´´ı·¢ËÍÏûÏ¢Ë³ĞòÕÒÂ·¾¶£¬²¢³¢ÊÔ·¢ËÍ
+					findPathFromRouterTabel(msg, connections, msgPathLabel);//æŒ‰å¾…å‘é€æ¶ˆæ¯é¡ºåºæ‰¾è·¯å¾„ï¼Œå¹¶å°è¯•å‘é€
 			return sendMsg(t);
 		}
 	}
 	/**
-	 * Í¨¹ı¶ÁÈ¡ĞÅÏ¢msgÍ·²¿ÀïµÄÂ·¾¶ĞÅÏ¢£¬À´»ñÈ¡Â·ÓÉÂ·¾¶£¬Èç¹ûÊ§Ğ§£¬ÔòĞèÒªµ±Ç°½ÚµãÖØĞÂ¼ÆËãÂ·ÓÉ
+	 * é€šè¿‡è¯»å–ä¿¡æ¯msgå¤´éƒ¨é‡Œçš„è·¯å¾„ä¿¡æ¯ï¼Œæ¥è·å–è·¯ç”±è·¯å¾„ï¼Œå¦‚æœå¤±æ•ˆï¼Œåˆ™éœ€è¦å½“å‰èŠ‚ç‚¹é‡æ–°è®¡ç®—è·¯ç”±
 	 * @param msg
 	 * @return
 	 */
 	public Tuple<Message, Connection> findPathFromMessage(Message msg){
 		assert msg.getProperty(MSG_ROUTERPATH) != null : 
-			"message don't have routerPath";//ÏÈ²é¿´ĞÅÏ¢ÓĞÃ»ÓĞÂ·¾¶ĞÅÏ¢£¬Èç¹ûÓĞ¾Í°´ÕÕÒÑÓĞÂ·¾¶ĞÅÏ¢·¢ËÍ£¬Ã»ÓĞÔò²éÕÒÂ·ÓÉ±í½øĞĞ·¢ËÍ
+			"message don't have routerPath";//å…ˆæŸ¥çœ‹ä¿¡æ¯æœ‰æ²¡æœ‰è·¯å¾„ä¿¡æ¯ï¼Œå¦‚æœæœ‰å°±æŒ‰ç…§å·²æœ‰è·¯å¾„ä¿¡æ¯å‘é€ï¼Œæ²¡æœ‰åˆ™æŸ¥æ‰¾è·¯ç”±è¡¨è¿›è¡Œå‘é€
 		List<Tuple<Integer, Boolean>> routerPath = (List<Tuple<Integer, Boolean>>)msg.getProperty(MSG_ROUTERPATH);
 		
 		int thisAddress = this.getHost().getAddress();
-		assert msg.getTo().getAddress() != thisAddress : "±¾½ÚµãÒÑÊÇÄ¿µÄ½Úµã£¬½ÓÊÕ´¦Àí¹ı³Ì´íÎó";
+		assert msg.getTo().getAddress() != thisAddress : "æœ¬èŠ‚ç‚¹å·²æ˜¯ç›®çš„èŠ‚ç‚¹ï¼Œæ¥æ”¶å¤„ç†è¿‡ç¨‹é”™è¯¯";
 		int nextHopAddress = -1;
 		
 		//System.out.println(this.getHost()+"  "+msg+" "+routerPath);
 		boolean waitLable = false;
 		for (int i = 0; i < routerPath.size(); i++){
 			if (routerPath.get(i).getKey() == thisAddress){
-				nextHopAddress = routerPath.get(i+1).getKey();//ÕÒµ½ÏÂÒ»Ìø½ÚµãµØÖ·
-				waitLable = routerPath.get(i+1).getValue();//ÕÒµ½ÏÂÒ»ÌøÊÇ·ñĞèÒªµÈ´ıµÄ±êÖ¾Î»
-				break;//Ìø³öÑ­»·
+				nextHopAddress = routerPath.get(i+1).getKey();//æ‰¾åˆ°ä¸‹ä¸€è·³èŠ‚ç‚¹åœ°å€
+				waitLable = routerPath.get(i+1).getValue();//æ‰¾åˆ°ä¸‹ä¸€è·³æ˜¯å¦éœ€è¦ç­‰å¾…çš„æ ‡å¿—ä½
+				break;//è·³å‡ºå¾ªç¯
 			}
 		}
 				
 		if (nextHopAddress > -1){
 			Connection nextCon = findConnection(nextHopAddress);
-			if (nextCon == null){//ÄÜÕÒµ½Â·¾¶ĞÅÏ¢£¬µ«ÊÇÈ´Ã»ÄÜÕÒµ½Á¬½Ó
-				if (!waitLable){//¼ì²éÊÇ²»ÊÇÓĞÔ¤²âÁÚ¾ÓÁ´Â·
-					System.out.println(this.getHost()+"  "+msg+" Ö¸¶¨Â·¾¶Ê§Ğ§");
-					msg.removeProperty(this.MSG_ROUTERPATH);//Çå³ıÔ­ÏÈÂ·¾¶ĞÅÏ¢!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			if (nextCon == null){//èƒ½æ‰¾åˆ°è·¯å¾„ä¿¡æ¯ï¼Œä½†æ˜¯å´æ²¡èƒ½æ‰¾åˆ°è¿æ¥
+				if (!waitLable){//æ£€æŸ¥æ˜¯ä¸æ˜¯æœ‰é¢„æµ‹é‚»å±…é“¾è·¯
+					System.out.println(this.getHost()+"  "+msg+" æŒ‡å®šè·¯å¾„å¤±æ•ˆ");
+					msg.removeProperty(this.MSG_ROUTERPATH);//æ¸…é™¤åŸå…ˆè·¯å¾„ä¿¡æ¯!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					Tuple<Message, Connection> t = 
-							findPathFromRouterTabel(msg, this.getConnections(), true);//Çå³ıÔ­ÏÈÂ·¾¶ĞÅÏ¢Ö®ºóÔÙÖØĞÂÑ°Â·
+							findPathFromRouterTabel(msg, this.getConnections(), true);//æ¸…é™¤åŸå…ˆè·¯å¾„ä¿¡æ¯ä¹‹åå†é‡æ–°å¯»è·¯
 					return t;
 				}
 			}else{
@@ -230,7 +230,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	}
 
 	/**
-	 * Í¨¹ı¸üĞÂÂ·ÓÉ±í£¬ÕÒµ½µ±Ç°ĞÅÏ¢Ó¦µ±×ª·¢µÄÏÂÒ»Ìø½Úµã£¬²¢ÇÒ¸ù¾İÔ¤ÏÈÉèÖÃ¾ö¶¨´Ë¼ÆËãµÃµ½µÄÂ·¾¶ĞÅÏ¢ÊÇ·ñĞèÒªĞ´ÈëĞÅÏ¢msgÍ·²¿µ±ÖĞ
+	 * é€šè¿‡æ›´æ–°è·¯ç”±è¡¨ï¼Œæ‰¾åˆ°å½“å‰ä¿¡æ¯åº”å½“è½¬å‘çš„ä¸‹ä¸€è·³èŠ‚ç‚¹ï¼Œå¹¶ä¸”æ ¹æ®é¢„å…ˆè®¾ç½®å†³å®šæ­¤è®¡ç®—å¾—åˆ°çš„è·¯å¾„ä¿¡æ¯æ˜¯å¦éœ€è¦å†™å…¥ä¿¡æ¯msgå¤´éƒ¨å½“ä¸­
 	 * @param message
 	 * @param connections
 	 * @param msgPathLabel
@@ -238,38 +238,38 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	 */
 	public Tuple<Message, Connection> findPathFromRouterTabel(Message message, List<Connection> connections, boolean msgPathLabel){
 		
-		if (updateRouterTable(message) == false){//ÔÚ´«ÊäÖ®Ç°£¬ÏÈ¸üĞÂÂ·ÓÉ±í
-			return null;//ÈôÃ»ÓĞ·µ»ØËµÃ÷Ò»¶¨ÕÒµ½ÁË¶ÔÓ¦Â·¾¶
+		if (updateRouterTable(message) == false){//åœ¨ä¼ è¾“ä¹‹å‰ï¼Œå…ˆæ›´æ–°è·¯ç”±è¡¨
+			return null;//è‹¥æ²¡æœ‰è¿”å›è¯´æ˜ä¸€å®šæ‰¾åˆ°äº†å¯¹åº”è·¯å¾„
 		}
 		
 		List<Tuple<Integer, Boolean>> routerPath;
-		if (this.getHost().getMEOList().contains(this.getHost()))//Èç¹ûÊÇMEO½Úµã£¬ÔòÖ±½ÓÕÒµ½Ä¿µÄ½ÚµãµÄÂ·¾¶
+		if (this.getHost().getMEOList().contains(this.getHost()))//å¦‚æœæ˜¯MEOèŠ‚ç‚¹ï¼Œåˆ™ç›´æ¥æ‰¾åˆ°ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„
 			routerPath = this.routerTable.get(message.getTo());
 		else{
-			if (this.getHost().getHostsinthisCluster().contains(message.getTo())){//¶ÔÓÚ´ØÄÚµÄ½Úµã£¬Ö±½ÓÕÒÑ°×î¶ÌÂ·¾¶
+			if (this.getHost().getHostsinthisCluster().contains(message.getTo())){//å¯¹äºç°‡å†…çš„èŠ‚ç‚¹ï¼Œç›´æ¥æ‰¾å¯»æœ€çŸ­è·¯å¾„
 				routerPath = this.routerTable.get(message.getTo());
 			}		
 			else{
-				routerPath = this.routerTable.get(this.MEOinthisTime);//¶Ô·Ç´ØÄÚµÄ½Úµã£¬ÕÒÑ°¿É´ïµÄ¹ÜÀí½ÚµãMEO£¬ÓÉMEO½øĞĞ×ª·¢
+				routerPath = this.routerTable.get(this.MEOinthisTime);//å¯¹éç°‡å†…çš„èŠ‚ç‚¹ï¼Œæ‰¾å¯»å¯è¾¾çš„ç®¡ç†èŠ‚ç‚¹MEOï¼Œç”±MEOè¿›è¡Œè½¬å‘
 			}
 		}
 
 		
-		if (msgPathLabel == true){//Èç¹ûĞ´ÈëÂ·¾¶ĞÅÏ¢±êÖ¾Î»Õæ£¬¾ÍĞ´ÈëÂ·¾¶ÏûÏ¢
+		if (msgPathLabel == true){//å¦‚æœå†™å…¥è·¯å¾„ä¿¡æ¯æ ‡å¿—ä½çœŸï¼Œå°±å†™å…¥è·¯å¾„æ¶ˆæ¯
 			message.updateProperty(MSG_ROUTERPATH, routerPath);
 		}
 					
-		Connection path = findConnection(routerPath.get(0).getKey());//È¡µÚÒ»ÌøµÄ½ÚµãµØÖ·
+		Connection path = findConnection(routerPath.get(0).getKey());//å–ç¬¬ä¸€è·³çš„èŠ‚ç‚¹åœ°å€
 		if (path != null){
-			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, path);//ÕÒµ½ÓëµÚÒ»Ìø½ÚµãµÄÁ¬½Ó
+			Tuple<Message, Connection> t = new Tuple<Message, Connection>(message, path);//æ‰¾åˆ°ä¸ç¬¬ä¸€è·³èŠ‚ç‚¹çš„è¿æ¥
 			return t;
 		}
 		else{			
 			if (routerPath.get(0).getValue()){
-				System.out.println("µÚÒ»ÌøÔ¤²â");
+				System.out.println("ç¬¬ä¸€è·³é¢„æµ‹");
 				return null;
 				//DTNHost nextHop = this.getHostFromAddress(routerPath.get(0).getKey()); 
-				//this.busyLabel.put(message.getId(), startTime);//ÉèÖÃÒ»¸öµÈ´ı
+				//this.busyLabel.put(message.getId(), startTime);//è®¾ç½®ä¸€ä¸ªç­‰å¾…
 			}
 			else{
 				System.out.println(message+"  "+message.getProperty(MSG_WAITLABEL));
@@ -285,7 +285,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		}
 	}
 	/**
-	 * ÓÉ½ÚµãµØÖ·ÕÒµ½¶ÔÓ¦µÄ½ÚµãDTNHost
+	 * ç”±èŠ‚ç‚¹åœ°å€æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹DTNHost
 	 * @param address
 	 * @return
 	 */
@@ -297,7 +297,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		return null;
 	}
 	/**
-	 * ÓÉÏÂÒ»Ìø½ÚµãµØÖ·Ñ°ÕÒ¶ÔÓ¦µÄÁÚ¾ÓÁ¬½Ó
+	 * ç”±ä¸‹ä¸€è·³èŠ‚ç‚¹åœ°å€å¯»æ‰¾å¯¹åº”çš„é‚»å±…è¿æ¥
 	 * @param address
 	 * @return
 	 */
@@ -310,12 +310,12 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	}
 
 	/**
-	 * ¸üĞÂÂ·ÓÉ±í£¬°üÀ¨1¡¢¸üĞÂÒÑÓĞÁ´Â·µÄÂ·¾¶£»2¡¢½øĞĞÈ«¾ÖÔ¤²â
+	 * æ›´æ–°è·¯ç”±è¡¨ï¼ŒåŒ…æ‹¬1ã€æ›´æ–°å·²æœ‰é“¾è·¯çš„è·¯å¾„ï¼›2ã€è¿›è¡Œå…¨å±€é¢„æµ‹
 	 * @param m
 	 * @return
 	 */
 	public boolean updateRouterTable(Message msg){
-		if (this.getHost().getMEOList().contains(this.getHost()))//Èç¹ûÕâÊÇÒ»¸öMEO½Úµã
+		if (this.getHost().getMEOList().contains(this.getHost()))//å¦‚æœè¿™æ˜¯ä¸€ä¸ªMEOèŠ‚ç‚¹
 			gridSearch(msg, msg.getTo());
 		else{
 			if (this.getHost().getHostsinthisCluster().contains(msg.getTo()))
@@ -335,25 +335,25 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		}
 		System.out.println("");*/
 		
-		//updatePredictionRouter(msg);//ĞèÒª½øĞĞÔ¤²â
-		if (this.routerTable.containsKey(msg.getTo())){//Ô¤²âÒ²ÕÒ²»µ½µ½´ïÄ¿µÄ½ÚµãµÄÂ·¾¶£¬ÔòÂ·ÓÉÊ§°Ü
-			//m.changeRouterPath(this.routerTable.get(m.getTo()));//°Ñ¼ÆËã³öÀ´µÄÂ·¾¶Ö±½ÓĞ´ÈëĞÅÏ¢µ±ÖĞ
-			System.out.println("Ñ°Â·³É¹¦£¡£¡£¡");
-			return true;//ÕÒµ½ÁËÂ·¾¶
+		//updatePredictionRouter(msg);//éœ€è¦è¿›è¡Œé¢„æµ‹
+		if (this.routerTable.containsKey(msg.getTo())){//é¢„æµ‹ä¹Ÿæ‰¾ä¸åˆ°åˆ°è¾¾ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„ï¼Œåˆ™è·¯ç”±å¤±è´¥
+			//m.changeRouterPath(this.routerTable.get(m.getTo()));//æŠŠè®¡ç®—å‡ºæ¥çš„è·¯å¾„ç›´æ¥å†™å…¥ä¿¡æ¯å½“ä¸­
+			System.out.println("å¯»è·¯æˆåŠŸï¼ï¼ï¼");
+			return true;//æ‰¾åˆ°äº†è·¯å¾„
 		}else{
-			//System.out.println("Ñ°Â·Ê§°Ü£¡£¡£¡");
+			//System.out.println("å¯»è·¯å¤±è´¥ï¼ï¼ï¼");
 			return false;
 		}
 		
-		//if (!this.getHost().getNeighbors().getNeighbors().isEmpty())//Èç¹û±¾½Úµã²»´¦ÓÚ¹ÂÁ¢×´Ì¬£¬Ôò½øĞĞÁÚ¾Ó½ÚµãµÄÂ·ÓÉ¸üĞÂ
+		//if (!this.getHost().getNeighbors().getNeighbors().isEmpty())//å¦‚æœæœ¬èŠ‚ç‚¹ä¸å¤„äºå­¤ç«‹çŠ¶æ€ï¼Œåˆ™è¿›è¡Œé‚»å±…èŠ‚ç‚¹çš„è·¯ç”±æ›´æ–°
 	}
 	/**
-	 * ºËĞÄÂ·ÓÉËã·¨£¬ÔËÓÃÌ°ĞÄÑ¡ÔñĞÔÖÊ½øĞĞ±éÀú£¬ÕÒ³öµ½´ïÄ¿µÄ½Úµã×î¶ÌÂ·¾¶£»Í¬Ê±¸ù¾İ·Ö´Ø¹æ¶¨£¬¶ÔÓÚ²»ÔÚÍ¬Ò»¸ö´ØÄÚµÄÄ¿µÄ½Úµã£¬×ª¶øÕÒÑ°Í¨ÍùMEO½ÚµãµÄÂ·¾¶£¬ÈÃMEO½Úµã´úÎª×ª·¢
+	 * æ ¸å¿ƒè·¯ç”±ç®—æ³•ï¼Œè¿ç”¨è´ªå¿ƒé€‰æ‹©æ€§è´¨è¿›è¡Œéå†ï¼Œæ‰¾å‡ºåˆ°è¾¾ç›®çš„èŠ‚ç‚¹æœ€çŸ­è·¯å¾„ï¼›åŒæ—¶æ ¹æ®åˆ†ç°‡è§„å®šï¼Œå¯¹äºä¸åœ¨åŒä¸€ä¸ªç°‡å†…çš„ç›®çš„èŠ‚ç‚¹ï¼Œè½¬è€Œæ‰¾å¯»é€šå¾€MEOèŠ‚ç‚¹çš„è·¯å¾„ï¼Œè®©MEOèŠ‚ç‚¹ä»£ä¸ºè½¬å‘
 	 * @param msg
 	 * @param destinationHost
 	 */
 	public void gridSearch(Message msg, DTNHost destinationHost){
-		if (routerTableUpdateLabel == true)//routerTableUpdateLabel == trueÔò´ú±í´Ë´Î¸üĞÂÂ·ÓÉ±íÒÑ¾­¸üĞÂ¹ıÁË£¬ËùÒÔ²»ÒªÖØ¸´¼ÆËã
+		if (routerTableUpdateLabel == true)//routerTableUpdateLabel == trueåˆ™ä»£è¡¨æ­¤æ¬¡æ›´æ–°è·¯ç”±è¡¨å·²ç»æ›´æ–°è¿‡äº†ï¼Œæ‰€ä»¥ä¸è¦é‡å¤è®¡ç®—
 			return;
 		this.routerTable.clear();
 		
@@ -362,66 +362,66 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		}
 		//GridNeighbors GN = this.getHost().getGridNeighbors();
 		Settings s = new Settings(GROUPNAME_S);
-		String option = s.getSetting("Pre_or_onlineOrbitCalculation");//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡ÉèÖÃ£¬ÊÇ²ÉÓÃÔÚÔËĞĞ¹ı³ÌÖĞ²»¶Ï¼ÆËã¹ìµÀ×ø±êµÄ·½Ê½£¬»¹ÊÇÍ¨¹ıÌáÇ°ÀûÓÃÍø¸ñ±í´æ´¢¸÷¸ö½ÚµãµÄ¹ìµÀĞÅÏ¢
+		String option = s.getSetting("Pre_or_onlineOrbitCalculation");//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–è®¾ç½®ï¼Œæ˜¯é‡‡ç”¨åœ¨è¿è¡Œè¿‡ç¨‹ä¸­ä¸æ–­è®¡ç®—è½¨é“åæ ‡çš„æ–¹å¼ï¼Œè¿˜æ˜¯é€šè¿‡æå‰åˆ©ç”¨ç½‘æ ¼è¡¨å­˜å‚¨å„ä¸ªèŠ‚ç‚¹çš„è½¨é“ä¿¡æ¯
 		
 		HashMap<String, Integer> orbitCalculationWay = new HashMap<String, Integer>();
 		orbitCalculationWay.put("preOrbitCalculation", 1);
 		orbitCalculationWay.put("onlineOrbitCalculation", 2);
 		
 		switch (orbitCalculationWay.get(option)){
-		case 1://Í¨¹ıÌáÇ°ÀûÓÃÍø¸ñ±í´æ´¢¸÷¸ö½ÚµãµÄ¹ìµÀĞÅÏ¢£¬´Ó¶øÔËĞĞ¹ı³ÌÖĞ²»ÔÙµ÷ÓÃ¹ìµÀ¼ÆËãº¯ÊıÀ´Ô¤²â¶øÊÇÍ¨¹ı¶Á±íÀ´Ô¤²â
-			GN.updateGrid_without_OrbitCalculation();//¸üĞÂÍø¸ñ±í
+		case 1://é€šè¿‡æå‰åˆ©ç”¨ç½‘æ ¼è¡¨å­˜å‚¨å„ä¸ªèŠ‚ç‚¹çš„è½¨é“ä¿¡æ¯ï¼Œä»è€Œè¿è¡Œè¿‡ç¨‹ä¸­ä¸å†è°ƒç”¨è½¨é“è®¡ç®—å‡½æ•°æ¥é¢„æµ‹è€Œæ˜¯é€šè¿‡è¯»è¡¨æ¥é¢„æµ‹
+			GN.updateGrid_without_OrbitCalculation();//æ›´æ–°ç½‘æ ¼è¡¨
 			break;
 		case 2:
-			GN.updateGrid_with_OrbitCalculation();//¸üĞÂÍø¸ñ±í
+			GN.updateGrid_with_OrbitCalculation();//æ›´æ–°ç½‘æ ¼è¡¨
 			break;
 		}
 		
 		List<DTNHost> sourceSet = new ArrayList<DTNHost>();
-		List<DTNHost> availableHosts = new ArrayList<DTNHost>();//´´½¨Ò»¸öMEO»òÕßÊÇLEO¿É´ïµÄ½Úµã¼¯ºÏ
-		/**1.Èç¹ûÕâÊÇÒ»¸öMEO½Úµã**/
+		List<DTNHost> availableHosts = new ArrayList<DTNHost>();//åˆ›å»ºä¸€ä¸ªMEOæˆ–è€…æ˜¯LEOå¯è¾¾çš„èŠ‚ç‚¹é›†åˆ
+		/**1.å¦‚æœè¿™æ˜¯ä¸€ä¸ªMEOèŠ‚ç‚¹**/
 		if (this.getHost().getMEOList().contains(this.getHost())){			
 			availableHosts.addAll(this.getHost().getMEOList());
-			availableHosts.addAll(this.getHost().getClusterList().get(msg.getTo().getClusterNumber()));//ÕÒµ½Ä¿µÄ½ÚµãËùÔÚµÄ´ØµÄ½ÚµãÁĞ±í£¬²¢¼ÓÈë¿ÉÑ¡×ª·¢½ÚµãÁĞ±íÖĞ
+			availableHosts.addAll(this.getHost().getClusterList().get(msg.getTo().getClusterNumber()));//æ‰¾åˆ°ç›®çš„èŠ‚ç‚¹æ‰€åœ¨çš„ç°‡çš„èŠ‚ç‚¹åˆ—è¡¨ï¼Œå¹¶åŠ å…¥å¯é€‰è½¬å‘èŠ‚ç‚¹åˆ—è¡¨ä¸­
 			
-			/*Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í*/
-			sourceSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞ±¾½Úµã
-			for (Connection con : this.getHost().getConnections()){//Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í
+			/*æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨*/
+			sourceSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹
+			for (Connection con : this.getHost().getConnections()){//æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨
 				DTNHost neiHost = con.getOtherNode(this.getHost());
-				if (availableHosts.contains(neiHost)){//Ö»Ìí¼ÓÔÚ¿ÉÓÃ½Úµã¼¯ºÏavailableHostsÖĞµÄÁÚ¾Ó½Úµã
-					sourceSet.add(neiHost);//³õÊ¼Ê±Ö»ÓĞ±¾½ÚµãºÍÁ´Â·ÁÚ¾Ó		
+				if (availableHosts.contains(neiHost)){//åªæ·»åŠ åœ¨å¯ç”¨èŠ‚ç‚¹é›†åˆavailableHostsä¸­çš„é‚»å±…èŠ‚ç‚¹
+					sourceSet.add(neiHost);//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹å’Œé“¾è·¯é‚»å±…		
 					Double time = SimClock.getTime() + msg.getSize()/this.getHost().getInterface(1).getTransmitSpeed();
 					List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 					Tuple<Integer, Boolean> hop = new Tuple<Integer, Boolean>(neiHost.getAddress(), false);
-					path.add(hop);//×¢ÒâË³Ğò
+					path.add(hop);//æ³¨æ„é¡ºåº
 					arrivalTime.put(neiHost, time);
 					routerTable.put(neiHost, path);
 				}
 			}
 			
-			/*Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í*/
+			/*æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨*/
 		}
-		/**2.Èç¹ûÕâÊÇÒ»¸öLEO½Úµã£¬ÔòÖ»ÄÜÕÒÑ°ÔÚ±¾´ØÄÚµÄÖ±´ïÂ·¾¶£¬·ñÔò£¬¿ç´ØÔò½»ÓÉMEO½Úµã½øĞĞ×ª·¢**/
+		/**2.å¦‚æœè¿™æ˜¯ä¸€ä¸ªLEOèŠ‚ç‚¹ï¼Œåˆ™åªèƒ½æ‰¾å¯»åœ¨æœ¬ç°‡å†…çš„ç›´è¾¾è·¯å¾„ï¼Œå¦åˆ™ï¼Œè·¨ç°‡åˆ™äº¤ç”±MEOèŠ‚ç‚¹è¿›è¡Œè½¬å‘**/
 		else{	
 			availableHosts.addAll(this.getHost().getMEOList());
-			availableHosts.addAll(this.getHost().getClusterList().get(this.getHost().getClusterNumber()));//ÕÒµ½±¾½ÚµãËùÔÚµÄ´ØµÄ½ÚµãÁĞ±í£¬²¢¼ÓÈë¿ÉÑ¡×ª·¢½ÚµãÁĞ±íÖĞ
+			availableHosts.addAll(this.getHost().getClusterList().get(this.getHost().getClusterNumber()));//æ‰¾åˆ°æœ¬èŠ‚ç‚¹æ‰€åœ¨çš„ç°‡çš„èŠ‚ç‚¹åˆ—è¡¨ï¼Œå¹¶åŠ å…¥å¯é€‰è½¬å‘èŠ‚ç‚¹åˆ—è¡¨ä¸­
 			
-			/*Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í*/
-			sourceSet.add(this.getHost());//³õÊ¼Ê±Ö»ÓĞ±¾½Úµã
+			/*æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨*/
+			sourceSet.add(this.getHost());//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹
 			
-			for (Connection con : this.getHost().getConnections()){//Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í
+			for (Connection con : this.getHost().getConnections()){//æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨
 				DTNHost neiHost = con.getOtherNode(this.getHost());
-				if (availableHosts.contains(neiHost)){//Ö»Ìí¼ÓÔÚ¿ÉÓÃ½Úµã¼¯ºÏavailableHostsÖĞµÄÁÚ¾Ó½Úµã
-					sourceSet.add(neiHost);//³õÊ¼Ê±Ö»ÓĞ±¾½ÚµãºÍÁ´Â·ÁÚ¾Ó		
+				if (availableHosts.contains(neiHost)){//åªæ·»åŠ åœ¨å¯ç”¨èŠ‚ç‚¹é›†åˆavailableHostsä¸­çš„é‚»å±…èŠ‚ç‚¹
+					sourceSet.add(neiHost);//åˆå§‹æ—¶åªæœ‰æœ¬èŠ‚ç‚¹å’Œé“¾è·¯é‚»å±…		
 					Double time = SimClock.getTime() + msg.getSize()/this.getHost().getInterface(1).getTransmitSpeed();
 					List<Tuple<Integer, Boolean>> path = new ArrayList<Tuple<Integer, Boolean>>();
 					Tuple<Integer, Boolean> hop = new Tuple<Integer, Boolean>(neiHost.getAddress(), false);
-					path.add(hop);//×¢ÒâË³Ğò
+					path.add(hop);//æ³¨æ„é¡ºåº
 					arrivalTime.put(neiHost, time);
 					routerTable.put(neiHost, path);
 				}
 			}
-			/*Ìí¼ÓÁ´Â·¿ÉÌ½²âµ½µÄÒ»ÌøÁÚ¾Ó£¬²¢¸üĞÂÂ·ÓÉ±í*/
+			/*æ·»åŠ é“¾è·¯å¯æ¢æµ‹åˆ°çš„ä¸€è·³é‚»å±…ï¼Œå¹¶æ›´æ–°è·¯ç”±è¡¨*/
 			}	
 		
 		int iteratorTimes = 0;
@@ -433,44 +433,44 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		List<Tuple<Integer, Boolean>> minPath = new ArrayList<Tuple<Integer, Boolean>>();
 
 		
-		arrivalTime.put(this.getHost(), SimClock.getTime());//³õÊ¼»¯µ½´ïÊ±¼ä
+		arrivalTime.put(this.getHost(), SimClock.getTime());//åˆå§‹åŒ–åˆ°è¾¾æ—¶é—´
 		
-		while(true){//DijsktraËã·¨Ë¼Ïë£¬Ã¿´ÎÀú±éÈ«¾Ö£¬ÕÒÊ±ÑÓ×îĞ¡µÄ¼ÓÈëÂ·ÓÉ±í£¬±£Ö¤Â·ÓÉ±íÖĞÓÀÔ¶ÊÇÊ±ÑÓ×îĞ¡µÄÂ·¾¶
+		while(true){//Dijsktraç®—æ³•æ€æƒ³ï¼Œæ¯æ¬¡å†éå…¨å±€ï¼Œæ‰¾æ—¶å»¶æœ€å°çš„åŠ å…¥è·¯ç”±è¡¨ï¼Œä¿è¯è·¯ç”±è¡¨ä¸­æ°¸è¿œæ˜¯æ—¶å»¶æœ€å°çš„è·¯å¾„
 			if (iteratorTimes >= size || updateLabel == false)
 				break; 
 			updateLabel = false;
 			minTime = 100000;
 			HashMap<DTNHost, Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>>> 
 						predictionList = new HashMap<DTNHost, Tuple<HashMap<DTNHost, List<Double>>, 
-						HashMap<DTNHost, List<Double>>>>();//´æ´¢»úÖÆ£¬Èç¹ûÖ®Ç°ÒÑ¾­Ëã¹ı¾Í²»ÓÃÔÙÖØ¸´¼ÆËãÁË
+						HashMap<DTNHost, List<Double>>>>();//å­˜å‚¨æœºåˆ¶ï¼Œå¦‚æœä¹‹å‰å·²ç»ç®—è¿‡å°±ä¸ç”¨å†é‡å¤è®¡ç®—äº†
 			
 			for (DTNHost host : sourceSet){
-				Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime;//ÁÚ¾Ó½Úµãµ½´ïÊ±¼äºÍÀë¿ªÊ±¼äµÄ¶şÔª×é×éºÏ
+				Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime;//é‚»å±…èŠ‚ç‚¹åˆ°è¾¾æ—¶é—´å’Œç¦»å¼€æ—¶é—´çš„äºŒå…ƒç»„ç»„åˆ
 				HashMap<DTNHost, List<Double>> startTime;
 				HashMap<DTNHost, List<Double>> leaveTime;
 				
-				if (predictionList.containsKey(host)){//´æ´¢»úÖÆ£¬Èç¹ûÖ®Ç°ÒÑ¾­Ëã¹ı¾Í²»ÓÃÔÙÖØ¸´¼ÆËãÁË
+				if (predictionList.containsKey(host)){//å­˜å‚¨æœºåˆ¶ï¼Œå¦‚æœä¹‹å‰å·²ç»ç®—è¿‡å°±ä¸ç”¨å†é‡å¤è®¡ç®—äº†
 					predictTime = predictionList.get(host);
 				}
 				else{
-					List<DTNHost> neiList = GN.getNeighbors(host, arrivalTime.get(host));//»ñÈ¡Ô´¼¯ºÏÖĞhost½ÚµãµÄÁÚ¾Ó½Úµã(°üÀ¨µ±Ç°ºÍÎ´À´ÁÚ¾Ó)
-					assert neiList==null:"Ã»ÄÜ³É¹¦¶ÁÈ¡µ½Ö¸¶¨Ê±¼äµÄÁÚ¾Ó";
+					List<DTNHost> neiList = GN.getNeighbors(host, arrivalTime.get(host));//è·å–æºé›†åˆä¸­hostèŠ‚ç‚¹çš„é‚»å±…èŠ‚ç‚¹(åŒ…æ‹¬å½“å‰å’Œæœªæ¥é‚»å±…)
+					assert neiList==null:"æ²¡èƒ½æˆåŠŸè¯»å–åˆ°æŒ‡å®šæ—¶é—´çš„é‚»å±…";
 					predictTime = GN.getFutureNeighbors(neiList, host, arrivalTime.get(host));
 				}
 				startTime = predictTime.getKey();
 				leaveTime = predictTime.getValue();
 				if (startTime.keySet().isEmpty())
 					continue;
-				for (DTNHost neiHost : startTime.keySet()){//startTime.keySet()°üº¬ÁËËùÓĞµÄÁÚ¾Ó½Úµã£¬°üº¬Î´À´µÄÁÚ¾Ó½Úµã
+				for (DTNHost neiHost : startTime.keySet()){//startTime.keySet()åŒ…å«äº†æ‰€æœ‰çš„é‚»å±…èŠ‚ç‚¹ï¼ŒåŒ…å«æœªæ¥çš„é‚»å±…èŠ‚ç‚¹
 					
-					/**Èç¹û²»ÊÇ¿ÉÑ¡·¶Î§ÄÚµÄ½Úµã£¬ÔòÌø¹ı**/
+					/**å¦‚æœä¸æ˜¯å¯é€‰èŒƒå›´å†…çš„èŠ‚ç‚¹ï¼Œåˆ™è·³è¿‡**/
 					if (!availableHosts.contains(neiHost))
 						continue;
-					/**Èç¹û²»ÊÇ¿ÉÑ¡·¶Î§ÄÚµÄ½Úµã£¬ÔòÌø¹ı**/
+					/**å¦‚æœä¸æ˜¯å¯é€‰èŒƒå›´å†…çš„èŠ‚ç‚¹ï¼Œåˆ™è·³è¿‡**/
 					
 					if (sourceSet.contains(neiHost))
 						continue;
-					if (arrivalTime.get(host) >= SimClock.getTime() + msgTtl*60)//³ö·¢Ê±¼ä¾ÍÒÑ¾­³¬³öTTLÔ¤²âÊ±¼äµÄ»°¾ÍÖ±½ÓÅÅ³ı
+					if (arrivalTime.get(host) >= SimClock.getTime() + msgTtl*60)//å‡ºå‘æ—¶é—´å°±å·²ç»è¶…å‡ºTTLé¢„æµ‹æ—¶é—´çš„è¯å°±ç›´æ¥æ’é™¤
 						continue;
 					double waitTime = startTime.get(neiHost).get(0) - arrivalTime.get(host);
 					if (waitTime <= 0){
@@ -485,8 +485,8 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 					if (this.routerTable.containsKey(host))
 						path.addAll(this.routerTable.get(host));
 					Tuple<Integer, Boolean> hop = new Tuple<Integer, Boolean>(neiHost.getAddress(), predictLable);
-					path.add(hop);//×¢ÒâË³Ğò
-					/*´ıĞŞ¸Ä£¬Ó¦¸ÃÊÇleavetimeµÄ¼ì²é!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+					path.add(hop);//æ³¨æ„é¡ºåº
+					/*å¾…ä¿®æ”¹ï¼Œåº”è¯¥æ˜¯leavetimeçš„æ£€æŸ¥!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 					if (leaveTime.isEmpty()){
 						if (time > SimClock.getTime() + msgTtl*60)
 							continue;
@@ -495,7 +495,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 						if (time > leaveTime.get(neiHost).get(0))
 							continue;
 					}
-					/*´ıĞŞ¸Ä£¬Ó¦¸ÃÊÇleavetimeµÄ¼ì²é!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+					/*å¾…ä¿®æ”¹ï¼Œåº”è¯¥æ˜¯leavetimeçš„æ£€æŸ¥!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 					if (time <= minTime){
 						if (random.nextBoolean() == true && time - minTime < 1){
 							minTime = time;
@@ -511,16 +511,16 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				routerTable.put(minHost, minPath);
 			}
 			iteratorTimes++;
-			sourceSet.add(minHost);//½«ĞÂµÄ×î¶Ì½Úµã¼ÓÈë
-			if (destinationHost == null)//Èç¹ûdestinationHostÎª¿Õ£¬´ú±í´ËĞÅÏ¢msgµÄÄ¿µÄ½Úµã¿ç´ØÁË£¬Ôò×ª½»¸øMEO£¬ÕÒMEOµÄÂ·ÓÉ
+			sourceSet.add(minHost);//å°†æ–°çš„æœ€çŸ­èŠ‚ç‚¹åŠ å…¥
+			if (destinationHost == null)//å¦‚æœdestinationHostä¸ºç©ºï¼Œä»£è¡¨æ­¤ä¿¡æ¯msgçš„ç›®çš„èŠ‚ç‚¹è·¨ç°‡äº†ï¼Œåˆ™è½¬äº¤ç»™MEOï¼Œæ‰¾MEOçš„è·¯ç”±
 				for (DTNHost MEO : this.getHost().getMEOList()){
-					if (routerTable.containsKey(MEO)){//Èç¹ûÖĞÍ¾ÈÎºÎÒ»¸ö¿É´ïµÄMEO£¬ÔòÖ±½Ó·µ»Ø
+					if (routerTable.containsKey(MEO)){//å¦‚æœä¸­é€”ä»»ä½•ä¸€ä¸ªå¯è¾¾çš„MEOï¼Œåˆ™ç›´æ¥è¿”å›
 						this.MEOinthisTime = MEO;
 						routerTableUpdateLabel = true;
 						return;
 					}					
 				}
-			if (routerTable.containsKey(destinationHost))//Èç¹ûÖĞÍ¾ÕÒµ½ĞèÒªµÄÂ·½£¬¾ÍÖ±½ÓÍË³öËÑË÷
+			if (routerTable.containsKey(destinationHost))//å¦‚æœä¸­é€”æ‰¾åˆ°éœ€è¦çš„è·¯å¾‘ï¼Œå°±ç›´æ¥é€€å‡ºæœç´¢
 				break;
 		}
 		routerTableUpdateLabel = true;
@@ -531,12 +531,12 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	
 
 
-	public int transmitFeasible(DTNHost destination){//´«Êä¿ÉĞĞĞÔ,ÅĞ¶ÏÊÇ²»ÊÇÒÑÓĞµ½Ä¿µÄ½ÚµãµÄÂ·¾¶£¬Í¬Ê±»¹Òª±£Ö¤´ËÂ·¾¶µÄ´æÔÚÊ±¼ä´óÓÚ´«ÊäËùĞèÊ±¼ä
+	public int transmitFeasible(DTNHost destination){//ä¼ è¾“å¯è¡Œæ€§,åˆ¤æ–­æ˜¯ä¸æ˜¯å·²æœ‰åˆ°ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„ï¼ŒåŒæ—¶è¿˜è¦ä¿è¯æ­¤è·¯å¾„çš„å­˜åœ¨æ—¶é—´å¤§äºä¼ è¾“æ‰€éœ€æ—¶é—´
 		if (this.routerTable.containsKey(destination)){
 			if (this.transmitDelay[destination.getAddress()] > this.endTime[destination.getAddress()] -SimClock.getTime())
 				return 0;
 			else
-				return 1;//Ö»ÓĞ´ËÊ±¼ÈÕÒµ½ÁËÍ¨ÍùÄ¿µÄ½ÚµãµÄÂ·¾¶£¬Í¬Ê±Â·¾¶ÉÏµÄÁ´Â·´æÔÚÊ±¼ä¿ÉÒÔÂú×ã´«ÊäÑÓÊ±
+				return 1;//åªæœ‰æ­¤æ—¶æ—¢æ‰¾åˆ°äº†é€šå¾€ç›®çš„èŠ‚ç‚¹çš„è·¯å¾„ï¼ŒåŒæ—¶è·¯å¾„ä¸Šçš„é“¾è·¯å­˜åœ¨æ—¶é—´å¯ä»¥æ»¡è¶³ä¼ è¾“å»¶æ—¶
 		}
 		return 2;
 		
@@ -544,7 +544,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 
 
 	/**
-	 * ¶ÔĞÅÏ¢msgÍ·²¿½øĞĞ¸ÄĞ´²Ù×÷£¬¶ÔÔ¤²â½ÚµãµÄµÈ´ı±êÖ¾½øĞĞÖÃÎ»
+	 * å¯¹ä¿¡æ¯msgå¤´éƒ¨è¿›è¡Œæ”¹å†™æ“ä½œï¼Œå¯¹é¢„æµ‹èŠ‚ç‚¹çš„ç­‰å¾…æ ‡å¿—è¿›è¡Œç½®ä½
 	 * @param fromHost
 	 * @param host
 	 * @param msg
@@ -555,7 +555,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		Tuple<DTNHost, Double> waitLabel = new Tuple<DTNHost, Double>(host, startTime);
 		
 		if (msg.getProperty(MSG_WAITLABEL) == null){					
-			waitList.put(fromHost, waitLabel);//fromHostÎªĞèÒªµÈ´ıµÄ½Úµã£¬hostÎªÏÂÒ»ÌøµÄÔ¤²â½Úµã
+			waitList.put(fromHost, waitLabel);//fromHostä¸ºéœ€è¦ç­‰å¾…çš„èŠ‚ç‚¹ï¼Œhostä¸ºä¸‹ä¸€è·³çš„é¢„æµ‹èŠ‚ç‚¹
 			msg.addProperty(MSG_WAITLABEL, waitList);
 		}else{
 			waitList.putAll((HashMap<DTNHost, Tuple<DTNHost, Double>>)msg.getProperty(MSG_WAITLABEL));
@@ -565,19 +565,19 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	}
 	
 	/**
-	 * Í¨¹ıĞÅÏ¢Í·²¿ÄÚµÄÂ·¾¶ĞÅÏ¢(½ÚµãµØÖ·)ÕÒµ½¶ÔÓ¦µÄ½Úµã£¬DTNHostÀà
+	 * é€šè¿‡ä¿¡æ¯å¤´éƒ¨å†…çš„è·¯å¾„ä¿¡æ¯(èŠ‚ç‚¹åœ°å€)æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹ï¼ŒDTNHostç±»
 	 * @param path
 	 * @return
 	 */
 	public List<DTNHost> getHostListFromPath(List<Integer> path){
 		List<DTNHost> hostsOfPath = new ArrayList<DTNHost>();
 		for (int i = 0; i < path.size(); i++){
-			hostsOfPath.add(this.getHostFromAddress(path.get(i)));//¸ù¾İ½ÚµãµØÖ·ÕÒµ½DTNHost 
+			hostsOfPath.add(this.getHostFromAddress(path.get(i)));//æ ¹æ®èŠ‚ç‚¹åœ°å€æ‰¾åˆ°DTNHost 
 		}
 		return hostsOfPath;
 	}
 	/**
-	 * Í¨¹ı½ÚµãµØÖ·ÕÒµ½¶ÔÓ¦µÄ½Úµã£¬DTNHostÀà
+	 * é€šè¿‡èŠ‚ç‚¹åœ°å€æ‰¾åˆ°å¯¹åº”çš„èŠ‚ç‚¹ï¼ŒDTNHostç±»
 	 * @param address
 	 * @return
 	 */
@@ -589,7 +589,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		return null;
 	}
 	/**
-	 * ÔÚËãÂ·ÓÉ±íÊ±£¬Ô¤²âÖ¸¶¨Â·¾¶ÉÏµÄÁ´Â·´æÔÚÊ±¼ä
+	 * åœ¨ç®—è·¯ç”±è¡¨æ—¶ï¼Œé¢„æµ‹æŒ‡å®šè·¯å¾„ä¸Šçš„é“¾è·¯å­˜åœ¨æ—¶é—´
 	 * @param formerLiveTime
 	 * @param host
 	 * @param path
@@ -604,9 +604,9 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 
 		existTime = this.neighborsList.get(host).get(nextHost)[1] - SimClock.getTime();
 		minTime = formerLiveTime > existTime ? existTime : formerLiveTime;			
-		if (path.size() > 1){//ÖÁÉÙ³¤¶ÈÎª2
+		if (path.size() > 1){//è‡³å°‘é•¿åº¦ä¸º2
 			for (int i = 1; i < path.size() - 1; i++){
-				if (i > path.size() -1)//³¬¹ı³¤¶È£¬×Ô¶¯·µ»Ø
+				if (i > path.size() -1)//è¶…è¿‡é•¿åº¦ï¼Œè‡ªåŠ¨è¿”å›
 					return minTime;
 				formerHost = nextHost;
 				nextHost = this.getHostFromAddress(path.get(i));
@@ -619,7 +619,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	return minTime;
 	}
 	/**
-	 * ¼ÆËãÍ¨¹ıÔ¤²â½Úµãµ½´ï£¬ËùĞèµÄ´«ÊäÊ±¼ä(¼´´«ÊäÊ±¼ä¼ÓÉÏµÈ´ıÊ±¼ä)
+	 * è®¡ç®—é€šè¿‡é¢„æµ‹èŠ‚ç‚¹åˆ°è¾¾ï¼Œæ‰€éœ€çš„ä¼ è¾“æ—¶é—´(å³ä¼ è¾“æ—¶é—´åŠ ä¸Šç­‰å¾…æ—¶é—´)
 	 * @param msgSize
 	 * @param startTime
 	 * @param host
@@ -631,16 +631,16 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 			double waitTime;
 			waitTime = startTime - SimClock.getTime() + msgSize/((nei.getInterface(1).getTransmitSpeed() > 
 									host.getInterface(1).getTransmitSpeed()) ? host.getInterface(1).getTransmitSpeed() : 
-										nei.getInterface(1).getTransmitSpeed()) + this.transmitRange*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ;
+										nei.getInterface(1).getTransmitSpeed()) + this.transmitRange*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡;
 			return waitTime;
 		}
 		else{
-			assert false :"Ô¤²â½á¹ûÊ§Ğ§ ";
+			assert false :"é¢„æµ‹ç»“æœå¤±æ•ˆ ";
 			return -1;
 		}
 	}
 	/**
-	 * ¼ÆËãÖ¸¶¨Á´Â·(Á½¸ö½ÚµãÖ®¼ä)ËùĞèµÄ´«ÊäÊ±¼ä
+	 * è®¡ç®—æŒ‡å®šé“¾è·¯(ä¸¤ä¸ªèŠ‚ç‚¹ä¹‹é—´)æ‰€éœ€çš„ä¼ è¾“æ—¶é—´
 	 * @param msgSize
 	 * @param nei
 	 * @param host
@@ -649,23 +649,23 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	public double calculateDelay(int msgSize, DTNHost nei , DTNHost host){
 		double transmitDelay = msgSize/((nei.getInterface(1).getTransmitSpeed() > host.getInterface(1).getTransmitSpeed()) ? 
 				host.getInterface(1).getTransmitSpeed() : nei.getInterface(1).getTransmitSpeed()) + 
-				this.transmitDelay[host.getAddress()] + getDistance(nei, host)*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ
+				this.transmitDelay[host.getAddress()] + getDistance(nei, host)*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡
 		return transmitDelay;
 	}
 	/**
-	 * ¼ÆËãµ±Ç°½ÚµãÓëÒ»ÌøÁÚ¾ÓµÄ´«ÊäÑÓÊ±
+	 * è®¡ç®—å½“å‰èŠ‚ç‚¹ä¸ä¸€è·³é‚»å±…çš„ä¼ è¾“å»¶æ—¶
 	 * @param msgSize
 	 * @param host
 	 * @return
 	 */
 	public double calculateNeighborsDelay(int msgSize, DTNHost host){
 		double transmitDelay = msgSize/((this.getHost().getInterface(1).getTransmitSpeed() > host.getInterface(1).getTransmitSpeed()) ? 
-				host.getInterface(1).getTransmitSpeed() : this.getHost().getInterface(1).getTransmitSpeed()) + getDistance(this.getHost(), host)*1000/SPEEDOFLIGHT;//È¡¶şÕß½ÏĞ¡µÄ´«ÊäËÙÂÊ
+				host.getInterface(1).getTransmitSpeed() : this.getHost().getInterface(1).getTransmitSpeed()) + getDistance(this.getHost(), host)*1000/SPEEDOFLIGHT;//å–äºŒè€…è¾ƒå°çš„ä¼ è¾“é€Ÿç‡
 		return transmitDelay;
 	}
 	
 	/**
-	 * ¼ÆËãÁ½¸ö½ÚµãÖ®¼äµÄ¾àÀë
+	 * è®¡ç®—ä¸¤ä¸ªèŠ‚ç‚¹ä¹‹é—´çš„è·ç¦»
 	 * @param a
 	 * @param b
 	 * @return
@@ -684,7 +684,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		return distance;
 	}
 	/**
-	 * ¸ù¾İ½ÚµãµØÖ·ÕÒµ½£¬Óë´Ë½ÚµãÏàÁ¬µÄÁ¬½Ó
+	 * æ ¹æ®èŠ‚ç‚¹åœ°å€æ‰¾åˆ°ï¼Œä¸æ­¤èŠ‚ç‚¹ç›¸è¿çš„è¿æ¥
 	 * @param address
 	 * @return
 	 */
@@ -695,10 +695,10 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				return c;
 			}
 		}
-		return null;//Ã»ÓĞÔÚÒÑÓĞÁ¬½ÓÖĞÕÒµ½Í¨¹ıÖ¸¶¨½ÚµãµÄÂ·¾¶
+		return null;//æ²¡æœ‰åœ¨å·²æœ‰è¿æ¥ä¸­æ‰¾åˆ°é€šè¿‡æŒ‡å®šèŠ‚ç‚¹çš„è·¯å¾„
 	}
 	/**
-	 * ·¢ËÍÒ»¸öĞÅÏ¢µ½ÌØ¶¨µÄÏÂÒ»Ìø
+	 * å‘é€ä¸€ä¸ªä¿¡æ¯åˆ°ç‰¹å®šçš„ä¸‹ä¸€è·³
 	 * @param t
 	 * @return
 	 */
@@ -711,14 +711,14 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		int retVal = startTransfer(m, con);
 		 if (retVal == RCV_OK) {  //accepted a message, don't try others
 	            return m;     
-	        } else if (retVal > 0) { //ÏµÍ³¶¨Òå£¬Ö»ÓĞTRY_LATER_BUSY´óÓÚ0£¬¼´Îª1
+	        } else if (retVal > 0) { //ç³»ç»Ÿå®šä¹‰ï¼Œåªæœ‰TRY_LATER_BUSYå¤§äº0ï¼Œå³ä¸º1
 	            return null;          // should try later -> don't bother trying others
 	        }
 		 return null;
 	}
 
 	/**
-	 * ÓÃÓÚÅĞ¶ÏÏÂÒ»Ìø½ÚµãÊÇ·ñ´¦ÓÚ·¢ËÍ»ò½ÓÊÜ×´Ì¬
+	 * ç”¨äºåˆ¤æ–­ä¸‹ä¸€è·³èŠ‚ç‚¹æ˜¯å¦å¤„äºå‘é€æˆ–æ¥å—çŠ¶æ€
 	 * @param t
 	 * @return
 	 */
@@ -730,26 +730,26 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				this.busyLabel.put(t.getKey().getId(), con.getRemainingByteCount()/con.getSpeed() + SimClock.getTime());
 				System.out.println(this.getHost()+"  "+t.getKey()+"  "+
 						t.getValue().getOtherNode(this.getHost())+" "+con+"  "+this.busyLabel.get(t.getKey().getId()));			
-				return true;//ËµÃ÷Ä¿µÄ½ÚµãÕıÃ¦
+				return true;//è¯´æ˜ç›®çš„èŠ‚ç‚¹æ­£å¿™
 			}
 		}
 		return false;
 	}
 	/**
-	 * ´Ó¸ø¶¨ÏûÏ¢ºÍÖ¸¶¨Á´Â·£¬³¢ÊÔ·¢ËÍÏûÏ¢
+	 * ä»ç»™å®šæ¶ˆæ¯å’ŒæŒ‡å®šé“¾è·¯ï¼Œå°è¯•å‘é€æ¶ˆæ¯
 	 * @param t
 	 * @return
 	 */
 	public boolean sendMsg(Tuple<Message, Connection> t){
 		if (t == null){	
-			assert false : "error!";//Èç¹ûÈ·ÊµÊÇĞèÒªµÈ´ıÎ´À´µÄÒ»¸ö½Úµã¾ÍµÈ£¬ÏÈ´«ÏÂÒ»¸ö,´ıĞŞ¸Ä!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			assert false : "error!";//å¦‚æœç¡®å®æ˜¯éœ€è¦ç­‰å¾…æœªæ¥çš„ä¸€ä¸ªèŠ‚ç‚¹å°±ç­‰ï¼Œå…ˆä¼ ä¸‹ä¸€ä¸ª,å¾…ä¿®æ”¹!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return false;
 		}
 		else{
-			if (hostIsBusyOrNot(t) == true)//¼ÙÉèÄ¿µÄ½Úµã´¦ÓÚÃ¦µÄ×´Ì¬
-				return false;//·¢ËÍÊ§°Ü£¬ĞèÒªµÈ´ı
-			if (tryMessageToConnection(t) != null)//ÁĞ±íµÚÒ»¸öÔªËØ´Ó0Ö¸Õë¿ªÊ¼£¡£¡£¡	
-				return true;//Ö»Òª³É¹¦´«Ò»´Î£¬¾ÍÌø³öÑ­»·
+			if (hostIsBusyOrNot(t) == true)//å‡è®¾ç›®çš„èŠ‚ç‚¹å¤„äºå¿™çš„çŠ¶æ€
+				return false;//å‘é€å¤±è´¥ï¼Œéœ€è¦ç­‰å¾…
+			if (tryMessageToConnection(t) != null)//åˆ—è¡¨ç¬¬ä¸€ä¸ªå…ƒç´ ä»0æŒ‡é’ˆå¼€å§‹ï¼ï¼ï¼	
+				return true;//åªè¦æˆåŠŸä¼ ä¸€æ¬¡ï¼Œå°±è·³å‡ºå¾ªç¯
 			else
 				return false;
 		}
@@ -761,30 +761,30 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	 */
 	@Override
 	public boolean isTransferring() {
-		//ÅĞ¶Ï¸Ã½ÚµãÄÜ·ñ½øĞĞ´«ÊäÏûÏ¢£¬´æÔÚÒÔÏÂÇé¿öÒ»ÖÖÒÔÉÏµÄ£¬Ö±½Ó·µ»Ø£¬²»¸üĞÂ,¼´ÏÖÔÚĞÅµÀÒÑ±»Õ¼ÓÃ£º
-		//ÇéĞÎ1£º±¾½ÚµãÕıÔÚÏòÍâ´«Êä
+		//åˆ¤æ–­è¯¥èŠ‚ç‚¹èƒ½å¦è¿›è¡Œä¼ è¾“æ¶ˆæ¯ï¼Œå­˜åœ¨ä»¥ä¸‹æƒ…å†µä¸€ç§ä»¥ä¸Šçš„ï¼Œç›´æ¥è¿”å›ï¼Œä¸æ›´æ–°,å³ç°åœ¨ä¿¡é“å·²è¢«å ç”¨ï¼š
+		//æƒ…å½¢1ï¼šæœ¬èŠ‚ç‚¹æ­£åœ¨å‘å¤–ä¼ è¾“
 		if (this.sendingConnections.size() > 0) {//protected ArrayList<Connection> sendingConnections;
 			return true; // sending something
 		}
 		
 		List<Connection> connections = getConnections();
-		//ÇéĞÍ2£ºÃ»ÓĞÁÚ¾Ó½Úµã
+		//æƒ…å‹2ï¼šæ²¡æœ‰é‚»å±…èŠ‚ç‚¹
 		if (connections.size() == 0) {
 			return false; // not connected
 		}
-		//ÇéĞÍ3£ºÓĞÁÚ¾Ó½Úµã£¬µ«×ÔÉíÓëÖÜÎ§½ÚµãÕıÔÚ´«Êä
-		//Ä£ÄâÁËÎŞÏß¹ã²¥Á´Â·£¬¼´ÁÚ¾Ó½ÚµãÖ®¼äÍ¬Ê±Ö»ÄÜÓĞÒ»¶Ô½Úµã´«ÊäÊı¾İ!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		//ĞèÒªĞŞ¸Ä!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//æƒ…å‹3ï¼šæœ‰é‚»å±…èŠ‚ç‚¹ï¼Œä½†è‡ªèº«ä¸å‘¨å›´èŠ‚ç‚¹æ­£åœ¨ä¼ è¾“
+		//æ¨¡æ‹Ÿäº†æ— çº¿å¹¿æ’­é“¾è·¯ï¼Œå³é‚»å±…èŠ‚ç‚¹ä¹‹é—´åŒæ—¶åªèƒ½æœ‰ä¸€å¯¹èŠ‚ç‚¹ä¼ è¾“æ•°æ®!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//éœ€è¦ä¿®æ”¹!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		for (int i=0, n=connections.size(); i<n; i++) {
 			Connection con = connections.get(i);
-			if (!con.isReadyForTransfer()) {//isReadyForTransfer·µ»ØfalseÔò±íÊ¾ÓĞĞÅµÀÔÚ±»Õ¼ÓÃ£¬Òò´Ë¶ÔÓÚ¹ã²¥ĞÅµÀ¶øÑÔ²»ÄÜ´«Êä
+			if (!con.isReadyForTransfer()) {//isReadyForTransferè¿”å›falseåˆ™è¡¨ç¤ºæœ‰ä¿¡é“åœ¨è¢«å ç”¨ï¼Œå› æ­¤å¯¹äºå¹¿æ’­ä¿¡é“è€Œè¨€ä¸èƒ½ä¼ è¾“
 				return true;	// a connection isn't ready for new transfer
 			}
 		}		
 		return false;		
 	}
 	/**
-	 * ´ËÖØĞ´º¯Êı±£Ö¤ÔÚ´«ÊäÍê³ÉÖ®ºó£¬Ô´½ÚµãµÄĞÅÏ¢´Ómessages»º´æÖĞÉ¾³ı
+	 * æ­¤é‡å†™å‡½æ•°ä¿è¯åœ¨ä¼ è¾“å®Œæˆä¹‹åï¼ŒæºèŠ‚ç‚¹çš„ä¿¡æ¯ä»messagesç¼“å­˜ä¸­åˆ é™¤
 	 */
 	@Override
 	protected void transferDone(Connection con){
@@ -794,22 +794,22 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 	
 	public class GridNeighbors {
 		
-		private List<DTNHost> hosts = new ArrayList<DTNHost>();//È«¾ÖÎÀĞÇ½ÚµãÁĞ±í
+		private List<DTNHost> hosts = new ArrayList<DTNHost>();//å…¨å±€å«æ˜ŸèŠ‚ç‚¹åˆ—è¡¨
 		private DTNHost host;
 		private double transmitRange;
 		private double msgTtl;
 		
 		private double updateInterval = 1;
 		
-		private GridCell[][][] cells;//GridCellÕâ¸öÀà£¬´´½¨Ò»¸öÊµÀı´ú±íÒ»¸öµ¥¶ÀµÄÍø¸ñ£¬Õû¸öworld´´½¨ÁËÒ»¸öÈıÎ¬Êı×é´æ´¢Õâ¸öÍø¸ñ£¬Ã¿¸öÍø¸ñÄÚÓÖ´æ´¢ÁËµ±Ç°ÔÚÆäÖĞµÄhostµÄnetworkinterface
+		private GridCell[][][] cells;//GridCellè¿™ä¸ªç±»ï¼Œåˆ›å»ºä¸€ä¸ªå®ä¾‹ä»£è¡¨ä¸€ä¸ªå•ç‹¬çš„ç½‘æ ¼ï¼Œæ•´ä¸ªworldåˆ›å»ºäº†ä¸€ä¸ªä¸‰ç»´æ•°ç»„å­˜å‚¨è¿™ä¸ªç½‘æ ¼ï¼Œæ¯ä¸ªç½‘æ ¼å†…åˆå­˜å‚¨äº†å½“å‰åœ¨å…¶ä¸­çš„hostçš„networkinterface
 		private HashMap<NetworkInterface, GridCell> ginterfaces;
 		private int cellSize;
 		private int rows;
 		private int cols;
-		private int zs;//ĞÂÔöÈıÎ¬±äÁ¿
+		private int zs;//æ–°å¢ä¸‰ç»´å˜é‡
 		private  int worldSizeX;
 		private  int worldSizeY;
-		private  int worldSizeZ;//ĞÂÔö
+		private  int worldSizeZ;//æ–°å¢
 		
 		private int gridLayer;
 		
@@ -817,24 +817,24 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		private HashMap<Double, HashMap<NetworkInterface, GridCell>> gridmap = new HashMap<Double, HashMap<NetworkInterface, GridCell>>();
 		private HashMap<Double, HashMap<GridCell, List<DTNHost>>> cellmap = new HashMap<Double, HashMap<GridCell, List<DTNHost>>>();
 		
-		/*ÓÃÓÚ³õÊ¼»¯Ê±£¬¼ÆËã¸÷¸ö½ÚµãÔÚÒ»¸öÖÜÆÚÄÚµÄÍø¸ñ×ø±ê*/
-		private HashMap <DTNHost, List<GridCell>> gridLocation = new HashMap<DTNHost, List<GridCell>>();//´æ·Å½ÚµãËù¾­¹ıµÄÍø¸ñ
-		private HashMap <DTNHost, List<Double>> gridTime = new HashMap<DTNHost, List<Double>>();//´æ·Å½Úµã¾­¹ıÕâĞ©Íø¸ñÊ±µÄÊ±¼ä
-		private HashMap <DTNHost, Double> periodMap = new HashMap <DTNHost, Double>();//¼ÇÂ¼¸÷¸ö½Úµã¹ìµÀµÄÖÜÆÚ
+		/*ç”¨äºåˆå§‹åŒ–æ—¶ï¼Œè®¡ç®—å„ä¸ªèŠ‚ç‚¹åœ¨ä¸€ä¸ªå‘¨æœŸå†…çš„ç½‘æ ¼åæ ‡*/
+		private HashMap <DTNHost, List<GridCell>> gridLocation = new HashMap<DTNHost, List<GridCell>>();//å­˜æ”¾èŠ‚ç‚¹æ‰€ç»è¿‡çš„ç½‘æ ¼
+		private HashMap <DTNHost, List<Double>> gridTime = new HashMap<DTNHost, List<Double>>();//å­˜æ”¾èŠ‚ç‚¹ç»è¿‡è¿™äº›ç½‘æ ¼æ—¶çš„æ—¶é—´
+		private HashMap <DTNHost, Double> periodMap = new HashMap <DTNHost, Double>();//è®°å½•å„ä¸ªèŠ‚ç‚¹è½¨é“çš„å‘¨æœŸ
 		
 		public GridNeighbors(DTNHost host){
 			this.host = host;
 			//System.out.println(this.host);
 			Settings se = new Settings("Interface");
-			transmitRange = se.getDouble("transmitRange");//´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡´«ÊäËÙÂÊ
+			transmitRange = se.getDouble("transmitRange");//ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–ä¼ è¾“é€Ÿç‡
 			Settings set = new Settings("Group");
 			msgTtl = set.getDouble("msgTtl");
 			
 			Settings s = new Settings(MovementModel.MOVEMENT_MODEL_NS);
-			int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE,2);//²ÎÊı´Ó2Î¬ĞŞ¸ÄÎª3Î¬
+			int [] worldSize = s.getCsvInts(MovementModel.WORLD_SIZE,2);//å‚æ•°ä»2ç»´ä¿®æ”¹ä¸º3ç»´
 			worldSizeX = worldSize[0];
 			worldSizeY = worldSize[1];
-			worldSizeZ = worldSize[1];//ĞÂÔöÈıÎ¬±äÁ¿£¬´ı¼ì²é£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
+			worldSizeZ = worldSize[1];//æ–°å¢ä¸‰ç»´å˜é‡ï¼Œå¾…æ£€æŸ¥ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼
 			
 			Settings layer = new Settings("Group");
 			this.gridLayer = layer.getInt("layer");
@@ -854,7 +854,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 			//cellSize = (int) (transmitRange*0.5773502);
 			
 			CreateGrid(cellSize);
-			/*³õÊ¼»¯£¬Ç°ÌáËãºÃÎÀĞÇ¹ìµÀĞÅÏ¢*/
+			/*åˆå§‹åŒ–ï¼Œå‰æç®—å¥½å«æ˜Ÿè½¨é“ä¿¡æ¯*/
 			
 		}
 		public void setHost(DTNHost h){
@@ -867,7 +867,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		public void CreateGrid(int cellSize){
 			this.rows = worldSizeY/cellSize + 1;
 			this.cols = worldSizeX/cellSize + 1;
-			this.zs = worldSizeZ/cellSize + 1;//ĞÂÔö
+			this.zs = worldSizeZ/cellSize + 1;//æ–°å¢
 			System.out.println(cellSize+"  "+this.rows+"  "+this.cols+"  "+this.zs);
 			// leave empty cells on both sides to make neighbor search easier 
 			this.cells = new GridCell[rows+2][cols+2][zs+2];
@@ -875,7 +875,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 
 			for (int i=0; i<rows+2; i++) {
 				for (int j=0; j<cols+2; j++) {
-					for (int n=0;n<zs+2; n++){//ĞÂÔöÈıÎ¬±äÁ¿
+					for (int n=0;n<zs+2; n++){//æ–°å¢ä¸‰ç»´å˜é‡
 						this.cells[i][j][n] = new GridCell();
 						cells[i][j][n].setNumber(i, j, n);
 					}
@@ -884,11 +884,11 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 			ginterfaces = new HashMap<NetworkInterface,GridCell>();
 		}
 		/**
-		 * ±éšvËùÓĞ¹üc£¬Œ¦Ã¿‚€¹üc±éšvÒ»‚€ßLÆÚ£¬Ó›ä›ÆäÒ»‚€ßLÆÚƒÈ±éšvß^µÄ¾W¸ñ£¬²¢ÕÒµ½Œ¦‘ªµÄßMÈëºÍëxé_•rég
+		 * éæ­·æ‰€æœ‰ç¯€é»ï¼Œå°æ¯å€‹ç¯€é»éæ­·ä¸€å€‹é€±æœŸï¼Œè¨˜éŒ„å…¶ä¸€å€‹é€±æœŸå…§éæ­·éçš„ç¶²æ ¼ï¼Œå¹¶æ‰¾åˆ°å°æ‡‰çš„é€²å…¥å’Œé›¢é–‹æ™‚é–“
 		 */
 		public void initializeGridLocation(){	
 			this.host.getHostsList();
-			for (DTNHost h : this.host.getHostsList()){//Œ¦Ã¿‚€¹üc±éšvÒ»‚€ßLÆÚ£¬Ó›ä›ÆäÒ»‚€ßLÆÚƒÈ±éšvß^µÄ¾W¸ñ£¬²¢ÕÒµ½Œ¦‘ªµÄßMÈëºÍëxé_•rég
+			for (DTNHost h : this.host.getHostsList()){//å°æ¯å€‹ç¯€é»éæ­·ä¸€å€‹é€±æœŸï¼Œè¨˜éŒ„å…¶ä¸€å€‹é€±æœŸå…§éæ­·éçš„ç¶²æ ¼ï¼Œå¹¶æ‰¾åˆ°å°æ‡‰çš„é€²å…¥å’Œé›¢é–‹æ™‚é–“
 				double period = getPeriodofOrbit(h);
 				this.periodMap.put(h, period);
 				System.out.println(this.host+" now calculate "+h+"  "+period);
@@ -896,28 +896,28 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				List<GridCell> gridList = new ArrayList<GridCell>();
 				List<Double> intoTime = new ArrayList<Double>();
 				List<Double> outTime = new ArrayList<Double>();
-				GridCell startCell;//¼ÇÂ¼ÆğÊ¼Íø¸ñ
+				GridCell startCell;//è®°å½•èµ·å§‹ç½‘æ ¼
 				for (double time = 0; time < period; time += updateInterval){
 					Coord c = h.getCoordinate(time);
-					GridCell gc = cellFromCoord(c);//¸ù“ş×ø˜ËÕÒµ½Œ¦‘ªµÄ¾W¸ñ
+					GridCell gc = cellFromCoord(c);//æ ¹æ“šåæ¨™æ‰¾åˆ°å°æ‡‰çš„ç¶²æ ¼
 					if (!gridList.contains(gc)){
 						if (gridList.isEmpty())
-							startCell = gc;//¼ÇÂ¼ÆğÊ¼Íø¸ñ
-						gridList.add(gc);//µÚÒ»´Î¼ì²âµ½½Úµã½øÈë´ËÍø¸ñ£¨×¢Òâ£¬±ß½ç¼ì²é£¡£¡£¡¿ªÊ¼ºÍ½áÊøµÄÊ±ºò£¡£¡£¡!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!£©
-						intoTime.add(time);//¼ÇÂ¼ÏàÓ¦µÄ½øÈëÊ±¼ä
+							startCell = gc;//è®°å½•èµ·å§‹ç½‘æ ¼
+						gridList.add(gc);//ç¬¬ä¸€æ¬¡æ£€æµ‹åˆ°èŠ‚ç‚¹è¿›å…¥æ­¤ç½‘æ ¼ï¼ˆæ³¨æ„ï¼Œè¾¹ç•Œæ£€æŸ¥ï¼ï¼ï¼å¼€å§‹å’Œç»“æŸçš„æ—¶å€™ï¼ï¼ï¼!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ï¼‰
+						intoTime.add(time);//è®°å½•ç›¸åº”çš„è¿›å…¥æ—¶é—´
 					}	
 					else{
 						//if (gc. == startCell)
 							//intoTime = time;
 					}
 				}
-				gridLocation.put(h, gridList);//±éÀúÍêÒ»¸ö½Úµã¾Í¼ÇÂ¼ÏÂÀ´
+				gridLocation.put(h, gridList);//éå†å®Œä¸€ä¸ªèŠ‚ç‚¹å°±è®°å½•ä¸‹æ¥
 				gridTime.put(h, intoTime);
 			}
 			System.out.println(gridLocation);
 		}
 		/**
-		 * «@È¡Ö¸¶¨ĞlĞÇ¹ücµÄß\ĞĞßLÆÚ•rég
+		 * ç²å–æŒ‡å®šè¡›æ˜Ÿç¯€é»çš„é‹è¡Œé€±æœŸæ™‚é–“
 		 * @param h
 		 * @return
 		 */
@@ -925,12 +925,12 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 			return h.getPeriod();
 		}
 			
-		public List<DTNHost> getNeighbors(DTNHost host, double time){//»ñÈ¡Ö¸¶¨Ê±¼äµÄÁÚ¾Ó½Úµã(Í¬Ê±°üº¬Ô¤²âµ½TTLÊ±¼äÄÚµÄÁÚ¾Ó)
+		public List<DTNHost> getNeighbors(DTNHost host, double time){//è·å–æŒ‡å®šæ—¶é—´çš„é‚»å±…èŠ‚ç‚¹(åŒæ—¶åŒ…å«é¢„æµ‹åˆ°TTLæ—¶é—´å†…çš„é‚»å±…)
 			int num = (int)((time-SimClock.getTime())/updateInterval);
 			time = SimClock.getTime()+num*updateInterval;
 			
-			if (time > SimClock.getTime()+msgTtl*60){//¼ì²éÊäÈëµÄÊ±¼äÊÇ·ñ³¬¹ıÔ¤²âÊ±¼ä
-				//assert false :"³¬³öÔ¤²âÊ±¼ä";
+			if (time > SimClock.getTime()+msgTtl*60){//æ£€æŸ¥è¾“å…¥çš„æ—¶é—´æ˜¯å¦è¶…è¿‡é¢„æµ‹æ—¶é—´
+				//assert false :"è¶…å‡ºé¢„æµ‹æ—¶é—´";
 				time = SimClock.getTime()+msgTtl*60;
 			}
 				
@@ -938,20 +938,20 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 			GridCell cell = ginterfaces.get(host.getInterface(1));
 			int[] number = cell.getNumber();
 			
-			List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//ËùÓĞÁÚ¾ÓµÄÍø¸ñ£¨µ±Ç°Ê±¿Ì£©
-			List<DTNHost> hostList = new ArrayList<DTNHost>();//(ÁÚ¾ÓÍø¸ñÄÚµÄ½Úµã¼¯ºÏ)
-			assert cellmap.containsKey(time):" Ê±¼ä´íÎó ";
+			List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//æ‰€æœ‰é‚»å±…çš„ç½‘æ ¼ï¼ˆå½“å‰æ—¶åˆ»ï¼‰
+			List<DTNHost> hostList = new ArrayList<DTNHost>();//(é‚»å±…ç½‘æ ¼å†…çš„èŠ‚ç‚¹é›†åˆ)
+			assert cellmap.containsKey(time):" æ—¶é—´é”™è¯¯ ";
 			for (GridCell c : cellList){
-				if (cellmap.get(time).containsKey(c))//Èç¹û²»°üº¬£¬ÕâËµÃ÷´ËÁÚ¾ÓÍø¸ñÎª¿Õ£¬ÀïÃæ²»º¬ÈÎºÎ½Úµã
+				if (cellmap.get(time).containsKey(c))//å¦‚æœä¸åŒ…å«ï¼Œè¿™è¯´æ˜æ­¤é‚»å±…ç½‘æ ¼ä¸ºç©ºï¼Œé‡Œé¢ä¸å«ä»»ä½•èŠ‚ç‚¹
 					hostList.addAll(cellmap.get(time).get(c));
 			}	
-			if (hostList.contains(host))//°Ñ×ÔÉí½ÚµãÈ¥µô
+			if (hostList.contains(host))//æŠŠè‡ªèº«èŠ‚ç‚¹å»æ‰
 				hostList.remove(host);
-			//System.out.println(host+" ÁÚ¾ÓÁĞ±í   "+hostList);
+			//System.out.println(host+" é‚»å±…åˆ—è¡¨   "+hostList);
 			return hostList;
 		}
 
-		public Tuple<HashMap<DTNHost, List<Double>>, //neiList ÎªÒÑ¾­¼ÆËã³öµÄµ±Ç°ÁÚ¾Ó½ÚµãÁĞ±í
+		public Tuple<HashMap<DTNHost, List<Double>>, //neiList ä¸ºå·²ç»è®¡ç®—å‡ºçš„å½“å‰é‚»å±…èŠ‚ç‚¹åˆ—è¡¨
 			HashMap<DTNHost, List<Double>>> getFutureNeighbors(List<DTNHost> neiList, DTNHost host, double time){
 			int num = (int)((time-SimClock.getTime())/updateInterval);
 			time = SimClock.getTime()+num*updateInterval;	
@@ -961,75 +961,75 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 			for (DTNHost neiHost : neiList){
 				List<Double> t= new ArrayList<Double>();
 				t.add(SimClock.getTime());
-				startTime.put(neiHost, t);//Ìí¼ÓÒÑ´æÔÚÁÚ¾Ó½ÚµãµÄ¿ªÊ¼Ê±¼ä
+				startTime.put(neiHost, t);//æ·»åŠ å·²å­˜åœ¨é‚»å±…èŠ‚ç‚¹çš„å¼€å§‹æ—¶é—´
 			}
 			
-			List<DTNHost> futureList = new ArrayList<DTNHost>();//(ÁÚ¾ÓÍø¸ñÄÚµÄÎ´À´½Úµã¼¯ºÏ)
-			List<NetworkInterface> futureNeiList = new ArrayList<NetworkInterface>();//(Ô¤²âÎ´À´ÁÚ¾ÓµÄ½Úµã¼¯ºÏ)
+			List<DTNHost> futureList = new ArrayList<DTNHost>();//(é‚»å±…ç½‘æ ¼å†…çš„æœªæ¥èŠ‚ç‚¹é›†åˆ)
+			List<NetworkInterface> futureNeiList = new ArrayList<NetworkInterface>();//(é¢„æµ‹æœªæ¥é‚»å±…çš„èŠ‚ç‚¹é›†åˆ)
 			
 			
-			Collection<DTNHost> temporalNeighborsBefore = startTime.keySet();//Ç°Ò»Ê±¿ÌµÄÁÚ¾Ó£¬Í¨¹ı½»²æ¶Ô±ÈÕâÒ»Ê±¿ÌµÄÁÚ¾Ó£¬¾ÍÖªµÀÄÄĞ©ÊÇĞÂ¼ÓÈëµÄ£¬ÄÄĞ©ÊÇĞÂÀë¿ªµÄ			
-			Collection<DTNHost> temporalNeighborsNow = new ArrayList<DTNHost>();//ÓÃÓÚ¼ÇÂ¼µ±Ç°Ê±¿ÌµÄÁÚ¾Ó
+			Collection<DTNHost> temporalNeighborsBefore = startTime.keySet();//å‰ä¸€æ—¶åˆ»çš„é‚»å±…ï¼Œé€šè¿‡äº¤å‰å¯¹æ¯”è¿™ä¸€æ—¶åˆ»çš„é‚»å±…ï¼Œå°±çŸ¥é“å“ªäº›æ˜¯æ–°åŠ å…¥çš„ï¼Œå“ªäº›æ˜¯æ–°ç¦»å¼€çš„			
+			Collection<DTNHost> temporalNeighborsNow = new ArrayList<DTNHost>();//ç”¨äºè®°å½•å½“å‰æ—¶åˆ»çš„é‚»å±…
 			for (; time < SimClock.getTime() + msgTtl*60; time += updateInterval){
 				
-				HashMap<NetworkInterface, GridCell> ginterfaces = gridmap.get(time);//È¡³ötimeÊ±¿ÌµÄÍø¸ñ±í
-				GridCell cell = ginterfaces.get(host.getInterface(1));//ÕÒµ½´ËÊ±Ö¸¶¨½ÚµãËù´¦µÄÍø¸ñÎ»ÖÃ
+				HashMap<NetworkInterface, GridCell> ginterfaces = gridmap.get(time);//å–å‡ºtimeæ—¶åˆ»çš„ç½‘æ ¼è¡¨
+				GridCell cell = ginterfaces.get(host.getInterface(1));//æ‰¾åˆ°æ­¤æ—¶æŒ‡å®šèŠ‚ç‚¹æ‰€å¤„çš„ç½‘æ ¼ä½ç½®
 				
 				int[] number = cell.getNumber();
-				List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//»ñÈ¡ËùÓĞÁÚ¾ÓµÄÍø¸ñ£¨µ±Ç°Ê±¿Ì£©
+				List<GridCell> cellList = getNeighborCells(time, number[0], number[1], number[2]);//è·å–æ‰€æœ‰é‚»å±…çš„ç½‘æ ¼ï¼ˆå½“å‰æ—¶åˆ»ï¼‰
 				
-				for (GridCell c : cellList){	//±éÀúÔÚ²»Í¬Ê±¼äÎ¬¶ÈÉÏ£¬Ö¸¶¨½ÚµãÖÜÎ§Íø¸ñµÄÁÚ¾Ó
+				for (GridCell c : cellList){	//éå†åœ¨ä¸åŒæ—¶é—´ç»´åº¦ä¸Šï¼ŒæŒ‡å®šèŠ‚ç‚¹å‘¨å›´ç½‘æ ¼çš„é‚»å±…
 					if (!cellmap.get(time).containsKey(c))
 						continue;
 					temporalNeighborsNow.addAll(cellmap.get(time).get(c));
-					for (DTNHost ni : cellmap.get(time).get(c)){//¼ì²éµ±Ç°Ô¤²âÊ±¼äµã£¬ËùÓĞµÄÁÚ¾Ó½Úµã
-						if (ni == this.host)//ÅÅ³ı×ÔÉí½Úµã
+					for (DTNHost ni : cellmap.get(time).get(c)){//æ£€æŸ¥å½“å‰é¢„æµ‹æ—¶é—´ç‚¹ï¼Œæ‰€æœ‰çš„é‚»å±…èŠ‚ç‚¹
+						if (ni == this.host)//æ’é™¤è‡ªèº«èŠ‚ç‚¹
 							continue;
-						if (!neiList.contains(ni))//Èç¹ûÏÖÓĞÁÚ¾ÓÖĞÃ»ÓĞ£¬ÔòÒ»¶¨ÊÇÎ´À´½«µ½´ïµÄÁÚ¾Ó					
-							futureList.add(ni); //´ËÎªÎ´À´½«»áµ½´ïµÄÁÚ¾Ó(µ±È»¶ÔÓÚµ±Ç°ÒÑÓĞµÄÁÚ¾Ó£¬Ò²¿ÉÄÜ»áÖĞÍ¾Àë¿ª£¬È»ºóÔÙ»ØÀ´)
+						if (!neiList.contains(ni))//å¦‚æœç°æœ‰é‚»å±…ä¸­æ²¡æœ‰ï¼Œåˆ™ä¸€å®šæ˜¯æœªæ¥å°†åˆ°è¾¾çš„é‚»å±…					
+							futureList.add(ni); //æ­¤ä¸ºæœªæ¥å°†ä¼šåˆ°è¾¾çš„é‚»å±…(å½“ç„¶å¯¹äºå½“å‰å·²æœ‰çš„é‚»å±…ï¼Œä¹Ÿå¯èƒ½ä¼šä¸­é€”ç¦»å¼€ï¼Œç„¶åå†å›æ¥)
 										
-						/**Èç¹ûÊÇÎ´À´µ½´ïµÄÁÚ¾Ó£¬Ö±½Óget»á·µ»Ø¿ÕÖ¸Õë£¬ËùÒÔÒªÏÈ¼ÓstartTimeºÍleaveTimeÅĞ¶Ï**/
+						/**å¦‚æœæ˜¯æœªæ¥åˆ°è¾¾çš„é‚»å±…ï¼Œç›´æ¥getä¼šè¿”å›ç©ºæŒ‡é’ˆï¼Œæ‰€ä»¥è¦å…ˆåŠ startTimeå’ŒleaveTimeåˆ¤æ–­**/
 						if (startTime.containsKey(ni)){
 							if (leaveTime.isEmpty())
 								break;
-							if (startTime.get(ni).size() == leaveTime.get(ni).size()){//Èç¹û²»ÏàµÈÔòÒ»¶¨ÊÇÁÚ¾Ó½ÚµãÀë¿ªµÄÇé¿ö					
+							if (startTime.get(ni).size() == leaveTime.get(ni).size()){//å¦‚æœä¸ç›¸ç­‰åˆ™ä¸€å®šæ˜¯é‚»å±…èŠ‚ç‚¹ç¦»å¼€çš„æƒ…å†µ					
 								List<Double> mutipleTime= leaveTime.get(ni);
 								mutipleTime.add(time);
-								startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+								startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 							}
-							/*if (leaveTime.containsKey(ni)){//ÓĞÁ½ÖÖÇé¿ö£¬Ò»ÖÖÔÚÔ¤²âÊ±¼ä¶ÎÄÚ´ËÁÚ¾Ó»áÀë¿ª£¬ÁíÒ»ÖÖÇé¿öÊÇ´ËÁÚ¾Ó²»½öÔÚ´ËÊ±¼ä¶ÎÄÚ»áÀë¿ª»¹»á»ØÀ´
-								if (startTime.get(ni).size() == leaveTime.get(ni).size()){//Èç¹û²»ÏàµÈÔòÒ»¶¨ÊÇÁÚ¾Ó½ÚµãÀë¿ªµÄÇé¿ö					
+							/*if (leaveTime.containsKey(ni)){//æœ‰ä¸¤ç§æƒ…å†µï¼Œä¸€ç§åœ¨é¢„æµ‹æ—¶é—´æ®µå†…æ­¤é‚»å±…ä¼šç¦»å¼€ï¼Œå¦ä¸€ç§æƒ…å†µæ˜¯æ­¤é‚»å±…ä¸ä»…åœ¨æ­¤æ—¶é—´æ®µå†…ä¼šç¦»å¼€è¿˜ä¼šå›æ¥
+								if (startTime.get(ni).size() == leaveTime.get(ni).size()){//å¦‚æœä¸ç›¸ç­‰åˆ™ä¸€å®šæ˜¯é‚»å±…èŠ‚ç‚¹ç¦»å¼€çš„æƒ…å†µ					
 									List<Double> mutipleTime= leaveTime.get(ni);
 									mutipleTime.add(time);
-									startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+									startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 								}
 								else{
 									List<Double> mutipleTime= leaveTime.get(ni);
 									mutipleTime.add(time);
-									leaveTime.put(ni, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+									leaveTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 								}	
 							}
 							else{
 								List<Double> mutipleTime= new ArrayList<Double>();
 								mutipleTime.add(time);
-								leaveTime.put(ni, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+								leaveTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 							}*/
 						}
 						else{
-							//System.out.println(this.host+" ³öÏÖÔ¤²â½Úµã: "+ni+" Ê±¼ä  "+time);
+							//System.out.println(this.host+" å‡ºç°é¢„æµ‹èŠ‚ç‚¹: "+ni+" æ—¶é—´  "+time);
 							List<Double> mutipleTime= new ArrayList<Double>();
 							mutipleTime.add(time);
-							startTime.put(ni, mutipleTime);//½«´ËĞÂµÄ¿ªÊ¼Ê±¼ä¼ÓÈë
+							startTime.put(ni, mutipleTime);//å°†æ­¤æ–°çš„å¼€å§‹æ—¶é—´åŠ å…¥
 						}
-						/**Èç¹ûÊÇÎ´À´µ½´ïµÄÁÚ¾Ó£¬Ö±½Óget»á·µ»Ø¿ÕÖ¸Õë£¬ËùÒÔÒªÏÈ¼ÓstartTimeºÍleaveTimeÅĞ¶Ï**/
+						/**å¦‚æœæ˜¯æœªæ¥åˆ°è¾¾çš„é‚»å±…ï¼Œç›´æ¥getä¼šè¿”å›ç©ºæŒ‡é’ˆï¼Œæ‰€ä»¥è¦å…ˆåŠ startTimeå’ŒleaveTimeåˆ¤æ–­**/
 					}	
 				}
 				
-				for (DTNHost h : temporalNeighborsBefore){//½»²æ¶Ô±ÈÕâÒ»Ê±¿ÌºÍÉÏÒ»Ê±¿ÌµÄÁÚ¾Ó½Úµã£¬´Ó¶øÕÒ³öÀë¿ªµÄÁÚ¾Ó½Úµã
+				for (DTNHost h : temporalNeighborsBefore){//äº¤å‰å¯¹æ¯”è¿™ä¸€æ—¶åˆ»å’Œä¸Šä¸€æ—¶åˆ»çš„é‚»å±…èŠ‚ç‚¹ï¼Œä»è€Œæ‰¾å‡ºç¦»å¼€çš„é‚»å±…èŠ‚ç‚¹
 					if (!temporalNeighborsNow.contains(h)){
 						List<Double> mutipleTime= leaveTime.get(h);
 						mutipleTime.add(time);
-						leaveTime.put(h, mutipleTime);//½«´ËĞÂµÄÀë¿ªÊ±¼ä¼ÓÈë
+						leaveTime.put(h, mutipleTime);//å°†æ­¤æ–°çš„ç¦»å¼€æ—¶é—´åŠ å…¥
 					}						
 				}
 				temporalNeighborsBefore.clear();
@@ -1037,7 +1037,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				temporalNeighborsNow.clear();	
 			}
 			
-			Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime= //¶şÔª×éºÏ²¢¿ªÊ¼ºÍ½áÊøÊ±¼ä
+			Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>> predictTime= //äºŒå…ƒç»„åˆå¹¶å¼€å§‹å’Œç»“æŸæ—¶é—´
 					new Tuple<HashMap<DTNHost, List<Double>>, HashMap<DTNHost, List<Double>>>(startTime, leaveTime); 
 			
 			
@@ -1045,12 +1045,12 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		}
 		
 		public List<GridCell> getNeighborCells(double time, int row, int col, int z){
-			HashMap<GridCell, List<DTNHost>> cellToHost = cellmap.get(time);//»ñÈ¡timeÊ±¿ÌµÄÈ«¾ÖÍø¸ñ±í
+			HashMap<GridCell, List<DTNHost>> cellToHost = cellmap.get(time);//è·å–timeæ—¶åˆ»çš„å…¨å±€ç½‘æ ¼è¡¨
 			List<GridCell> GC = new ArrayList<GridCell>();
 			/***********************************************************************/
 			switch(this.gridLayer){
 			case 1 : 
-			/*Á½²ãÍø¸ñ·Ö¸î*/
+			/*ä¸¤å±‚ç½‘æ ¼åˆ†å‰²*/
 				for (int i = -1; i < 2; i += 1){
 					for (int j = -1; j < 2; j += 1){
 						for (int k = -1; k < 2; k += 1){
@@ -1060,7 +1060,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				}
 				break;
 			case 2 : {
-			/*Èı²ãÍø¸ñ·Ö¸î*/
+			/*ä¸‰å±‚ç½‘æ ¼åˆ†å‰²*/
 				for (int i = -3; i <= 3; i += 1){
 					for (int j = -3; j <= 3; j += 1){
 						for (int k = -3; k <= 3; k += 1){
@@ -1115,7 +1115,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				}	
 			}
 			break;
-			default :/*Á½²ãÍø¸ñ·Ö¸î*/
+			default :/*ä¸¤å±‚ç½‘æ ¼åˆ†å‰²*/
 				for (int i = -1; i < 2; i += 1){
 					for (int j = -1; j < 2; j += 1){
 						for (int k = -1; k < 2; k += 1){
@@ -1126,7 +1126,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 				}
 				break;
 			}
-			/*ËÄ²ã²ãÍø¸ñ·Ö¸î*/
+			/*å››å±‚å±‚ç½‘æ ¼åˆ†å‰²*/
 			/*	for (int i = -7; i <= 7; i += 1){
 			for (int j = -7; j <= 7; j += 1){
 				for (int k = -7; k <= 7; k += 1){
@@ -1224,7 +1224,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 
 			}
 		}
-			//GC.add(cells[row][col][z]);//ĞŞ¸ÄÁÚ¾ÓÍø¸ñµÄÌõ¼ş£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
+			//GC.add(cells[row][col][z]);//ä¿®æ”¹é‚»å±…ç½‘æ ¼çš„æ¡ä»¶ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼
 			/***********************************************************************/
 			return GC;
 		}
@@ -1244,13 +1244,13 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		
 		
 		/**
-		 * ÌáÇ°¼ÆËãÁË¸÷¸ö¹ìµÀÔÚÒ»¸öÖÜÆÚÄÚµÄÍø¸ñÀú±éÇé¿ö£¬Éú³É¹ìµÀ¶ÔÓ¦µÄÀú¾­Íø¸ñ±í£¬¸ù¾İ´Ë±í¾Í¿ÉÒÔ¼ÆËãÏà»¥Ö®¼äÎ´À´µÄ¹ØÏµ£¬¶øÎŞĞèÔÙ¼ÆËã¹ìµÀ
+		 * æå‰è®¡ç®—äº†å„ä¸ªè½¨é“åœ¨ä¸€ä¸ªå‘¨æœŸå†…çš„ç½‘æ ¼å†éæƒ…å†µï¼Œç”Ÿæˆè½¨é“å¯¹åº”çš„å†ç»ç½‘æ ¼è¡¨ï¼Œæ ¹æ®æ­¤è¡¨å°±å¯ä»¥è®¡ç®—ç›¸äº’ä¹‹é—´æœªæ¥çš„å…³ç³»ï¼Œè€Œæ— éœ€å†è®¡ç®—è½¨é“
 		 */
 		public void updateGrid_without_OrbitCalculation(){
-			if (gridLocation.isEmpty())//³õÊ¼»¯Ö»Ö´ĞĞÒ»´Î
+			if (gridLocation.isEmpty())//åˆå§‹åŒ–åªæ‰§è¡Œä¸€æ¬¡
 				initializeGridLocation();
 			
-			ginterfaces.clear();//Ã¿´ÎÇå¿Õ
+			ginterfaces.clear();//æ¯æ¬¡æ¸…ç©º
 			//Coord location = new Coord(0,0); 	// where is the host
 			double simClock = SimClock.getTime();
 			
@@ -1265,14 +1265,14 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 					boolean label = false;
 					int iterator = 0;
 					if (time >= period)
-						t0 = t0 % period;//´óÓÚÖÜÆÚ¾ÍÈ¡Óà²Ù×÷
+						t0 = t0 % period;//å¤§äºå‘¨æœŸå°±å–ä½™æ“ä½œ
 					for (double t : timeList){
 						if (t >= t0){
 							cell = gridCellList.get(iterator);
 							label = true;
 							break;
 						}
-						iterator++;//ÕÒµ½ÓëtimeListÊ±¼ä¶ÔÓ¦µÄÍø¸ñËùÔÚÎ»ÖÃ,iterator ´ú±íÔÚÕâÁ½¸ölistÖĞµÄÖ¸Õë						
+						iterator++;//æ‰¾åˆ°ä¸timeListæ—¶é—´å¯¹åº”çš„ç½‘æ ¼æ‰€åœ¨ä½ç½®,iterator ä»£è¡¨åœ¨è¿™ä¸¤ä¸ªlistä¸­çš„æŒ‡é’ˆ						
 					}				
 					//System.out.println(host+" number "+cell.getNumber()[0]+cell.getNumber()[1]+cell.getNumber()[2]);
 					//System.out.println(host+" error!!! "+label);
@@ -1288,28 +1288,28 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 					cellToHost.put(cell, hostList);
 				}		
 				cellmap.put(time, cellToHost);
-				gridmap.put(time, ginterfaces);//Ô¤²âÎ´À´timeÊ±¼äÀï½ÚµãºÍÍø¸ñÖ®¼äµÄ¶ÔÓ¦¹ØÏµ
-				//ginterfaces.clear();//Ã¿´ÎÇå¿Õ
-				ginterfaces = new HashMap<NetworkInterface, GridCell>();//Ã¿´ÎÇå¿Õ
-				//CreateGrid(cellSize);//°üº¬cellsµÄnewºÍginterfacesµÄnew
+				gridmap.put(time, ginterfaces);//é¢„æµ‹æœªæ¥timeæ—¶é—´é‡ŒèŠ‚ç‚¹å’Œç½‘æ ¼ä¹‹é—´çš„å¯¹åº”å…³ç³»
+				//ginterfaces.clear();//æ¯æ¬¡æ¸…ç©º
+				ginterfaces = new HashMap<NetworkInterface, GridCell>();//æ¯æ¬¡æ¸…ç©º
+				//CreateGrid(cellSize);//åŒ…å«cellsçš„newå’Œginterfacesçš„new
 			}
 		}
 		
 		/**
-		 * GridRouterµÄ¸üĞÂ¹ı³Ìº¯Êı
+		 * GridRouterçš„æ›´æ–°è¿‡ç¨‹å‡½æ•°
 		 */
 		public void updateGrid_with_OrbitCalculation(){			
-			ginterfaces.clear();//Ã¿´ÎÇå¿Õ
+			ginterfaces.clear();//æ¯æ¬¡æ¸…ç©º
 			Coord location = new Coord(0,0); 	// where is the host
 			double simClock = SimClock.getTime();
 
 			for (double time = simClock; time <= simClock + msgTtl*60; time += updateInterval){
 				HashMap<GridCell, List<DTNHost>> cellToHost= new HashMap<GridCell, List<DTNHost>>();
 				for (DTNHost host : hosts){
-					//location.setLocation3D(((SatelliteMovement)host.getMovementModel()).getSatelliteCoordinate(time));//ÓÃsatellitemovementÌæ»»location¡£my_test£¬´ı²âÊÔ
+					//location.setLocation3D(((SatelliteMovement)host.getMovementModel()).getSatelliteCoordinate(time));//ç”¨satellitemovementæ›¿æ¢locationã€‚my_testï¼Œå¾…æµ‹è¯•
 					location.my_Test(time, 0, host.getParameters());
 					
-					GridCell cell = updateLocation(time, location, host);//¸üĞÂÔÚÖ¸¶¨Ê±¼ä½ÚµãºÍÍø¸ñµÄ¹éÊô¹ØÏµ
+					GridCell cell = updateLocation(time, location, host);//æ›´æ–°åœ¨æŒ‡å®šæ—¶é—´èŠ‚ç‚¹å’Œç½‘æ ¼çš„å½’å±å…³ç³»
 					List<DTNHost> hostList = new ArrayList<DTNHost>();
 					if (cellToHost.containsKey(cell)){
 						hostList = cellToHost.get(cell);	
@@ -1318,10 +1318,10 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 					cellToHost.put(cell, hostList);
 				}		
 				cellmap.put(time, cellToHost);
-				gridmap.put(time, ginterfaces);//Ô¤²âÎ´À´timeÊ±¼äÀï½ÚµãºÍÍø¸ñÖ®¼äµÄ¶ÔÓ¦¹ØÏµ
-				//ginterfaces.clear();//Ã¿´ÎÇå¿Õ
-				ginterfaces = new HashMap<NetworkInterface, GridCell>();//Ã¿´ÎÇå¿Õ
-				//CreateGrid(cellSize);//°üº¬cellsµÄnewºÍginterfacesµÄnew
+				gridmap.put(time, ginterfaces);//é¢„æµ‹æœªæ¥timeæ—¶é—´é‡ŒèŠ‚ç‚¹å’Œç½‘æ ¼ä¹‹é—´çš„å¯¹åº”å…³ç³»
+				//ginterfaces.clear();//æ¯æ¬¡æ¸…ç©º
+				ginterfaces = new HashMap<NetworkInterface, GridCell>();//æ¯æ¬¡æ¸…ç©º
+				//CreateGrid(cellSize);//åŒ…å«cellsçš„newå’Œginterfacesçš„new
 			}
 			
 		}
@@ -1354,7 +1354,7 @@ public class TwoLayerRouterBasedonGridRouter extends ActiveRouter{
 		public class GridCell {
 			// how large array is initially chosen
 			private static final int EXPECTED_INTERFACE_COUNT = 18;
-			//private ArrayList<NetworkInterface> interfaces;//GridCell¾ÍÊÇÒÀ¿¿Î¬»¤ÍøÂç½Ó¿ÚÁĞ±í£¬À´¼ÇÂ¼ÔÚ´ËÍø¸ñÄÚµÄ½Úµã£¬¶ÔÓÚÈ«¾ÖÍø¸ñÀ´Ëµ£¬ĞèÒª±£Ö¤Í¬Ò»¸öÍøÂç½Ó¿Ú²»»áÍ¬Ê±³öÏÖÔÚÁ½¸öGridCellÖĞ
+			//private ArrayList<NetworkInterface> interfaces;//GridCellå°±æ˜¯ä¾é ç»´æŠ¤ç½‘ç»œæ¥å£åˆ—è¡¨ï¼Œæ¥è®°å½•åœ¨æ­¤ç½‘æ ¼å†…çš„èŠ‚ç‚¹ï¼Œå¯¹äºå…¨å±€ç½‘æ ¼æ¥è¯´ï¼Œéœ€è¦ä¿è¯åŒä¸€ä¸ªç½‘ç»œæ¥å£ä¸ä¼šåŒæ—¶å‡ºç°åœ¨ä¸¤ä¸ªGridCellä¸­
 			private int[] number;
 			
 			private GridCell() {
