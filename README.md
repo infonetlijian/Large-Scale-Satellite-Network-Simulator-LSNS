@@ -1,7 +1,7 @@
 # Large-Scale Satellite Network Simulator (LSNS)
 
 LSNS is an open-source network simulator based on [ONE simulator][1], it is designed to better support simulations under large-scale satellite networks and provide friendly interactive GUI.   
-![LSNS](https://github.com/infonetlijian/Large-Scale-Satellite-Network-Simulator-LSNS/gh-pages/images/icon.png)  
+![LSNS](https://github.com/infonetlijian/Large-Scale-Satellite-Network-Simulator-LSNS/raw/gh-pages/images/icon.png)  
 <br>
 LSNS is developed and maintained by Infonet, USTC.
 ## How often will we update?
